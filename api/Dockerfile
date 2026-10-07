@@ -60,7 +60,8 @@ ENV PORT=3000
 EXPOSE 3000
 CMD ["node", "server.js"]
 
-HEALTHCHECK --interval=5m \
+HEALTHCHECK --interval=30s \
+            --start-period=15s \
             --timeout=5s \
             --retries=3 \
             CMD wget --spider -q "http://127.0.0.1:${PORT}/api/health" || exit 1

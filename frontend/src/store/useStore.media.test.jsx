@@ -32,7 +32,10 @@ beforeEach(async () => {
   localStorage.setItem('gym_owner', USER.id)
   api.mockReset(); toast.mockReset()
   _resetMediaOwed()
-  media = createMediaStore(memoryBackend())
+  // Existing files predate sign-out. Equal millisecond timestamps deliberately keep files
+  // picked during cleanup; a fixed earlier clock avoids testing that separate boundary here.
+  const putAt = Date.now() - 1000
+  media = createMediaStore(memoryBackend(), { now: () => putAt })
   _setMediaStore(media)
   useStore.setState({ S: clone(DEF), user: null, ready: false, sync: { ...fresh }, config: null })
 })

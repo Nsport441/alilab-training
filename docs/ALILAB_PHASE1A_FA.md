@@ -5,11 +5,13 @@
 
 ## وضعیت واقعی
 
-کد روی شاخهٔ `feature/phase-1a-foundation` در مخزن مستقل محلی آماده شده است.
-فورک GitHub، PR خارجی و استقرار Runflare هنوز ساخته/انجام نشده‌اند: اتصال موجود ابزار ساخت
-مخزن یا فورک ندارد و مخزن متصلی با نام `alilab-training` پیدا نشد. Docker در محیط بررسی حاضر
-نصب نیست. بنابراین اجرای container، DNS، volume واقعی و TLS روی Runflare هنوز تأیید نشده است.
-تست API واقعی و بازیابی فایل‌ها با Node 22 انجام شده؛ نتیجهٔ دقیق در `PHASE1A_VALIDATION.json` است.
+فورک [Nsport441/alilab-training](https://github.com/Nsport441/alilab-training) ساخته شده و کد
+فاز ۱A روی شاخهٔ `feature/phase-1a-foundation` در [PR شمارهٔ ۱](https://github.com/Nsport441/alilab-training/pull/1)
+برای ادغام در `main` قرار دارد. GitHub Actions فعال شده است؛ نتیجهٔ اجرای فرانت‌اند، API و
+کانتینرها را در [صفحهٔ Actions](https://github.com/Nsport441/alilab-training/actions) بررسی کنید.
+تست API واقعی و بازیابی فایل‌ها با Node 22 انجام شده؛ نتایج اولیهٔ محلی در
+`PHASE1A_VALIDATION.json` ثبت شده است. استقرار Runflare، DNS، volume واقعی و TLS هنوز
+تأیید نشده‌اند؛ موفقیت CI به‌تنهایی تأیید استقرار روی Runflare نیست.
 
 ## تغییرات آماده‌شده
 
@@ -31,19 +33,19 @@
 رسانهٔ شخصیِ حرکت سفارشی قرارداد جدا دارد؛ upload سرور در پایلوت خاموش است.
 registry تأییدشدهٔ تصویر/کلیپ هنوز ساخته نشده؛ مرحلهٔ فعلی عمداً متن‌محور است.
 
-## قدم اول: مخزن GitHub
+## مخزن GitHub و ادامهٔ توسعه
 
-در [صفحهٔ Fork پروژه](https://github.com/DuarteSantos8/openGym/fork)، حساب خودتان را انتخاب کنید
-و نام فورک را `alilab-training` بگذارید. فورک کد باز، مستقلاً از مخزن سایت اصلی AliLab نگهداری می‌شود.
+فورک `Nsport441/alilab-training` آماده است و مستقلاً از مخزن سایت اصلی AliLab نگهداری می‌شود.
 کلید، فایل `.env`، اطلاعات کاربران یا پوشهٔ داده را در آن قرار ندهید.
 
 بستهٔ تحویل دو راه برای ادامه دارد: پوشهٔ `alilab-training/` سورس کامل تغییرکرده است؛ فایل
 `phase1a.patch` فقط تفاوت با commit مبنا را دارد. برای حفظ تاریخ upstream، فورک را clone کنید
 و patch را روی همان commit مبنا در شاخهٔ feature اعمال کنید. این مثال برای PowerShell است؛
-نام حساب را با نام واقعی جایگزین کنید:
+این دستورهای PowerShell فقط برای بازسازی بستهٔ اولیه در یک clone تازه هستند؛ روی شاخهٔ
+فاز ۱A که اکنون در GitHub وجود دارد دوباره patch را اعمال نکنید:
 
 ```powershell
-git clone https://github.com/YOUR_ACCOUNT/alilab-training.git alilab-training-fork
+git clone https://github.com/Nsport441/alilab-training.git alilab-training-fork
 cd alilab-training-fork
 git remote add upstream https://github.com/DuarteSantos8/openGym.git
 git fetch upstream
@@ -55,7 +57,8 @@ git commit -m "Prepare AliLab Training Phase 1A infrastructure"
 git push -u origin feature/phase-1a-foundation
 ```
 
-PR باید داخل فورک AliLab باز شود، نه در مخزن DuarteSantos8. عنوان و متن آماده در
+PR شمارهٔ ۱ داخل فورک AliLab باز شده است. PRهای بعدی هم باید داخل همین فورک باشند.
+عنوان و متن بستهٔ اولیه در
 `PHASE1A_PR.md` است. اگر main فورک نسبت به مبنای ممیزی جلو رفته، ابتدا اختلاف upstream را
 بررسی و resolve کنید؛ فایل‌ها را کورکورانه روی main تازه جایگزین نکنید.
 
