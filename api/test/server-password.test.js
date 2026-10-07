@@ -11,7 +11,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { hashPassword, hashResetCode } from '../password.js';
+import { hashPassword, hashResetCode, verifyPassword } from '../password.js';
 import { boundPort } from './helpers.mjs';
 
 const API = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -392,7 +392,11 @@ for (const [label, stored] of [['current', () => pwHash], ['older parameters', (
     for (const cookie of cookies) if ((await h.req('GET', '/api/me', { cookie })).status === 200) alive.push(cookie);
     assert.equal(alive.length, 0, `${alive.length} of ${cookies.length} sessions signed with the old password survived the change`);
     assert.equal((await h.req('GET', '/api/me', { cookie: done.cookie })).status, 200, "the owner's own session carries on");
-    assert.equal((await login(h, 'Ana', next, '203.0.113.201')).status, 200);
+    // Old-password attempts that land after the change may legitimately pause this name.
+    // The new credential must be stored even when the final sign-in is throttled.
+    const fresh = await login(h, 'Ana', next, '203.0.113.201');
+    assert.ok(fresh.status === 200 || (fresh.status === 429 && fresh.body.code === 'locked'), JSON.stringify(fresh.body));
+    assert.equal(await verifyPassword(next, h.db().users[0].pw.h), true);
   });
 }
 
