@@ -1,3 +1,14 @@
+# Corresponding source travels with the image, including API and build instructions.
+# .dockerignore excludes runtime data, credentials, local env files and build output.
+FROM node:22-alpine AS source
+WORKDIR /source
+COPY . .
+ARG APP_BUILD=phase1a-dev
+ARG VCS_REF=dev
+ARG VERSION=1.3.9-alilab.1a
+RUN node -e 'require("fs").writeFileSync("deployment-source.json", JSON.stringify({build:process.env.APP_BUILD,commit:process.env.VCS_REF,version:process.env.VERSION},null,2))' \
+ && mkdir /export && tar -czf /export/corresponding-source.tar.gz .
+
 # Multi-stage: build the React app, then serve it with nginx.
 # Self-hosters never need Node locally — `docker compose up` builds everything.
 #
@@ -33,12 +44,12 @@ ARG VERSION=dev
 ARG VCS_REF=dev
 ARG BUILD_DATE=unknown
 
-LABEL maintainer="Duarte Santos https://gitlab.com/DuarteSantos8" \
-    org.opencontainers.image.title="opengym-web" \
+LABEL maintainer="AliLab" \
+    org.opencontainers.image.title="alilab-training-web" \
     org.opencontainers.image.description="Frontend for Self-hosted gym & body-weight tracker — plan routines, log workouts (supersets & cardio too), track your weight and progress, passkey login. Your data, your server." \
-    org.opencontainers.image.source="https://gitlab.com/DuarteSantos8/opengym" \
-    org.opencontainers.image.url="https://gitlab.com/DuarteSantos8/opengym/container_registry" \
-    org.opencontainers.image.documentation="https://gitlab.com/DuarteSantos8/opengym#readme" \
+    org.opencontainers.image.source="https://training.alilab.ir/corresponding-source.tar.gz" \
+    org.opencontainers.image.url="https://training.alilab.ir" \
+    org.opencontainers.image.documentation="https://training.alilab.ir/corresponding-source.tar.gz" \
     org.opencontainers.image.licenses="AGPL-3.0-or-later" \
     org.opencontainers.image.version=$VERSION \
     org.opencontainers.image.revision=$VCS_REF \
@@ -46,7 +57,8 @@ LABEL maintainer="Duarte Santos https://gitlab.com/DuarteSantos8" \
 
 COPY web/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
-# exercise media (img/gif) is mounted at runtime from the media volume
+COPY --from=source /export/corresponding-source.tar.gz /usr/share/nginx/html/
+# No public exercise media is mounted in Phase 1A.
 
 # Set Default ENVs for nginx
 ENV NGINX_PORT=80
@@ -79,4 +91,3 @@ HEALTHCHECK --interval=5m \
             --timeout=5s \
             --retries=3 \
             CMD wget --spider -q "http://127.0.0.1:${NGINX_PORT}/" || exit 1
-

@@ -5,6 +5,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
+// Approved fixture URLs only; the production catalogue remains text-only.
+vi.mock('../alilab/catalogue-media.js', () => ({ catalogueMediaSrc: (ex, kind) => ex?.[kind] ? `catalogue-media/${kind}/${ex[kind]}` : null }))
+
 // A still that will not load (offline and never cached, a lapsed session on a gated instance)
 // gets the neutral tile an exercise without media has, not the browser's broken-image glyph (#281).
 vi.mock('../store/useStore.js', () => ({ useStore: () => null }))

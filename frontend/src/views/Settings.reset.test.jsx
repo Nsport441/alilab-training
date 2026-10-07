@@ -154,9 +154,11 @@ describe('Settings — reset everything', () => {
 })
 
 describe('Settings — footer', () => {
-  it('links the source code to its home on GitHub', () => {
+  it('offers this deployed build source and separately credits upstream', () => {
     mount()
     const link = [...host.querySelectorAll('a')].find(a => a.textContent === 'source code')
-    expect(link.getAttribute('href')).toBe('https://github.com/DuarteSantos8/openGym')
+    expect(link.getAttribute('href')).toBe('corresponding-source.tar.gz')
+    const upstream = [...host.querySelectorAll('a')].find(a => a.textContent === 'openGym upstream')
+    expect(upstream.getAttribute('href')).toBe('https://github.com/DuarteSantos8/openGym')
   })
 })

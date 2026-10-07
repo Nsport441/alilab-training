@@ -7,6 +7,13 @@ data/
 
 # Local config
 .env
+.env.*
+!.env.example
+coach-auth/
+backups/
+snapshots/
+artifacts/
+*.bundle
 
 # Build output / deps
 frontend/dist/

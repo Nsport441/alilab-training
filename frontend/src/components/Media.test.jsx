@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Media, { Thumb } from './Media.jsx'
 import { createMediaStore, memoryBackend, _setMediaStore } from '../lib/media-store.js'
 
+// Isolated fixtures exercise renderer/cache behavior; the real public-media gate is
+// covered separately by catalogue-media.test.js and is never enabled in production.
+vi.mock('../alilab/catalogue-media.js', () => ({ catalogueMediaSrc: (ex, kind) => ex?.[kind] ? `catalogue-media/${kind}/${ex[kind]}` : null }))
+
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 const mocks = vi.hoisted(() => {
