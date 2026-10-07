@@ -10,7 +10,6 @@ const backend = process.env.API_TARGET || 'http://127.0.0.1:3000'
 // presenting the expected Origin here covers the ones that don't send it. Match your .env if you
 // changed ORIGIN: API_ORIGIN=https://gym.example.com npm run dev
 const apiOrigin = process.env.API_ORIGIN || 'http://localhost:8080'
-const media = process.env.MEDIA_TARGET || 'http://127.0.0.1:8888'
 
 // Optional web analytics (Umami). Injected only when BOTH vars are set at build time,
 // so a plain `npm run build` — and every self-hosted install — stays telemetry-free.
@@ -56,7 +55,7 @@ const swStamp = {
 // answer from inside the app. Unset (the ordinary case, and every upstream build) it changes
 // nothing: the string is exactly package.json's version.
 const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
-const appVersion = process.env.APP_BUILD ? `${pkgVersion}+${process.env.APP_BUILD}` : pkgVersion
+const appVersion = `${pkgVersion}+alilab.1a${process.env.APP_BUILD ? '.' + process.env.APP_BUILD : ''}`
 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(appVersion) },
@@ -68,9 +67,7 @@ export default defineConfig({
     // server needs to be told the workspace is wider than frontend/.
     fs: { allow: ['..'] },
     proxy: {
-      '/api': { target: backend, changeOrigin: true, headers: { Origin: apiOrigin } },
-      '/img': { target: media, changeOrigin: true },
-      '/gif': { target: media, changeOrigin: true }
+      '/api': { target: backend, changeOrigin: true, headers: { Origin: apiOrigin } }
     }
   },
   build: { chunkSizeWarningLimit: 1500 }

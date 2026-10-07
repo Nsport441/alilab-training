@@ -1,0 +1,10 @@
+{
+  "project": "openGym",
+  "repository": "https://github.com/DuarteSantos8/openGym.git",
+  "commit": "31c6795b40fb54130192b5016d7dc29e9f457d30",
+  "package_version": "1.3.9",
+  "fork": "AliLab Training",
+  "phase": "1A",
+  "created_on": "2026-10-07",
+  "note": "Audited main commit; not asserted to be the v1.3.9 release tag commit."
+}

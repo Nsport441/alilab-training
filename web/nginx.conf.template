@@ -5,6 +5,18 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Never serve legacy exercise assets, even if an old mount is left behind.
+    location ^~ ${BASE_PATH}/img/ { return 404; }
+    location ^~ ${BASE_PATH}/gif/ { return 404; }
+
+    # Corresponding source for this build, generated in the Docker source stage.
+    location = ${BASE_PATH}/corresponding-source.tar.gz {
+        rewrite ^${BASE_PATH}/(.*)$ /$1 break;
+        default_type application/gzip;
+        add_header Content-Disposition 'attachment; filename="corresponding-source.tar.gz"';
+        add_header Cache-Control "no-cache";
+    }
+
     # Sent on every response below. NOTE: an `add_header` inside a location replaces the whole
     # inherited set rather than adding to it, so the two locations further down that set their
     # own Cache-Control have to repeat these three. Deliberately not a full Content-Security-

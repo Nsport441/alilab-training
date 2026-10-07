@@ -12,7 +12,7 @@ import { MEDIA_CACHE } from './media-prefetch.js'
 
 const SW = readFileSync(fileURLToPath(new URL('../../public/sw.js', import.meta.url)), 'utf8')
 const BUILD = 'opengym-rt-__BUILD__'
-const MEDIA = 'opengym-media-v1'
+const MEDIA = 'alilab-media-v1'
 const ORIGIN = 'https://gym.test'
 const keyOf = r => (typeof r === 'string' ? new URL(r, ORIGIN + '/').href : r.url)
 
@@ -67,21 +67,21 @@ function worker(all = new Map()) {
 describe('sw.js exercise media', () => {
   it('is kept in a cache of its own and answers offline from it', async () => {
     const w = worker()
-    const res = await w.get('/gif/0001.gif')
+    const res = await w.get('/catalogue-media/gif/0001.gif')
     expect(res.status).toBe(200)
-    expect(w.media().urls()).toEqual([ORIGIN + '/gif/0001.gif'])
+    expect(w.media().urls()).toEqual([ORIGIN + '/catalogue-media/gif/0001.gif'])
     expect(w.all.get(BUILD)?.urls() || []).toEqual([])
 
     w.net.up = false
-    const again = await w.get('/gif/0001.gif')
-    expect(await again.text()).toBe('GIF89a' + ORIGIN + '/gif/0001.gif')
+    const again = await w.get('/catalogue-media/gif/0001.gif')
+    expect(await again.text()).toBe('GIF89a' + ORIGIN + '/catalogue-media/gif/0001.gif')
   })
 
   it('survives an update: activate sweeps old builds, never the media, and adopts what an old build had cached', async () => {
     const w = worker()
-    await w.get('/img/0002.jpg')
+    await w.get('/catalogue-media/img/0002.jpg')
     const old = await w.caches.open('opengym-rt-oldbuild')
-    await old.put(ORIGIN + '/gif/0003.gif', new Response('old gif', { headers: { 'content-type': 'image/gif' } }))
+    await old.put(ORIGIN + '/catalogue-media/gif/0003.gif', new Response('old gif', { headers: { 'content-type': 'image/gif' } }))
     await old.put(ORIGIN + '/assets/index-old.js', new Response('old code'))
     const shell = await w.caches.open(BUILD)
     await shell.put('index.html', new Response('<html></html>'))
@@ -89,10 +89,10 @@ describe('sw.js exercise media', () => {
     await w.activate()
     expect(await w.caches.keys()).toEqual(expect.arrayContaining([BUILD, MEDIA]))
     expect(await w.caches.keys()).not.toContain('opengym-rt-oldbuild')
-    expect(w.media().urls()).toEqual([ORIGIN + '/img/0002.jpg', ORIGIN + '/gif/0003.gif'])
+    expect(w.media().urls()).toEqual([ORIGIN + '/catalogue-media/img/0002.jpg', ORIGIN + '/catalogue-media/gif/0003.gif'])
 
     w.net.up = false
-    expect(await (await w.get('/gif/0003.gif')).text()).toBe('old gif')
+    expect(await (await w.get('/catalogue-media/gif/0003.gif')).text()).toBe('old gif')
   })
 
   it('does not adopt a login page an older build had cached under an image\'s URL', async () => {
@@ -101,18 +101,18 @@ describe('sw.js exercise media', () => {
     // v1.3.8 kept any ok answer, so a proxy's sign-in page could sit under a gif's URL. This
     // small cache's clone() drops a `redirected` flag, so the page's own type is what is
     // checked here.
-    await old.put(ORIGIN + '/gif/0004.gif', new Response('<html>sign in</html>', { headers: { 'content-type': 'text/html' } }))
-    await old.put(ORIGIN + '/gif/0005.gif', new Response('<html>sign in</html>', { headers: { 'content-type': 'Text/HTML; charset=utf-8' } }))
-    await old.put(ORIGIN + '/gif/0006.gif', new Response('real gif', { headers: { 'content-type': 'image/gif' } }))
+    await old.put(ORIGIN + '/catalogue-media/gif/0004.gif', new Response('<html>sign in</html>', { headers: { 'content-type': 'text/html' } }))
+    await old.put(ORIGIN + '/catalogue-media/gif/0005.gif', new Response('<html>sign in</html>', { headers: { 'content-type': 'Text/HTML; charset=utf-8' } }))
+    await old.put(ORIGIN + '/catalogue-media/gif/0006.gif', new Response('real gif', { headers: { 'content-type': 'image/gif' } }))
     const shell = await w.caches.open(BUILD)
     await shell.put('index.html', new Response('<html></html>'))
 
     await w.activate()
-    expect(w.media().urls()).toEqual([ORIGIN + '/gif/0006.gif'])
+    expect(w.media().urls()).toEqual([ORIGIN + '/catalogue-media/gif/0006.gif'])
     // With the old build gone, the next view with a network fetches the real animation.
-    await w.get('/gif/0005.gif')
-    expect(w.fetched).toEqual([ORIGIN + '/gif/0005.gif'])
-    expect(await (await w.caches.open(MEDIA)).match(ORIGIN + '/gif/0005.gif')).toBeTruthy()
+    await w.get('/catalogue-media/gif/0005.gif')
+    expect(w.fetched).toEqual([ORIGIN + '/catalogue-media/gif/0005.gif'])
+    expect(await (await w.caches.open(MEDIA)).match(ORIGIN + '/catalogue-media/gif/0005.gif')).toBeTruthy()
   })
 
   it('an activate with no media anywhere creates no media cache', async () => {
@@ -129,24 +129,24 @@ describe('sw.js exercise media', () => {
       ? Object.defineProperty(new Response('<html>sign in</html>', { headers: { 'content-type': 'text/html' } }), 'redirected', { value: true })
       : url.endsWith('b.gif') ? new Response('<html>sign in</html>', { headers: { 'content-type': 'text/html; charset=utf-8' } })
         : new Response('no', { status: 401 })
-    await w.get('/gif/a.gif'); await w.get('/gif/b.gif'); await w.get('/gif/c.gif')
+    await w.get('/catalogue-media/gif/a.gif'); await w.get('/catalogue-media/gif/b.gif'); await w.get('/catalogue-media/gif/c.gif')
     expect(w.media().urls()).toEqual([])
   })
 
   it('stays under its cap, dropping the least recently used first', async () => {
     const first = worker()
     // 40 MB each by Content-Length: the cap (150 MB) holds three of them.
-    for (const n of [1, 2, 3]) await first.get(`/gif/${n}.gif`)
+    for (const n of [1, 2, 3]) await first.get(`/catalogue-media/gif/${n}.gif`)
     // A later worker that shows the oldest again moves it to the back of the line, once.
     const w = worker(first.all)
-    await w.get('/gif/1.gif')
-    await w.get('/gif/1.gif')
+    await w.get('/catalogue-media/gif/1.gif')
+    await w.get('/catalogue-media/gif/1.gif')
     expect(w.media().urls().map(u => u.slice(-5))).toEqual(['2.gif', '3.gif', '1.gif'])
     expect(w.fetched).toEqual([])   // both from the cache
     // Trimming runs every twentieth new entry this worker writes; small ones fill the gap.
-    w.net.answer = url => new Response('x', { headers: { 'content-type': 'image/jpeg', 'content-length': url.includes('/img/') ? '1024' : String(40 * 1024 * 1024) } })
-    await w.get('/gif/4.gif')
-    for (let i = 0; i < 19; i++) await w.get(`/img/${i}.jpg`)
+    w.net.answer = url => new Response('x', { headers: { 'content-type': 'image/jpeg', 'content-length': url.includes('/catalogue-media/img/') ? '1024' : String(40 * 1024 * 1024) } })
+    await w.get('/catalogue-media/gif/4.gif')
+    for (let i = 0; i < 19; i++) await w.get(`/catalogue-media/img/${i}.jpg`)
     const left = w.media().urls().map(u => u.slice(u.lastIndexOf('/') + 1))
     expect(left).not.toContain('2.gif')
     expect(left).toEqual(expect.arrayContaining(['3.gif', '1.gif', '4.gif', '0.jpg', '18.jpg']))
@@ -156,5 +156,33 @@ describe('sw.js exercise media', () => {
   it('names the same cache as the page-side prefetch', () => {
     expect(SW).toContain(`const MEDIA = '${MEDIA_CACHE}'`)
     expect(MEDIA_CACHE).toBe(MEDIA)
+  })
+})
+
+
+describe('AliLab legacy-media migration', () => {
+  it('refuses old media online or offline without any network request', async () => {
+    const w = worker()
+    const cache = await w.caches.open('opengym-media-v1')
+    await cache.put(ORIGIN + '/img/legacy.jpg', new Response('unapproved', { headers: { 'content-type': 'image/jpeg' } }))
+    for (const url of ['/img/legacy.jpg', '/gif/legacy.gif', '/myGym/img/legacy.jpg']) {
+      expect((await w.get(url)).status).toBe(404)
+    }
+    w.net.up = false
+    expect((await w.get('/img/legacy.jpg')).status).toBe(404)
+    expect(w.fetched).toEqual([])
+  })
+
+  it('purges upstream media while preserving the existing offline shell', async () => {
+    const w = worker()
+    const old = await w.caches.open('opengym-rt-oldbuild')
+    await old.put('index.html', new Response('working shell'))
+    await old.put(ORIGIN + '/img/legacy.jpg', new Response('unapproved'))
+    const media = await w.caches.open('opengym-media-v1')
+    await media.put(ORIGIN + '/gif/legacy.gif', new Response('unapproved'))
+    await w.activate()
+    expect(await w.caches.keys()).not.toContain('opengym-media-v1')
+    expect(await old.match(ORIGIN + '/img/legacy.jpg')).toBeUndefined()
+    expect(await (await old.match('index.html')).text()).toBe('working shell')
   })
 })

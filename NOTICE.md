@@ -1,5 +1,10 @@
 # Third-party notices
 
+**AliLab Training fork note (2026-10-07):** original notices below are retained for provenance.
+This fork does not download, bundle, display or cache upstream public exercise media.
+Descriptions below of the downloader/CDN refer to upstream openGym. Code modifications
+remain AGPL-3.0-or-later; see `ALILAB_CHANGES.md` and `UPSTREAM.json`.
+
 openGym — Copyright (C) 2026 Duarte Santos.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 

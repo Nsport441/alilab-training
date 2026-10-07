@@ -1,6 +1,7 @@
 import { EXDB } from './exercises-data.js'
 import { USER_EXERCISE_MUSCLE_OVERRIDES, exerciseMuscleMetadataFor } from './exercise-muscle-batch-1.js'
 import { t, getVersion, exerciseNameSearchText } from './i18n-core.js'
+import { catalogueMediaSrc } from '../alilab/catalogue-media.js'
 
 export { EXDB }
 
@@ -125,15 +126,10 @@ export function matchesExerciseSearch(exercise, query) {
   return searchScore(exercise, query) > 0
 }
 
-// Media normally sits next to the app (img/ and gif/, mounted into the web container).
-// A build can point them somewhere else — the demo build pulls them off a CDN instead of
-// shipping ~140 MB of images into the deployment. `import.meta.env` is undefined in plain
-// Node; the guard keeps this module loadable without Vite.
-const ENV = import.meta.env || {}
-const IMG_BASE = ENV.VITE_IMG_BASE || 'img/'
-const GIF_BASE = ENV.VITE_GIF_BASE || 'gif/'
-export const imgSrc = ex => IMG_BASE + ex.img
-export const gifSrc = ex => GIF_BASE + ex.gif
+// Public media is resolved exclusively by the AliLab policy, never by raw dataset filenames
+// or build-time CDN overrides. Text, stable IDs and muscle metadata remain available.
+export const imgSrc = ex => catalogueMediaSrc(ex, 'img')
+export const gifSrc = ex => catalogueMediaSrc(ex, 'gif')
 
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'

@@ -20,7 +20,7 @@ const CACHE = 'opengym-rt-__BUILD__'
    installed on the home screen only; a browser tab gets what it has shown and nothing more — and
    names it too, so a new name has to change there as well (sw-media.test.js pins the two
    together). */
-const MEDIA = 'opengym-media-v1'
+const MEDIA = 'alilab-media-v1'
 const MEDIA_MAX_BYTES = 150 * 1024 * 1024
 const MEDIA_MAX_ITEMS = 3000
 // What an entry without a Content-Length is counted as: a little above the catalogue's average.
@@ -28,7 +28,8 @@ const MEDIA_GUESS_BYTES = 64 * 1024
 // Trimming lists the whole cache, so it runs after every MEDIA_TRIM_EVERY new entries rather
 // than after each one, and once when a new worker activates.
 const MEDIA_TRIM_EVERY = 20
-const isMediaPath = p => p.includes('/img/') || p.includes('/gif/')
+const isMediaPath = p => p.includes('/catalogue-media/')
+const isLegacyMediaPath = p => !isMediaPath(p) && (p.includes('/img/') || p.includes('/gif/'))
 
 // What the shell needs to boot without a network: index.html plus every script/style/icon it
 // references. Read from the served index.html so the list follows the build, not a hand-kept
@@ -73,6 +74,14 @@ self.addEventListener('install', e => {
 })
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
+    // Do not carry media with unresolved rights forward from an upstream installation.
+    await caches.delete('opengym-media-v1')
+    for (const name of await caches.keys()) {
+      const cache = await caches.open(name)
+      for (const req of await cache.keys()) {
+        if (isLegacyMediaPath(new URL(req.url || req, location.href || location.origin + '/').pathname)) await cache.delete(req)
+      }
+    }
     // The previous build's files are what a reopen without a network comes back from, so they go
     // only once this build's shell is really in its own cache. An install that never got the
     // shell used to take them anyway, and the app opened on the browser's error page until the
@@ -204,6 +213,11 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url)
   if (e.request.method !== 'GET' || url.origin !== location.origin) return
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith(API)) return    // never cache auth/data
+
+  if (isLegacyMediaPath(url.pathname)) {
+    e.respondWith(Promise.resolve(new Response('', { status: 404, headers: { 'Cache-Control': 'no-store' } })))
+    return
+  }
 
   if (isMediaPath(url.pathname)) {
     e.respondWith(media(e))

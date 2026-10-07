@@ -1,0 +1,67 @@
+{
+  "phase": "1A",
+  "date": "2026-10-07",
+  "status": "code_ready_for_review_and_staging_not_deployed",
+  "upstream_commit": "31c6795b40fb54130192b5016d7dc29e9f457d30",
+  "branch": "feature/phase-1a-foundation",
+  "runtime_tested": "Node v22.23.3",
+  "frontend": {
+    "test_files": 258,
+    "passed": 3167,
+    "failed": 0
+  },
+  "api": {
+    "total": 473,
+    "passed": 471,
+    "skipped": 2,
+    "failed": 0
+  },
+  "operations": {
+    "passed": 2,
+    "failed": 0,
+    "coverage": [
+      "invited account",
+      "offline admin setup",
+      "persisted routine/workout/bodyweight",
+      "original session after restore",
+      "password login after restore",
+      "private upload bytes",
+      "refuse overwrite",
+      "reject corrupt/extra/symlinked snapshot"
+    ]
+  },
+  "build": {
+    "passed": true,
+    "warnings": "Upstream bundle-size and ineffective dynamic-import warnings remain"
+  },
+  "locales": {
+    "packs_checked": 16,
+    "keys_each": 1703,
+    "passed": true,
+    "persian_added": false
+  },
+  "plain_node_core_imports": true,
+  "coach_generated_assets_in_sync": true,
+  "catalogue": {
+    "exercises": 1324,
+    "public_media_urls": 0,
+    "public_media_prefetch_urls": 0
+  },
+  "npm_audit": {
+    "api_scope": "--omit=dev --omit=optional",
+    "api_reported_vulnerabilities": 0,
+    "frontend_scope": "--omit=dev",
+    "frontend_reported_vulnerabilities": 0,
+    "not_a_full_security_assessment": true
+  },
+  "not_completed": [
+    "GitHub fork creation and external PR",
+    "GitHub-hosted CI run",
+    "Docker image build/boot",
+    "Runflare TLS/private DNS/persistent volume verification",
+    "encrypted off-host backup workflow",
+    "native APK/iOS build",
+    "MCP deployment",
+    "Persian/branding Phase 1B"
+  ]
+}
