@@ -15,6 +15,7 @@ import { wakeLockSupported } from '../lib/wakelock.js'
 import { t, LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, baseLang } from '../lib/i18n.js'
 import { effectiveLang } from '../lib/default-lang.js'
 import { DEMO, REPO } from '../lib/demo.js'
+import { APP_NAME, NATIVE_RELEASES } from '../lib/product.js'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
 import { referencedFiles } from '../lib/media-refs.js'
 import { mediaStore } from '../lib/media-store.js'
@@ -74,11 +75,12 @@ export default function Settings() {
   const [checking, setChecking] = useState(false)
 
   useEffect(() => {
-    // The in-app updater installs an .apk, so it only applies to the native Android build.
+    // Disabled for AliLab until a fork-specific release channel and installer are configured.
+    // The retained in-app updater installs an .apk, so it only applies to native Android.
     // On iOS and the web this check is skipped and the update row never appears. isAndroid()
     // already answers false off the mobile build; the MOBILE check on top keeps the web bundle
     // from even asking (and from calling gitlab.com on every Settings visit).
-    if (!MOBILE) return
+    if (!MOBILE || !NATIVE_RELEASES) return
     isAndroid().then(ok => { setAndroid(ok); if (ok) checkForUpdate().then(setUpdateInfo).catch(() => {}) })
   }, [])
 
@@ -574,11 +576,12 @@ export default function Settings() {
         subtitle={t('to install openGym as a full-screen app.') + ' ' + (user ? t('Your data syncs with your profile — sign in anywhere to see it.') : t('Guest data stays on this device — export a backup now and then!'))} />
     </Section>}
 
-    {/* ---------- updates: the last thing on the page, so keeping openGym current is one tap ----------
+    {/* Retained upstream updater, disabled by NATIVE_RELEASES for this PWA-only fork.
+        Before enabling it, configure an AliLab APK release channel and download link.
         On Android the row is always there — it checks on demand and installs when a release is
         newer (checksum verified, see onUpdateRowClick). On the web the app updates with its
         server, so the row points at the APK for the phone instead. iOS has no APK: nothing. */}
-    {(!MOBILE || android) && <Section title={t('Updates')}
+    {NATIVE_RELEASES && (!MOBILE || android) && <Section title={t('Updates')}
       footer={MOBILE ? t('Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.') : t('The web app updates together with your server. The Android app installs its own updates from here.')}>
       {MOBILE
         ? <Row icon="download" iconTint="var(--acc)"
@@ -596,7 +599,7 @@ export default function Settings() {
         address bar and no about box, so without this there is no way to tell which build you
         are running, or whether an update actually installed. */}
     <div className="dim small" style={{ textAlign: 'center', marginTop: 4, lineHeight: 1.6 }}>
-      openGym v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
+      {APP_NAME} v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
       <a href="corresponding-source.tar.gz">source code</a> · <a href="https://github.com/DuarteSantos8/openGym" target="_blank" rel="noopener">openGym upstream</a><br />
       exercise data: hasaneyldrm/exercises-dataset (MIT)
     </div>

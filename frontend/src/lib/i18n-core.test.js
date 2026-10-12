@@ -6,6 +6,22 @@ import {
 import { EXDB } from './exercises-data.js'
 import de from '../locales/de.js'
 
+describe('AliLab display identity', () => {
+  it('brands the translated template before inserting user-provided names', () => {
+    _setLangState('de', { 'Welcome to openGym, {0}': 'Willkommen bei openGym, {0}' }, null, null)
+    expect(t('Welcome to openGym, {0}', 'openGym')).toBe('Willkommen bei AliLab Training, openGym')
+    _setLangState('en', {}, null, null)
+    expect(t('Hi {0}', 'openGym')).toBe('Hi openGym')
+  })
+
+  it('keeps real legacy backup paths and upstream URLs intact', () => {
+    _setLangState('en', {}, null, null)
+    expect(t('openGym saves to Documents/openGym')).toBe('AliLab Training saves to Documents/openGym')
+    expect(t('openGym saves to Documents\\openGym')).toBe('AliLab Training saves to Documents\\openGym')
+    expect(t('https://github.com/DuarteSantos8/openGym')).toBe('https://github.com/DuarteSantos8/openGym')
+  })
+})
+
 describe('baseLang', () => {
   it('maps a derived locale to the language whose packs it loads', () => {
     expect(baseLang('de-CH')).toBe('de')

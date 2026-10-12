@@ -1,7 +1,7 @@
 {
-  "name": "openGym",
-  "short_name": "openGym",
-  "description": "Personal gym & body weight tracker",
+  "name": "AliLab Training",
+  "short_name": "AliLab",
+  "description": "AliLab Training — personal workout and body weight tracker",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
