@@ -62,8 +62,12 @@ async function click(el) {
   expect(el).toBeTruthy()
   await act(async () => { el.dispatchEvent(new dom.Event('click', { bubbles: true })); await flush() })
 }
-// Microtasks only: the dynamic import of coach-demo.js and the status refresh both settle here.
-const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve() }
+// Module loading is not bounded by a fixed number of microtasks. Wait for the real demo
+// import before asserting that the click finished; the builder's thinking timer stays fake.
+const flush = async () => {
+  await vi.dynamicImportSettled()
+  for (let i = 0; i < 20; i++) await Promise.resolve()
+}
 const settle = async () => { await act(async () => { await flush() }) }
 const elapse = async ms => { await act(async () => { await vi.advanceTimersByTimeAsync(ms); await flush() }) }
 
