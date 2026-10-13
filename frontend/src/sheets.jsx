@@ -18,6 +18,8 @@ import WorkoutMediaSection, { workoutMediaCount } from './components/WorkoutMedi
 import { mediaOf, normalizeMediaRef, cleanUrl, workoutMediaOf } from './lib/media-refs.js'
 import { syncMedia } from './lib/media-sync.js'
 import LineChart from './components/LineChart.jsx'
+import DateField from './components/DateField.jsx'
+import { addDays, monthModel, shiftMonth, validISO } from './lib/calendar.js'
 import Stepper from './components/Stepper.jsx'
 import Icon from './components/Icon.jsx'
 import { Button, Slider, Switch, Segmented, SelectRow, Row, TextField, NumberField, MultiSelectRow } from './components/ui.jsx'
@@ -1896,7 +1898,7 @@ function WorkoutDateEdit({ w, onDone, close }) {
   const [time, setTime] = useState(startTimeOf(w))
   const today = todayISO()
   const save = () => {
-    if (!date || date > today) { toast(t('Pick a day up to today')); return }
+    if (!validISO(date) || date > today) { toast(t('Pick a day up to today')); return }
     // Nothing to do, and nothing to push: a no-op save and a workout deleted from another
     // sheet both just close.
     if (date === w.d && time === startTimeOf(w)) { close(); return }
@@ -1913,7 +1915,7 @@ function WorkoutDateEdit({ w, onDone, close }) {
     <h3>{t('Change date & time')}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>{t('The session keeps its length. Personal records are worked out again from the new order.')}</div>
     <Row icon="calendar" title={t('Date')}>
-      <input type="date" className="timef" value={date} max={today} onChange={e => setDate(e.target.value)} /></Row>
+      <DateField value={date} max={today} onChange={setDate} /></Row>
     <Row icon="clock" title={t('Start time')}>
       <input type="time" className="timef" value={time} onChange={e => setTime(e.target.value)} /></Row>
     <div style={{ height: 18 }} />
@@ -2104,8 +2106,8 @@ export const workoutDetailSheet = w => ui().openSheet(close => <WorkoutDetail w=
 /* ============================ calendar ============================ */
 function Calendar({ start, close }) {
   const st = useStore(s => s.S)
-  const [cur, setCur] = useState(() => { const d = start ? new Date(start) : new Date(); d.setDate(1); return d })
-  const y = cur.getFullYear(), mo = cur.getMonth()
+  const [cur, setCur] = useState(() => validISO(start) ? start : todayISO())
+  const model = monthModel(cur)
   const byDay = {}
   st.workouts.forEach(w => {
     const day = workoutDay(w)
@@ -2113,28 +2115,28 @@ function Calendar({ start, close }) {
   })
   // Which column the 1st sits in, and therefore how many blanks come before it.
   const ws = weekStartOf(st)
-  const startOffset = weekDayOffset(new Date(y, mo, 1).getDay(), ws)
-  const daysIn = new Date(y, mo + 1, 0).getDate()
-  const monthWs = st.workouts.filter(w => workoutDay(w)?.startsWith(y + '-' + String(mo + 1).padStart(2, '0')))
+  const startOffset = weekDayOffset(model.weekday, ws)
+  const daysIn = model.days
+  const monthWs = st.workouts.filter(w => { const day = workoutDay(w); return day && day >= model.first && day < model.next })
   const monthVol = monthWs.reduce((a, w) => a + (w.vol || 0), 0)
   const monthMs = monthWs.reduce((a, w) => a + Math.max(0, (w.end || w.start) - w.start), 0)
   const cells = []
   for (let i = 0; i < startOffset; i++) cells.push(<div key={'e' + i} />)
   for (let d = 1; d <= daysIn; d++) {
-    const iso = y + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0')
+    const iso = addDays(model.first, d - 1)
     const ws = byDay[iso], planned = effectiveRoutineIds(st, iso).length > 0, ovr = st.dayPlan[iso] !== undefined
     const dotCls = ws ? 'done' : ovr && planned ? 'ovr' : planned ? 'plan' : ''
     cells.push(<button key={d} className={'cal-d' + (ws ? ' has' : '') + (iso === todayISO() ? ' today' : '')} onClick={() => {
       if (!ws) { close(); dayOverrideSheet(iso); return }
       if (ws.length === 1) { close(); workoutDetailSheet(ws[0]); return }
       close(); ui().openSheet(c2 => <><h3>{fmtDate(iso, true)}</h3><div className="list">{ws.map(w => <WorkoutRow key={w.id} w={w} onClick={() => { c2(); workoutDetailSheet(w) }} />)}</div></>)
-    }}><span>{d}</span><i className={dotCls} /></button>)
+    }}><span>{d.toLocaleString(dateLocale())}</span><i className={dotCls} /></button>)
   }
   return <>
     <div className="row between" style={{ marginBottom: 2 }}>
-      <button className="iconbtn" onClick={() => setCur(new Date(y, mo - 1, 1))} aria-label={t('Previous month')}><Icon name="chevronLeft" /></button>
-      <h3 style={{ margin: 0 }}>{t(MONTHS_LONG[mo])} {y}</h3>
-      <button className="iconbtn" onClick={() => setCur(new Date(y, mo + 1, 1))} aria-label={t('Next month')}><Icon name="chevronRight" /></button>
+      <button className="iconbtn" onClick={() => { const next = shiftMonth(cur, -1); if (next) setCur(next) }} aria-label={t('Previous month')}><Icon name="chevronLeft" /></button>
+      <h3 style={{ margin: 0 }}>{model.label}</h3>
+      <button className="iconbtn" onClick={() => { const next = shiftMonth(cur, 1); if (next) setCur(next) }} aria-label={t('Next month')}><Icon name="chevronRight" /></button>
     </div>
     <div className="small muted" style={{ textAlign: 'center' }}>{monthWs.length ? `${t(monthWs.length === 1 ? '{0} workout' : '{0} workouts', monthWs.length)} · ${fmtDur(monthMs)} · ${fmtVol(monthVol, st.unit)}` : t('No workouts this month')}</div>
     <div className="cal-grid">{weekOrder(ws).map(d => <div key={d} className="cal-h">{t(DAYS[d])}</div>)}{cells}</div>
@@ -2220,7 +2222,7 @@ function LogPastWorkout({ initial, close }) {
     beginBackfill({ iso: date, time, durationMin: Math.max(1, dur), routineIds, replaceId })
   }
   const submit = () => {
-    if (!date || date > today) { toast(t('Pick a day up to today')); return }
+    if (!validISO(date) || date > today) { toast(t('Pick a day up to today')); return }
     if (!(dur >= 1)) { toast(t('Enter how long it took — at least 1 minute.')); return }
     const existing = workoutsOn(st, date)
     if (!existing.length) { go(null); return }
@@ -2232,7 +2234,7 @@ function LogPastWorkout({ initial, close }) {
     <h3>{t('Log a past workout')}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>{t('Logged on the usual workout screen, without timers.')}</div>
     <Row icon="calendar" title={t('Date')}>
-      <input type="date" className="timef" value={date} max={today} onChange={e => setDate(e.target.value)} /></Row>
+      <DateField value={date} max={today} onChange={setDate} /></Row>
     <Row icon="clock" title={t('Start time')}>
       <input type="time" className="timef" value={time} onChange={e => setTime(e.target.value)} /></Row>
     <Stepper label={t('Duration')} unit={t('min')} value={dur} step={5} min={0} decimal={false} invalid={!(dur >= 1)} onChange={v => setDur(Math.round(v))} />

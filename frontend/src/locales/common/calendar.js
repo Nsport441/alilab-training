@@ -1,0 +1,21 @@
+// AliLab calendar controls. Keep the small extension separate from upstream locale packs.
+export const CALENDAR_LABELS = {
+  en: { Month: 'Month', Year: 'Year', Calendar: 'Calendar' },
+  fa: { Month: 'ماه', Year: 'سال', Calendar: 'تقویم' },
+  ar: { Month: 'الشهر', Year: 'السنة', Calendar: 'التقويم' },
+  de: { Month: 'Monat', Year: 'Jahr', Calendar: 'Kalender' },
+  es: { Month: 'Mes', Year: 'Año', Calendar: 'Calendario' },
+  fr: { Month: 'Mois', Year: 'Année', Calendar: 'Calendrier' },
+  it: { Month: 'Mese', Year: 'Anno', Calendar: 'Calendario' },
+  pt: { Month: 'Mês', Year: 'Ano', Calendar: 'Calendário' },
+  'pt-BR': { Month: 'Mês', Year: 'Ano', Calendar: 'Calendário' },
+  pl: { Month: 'Miesiąc', Year: 'Rok', Calendar: 'Kalendarz' },
+  tr: { Month: 'Ay', Year: 'Yıl', Calendar: 'Takvim' },
+  ru: { Month: 'Месяц', Year: 'Год', Calendar: 'Календарь' },
+  uk: { Month: 'Місяць', Year: 'Рік', Calendar: 'Календар' },
+  zh: { Month: '月', Year: '年', Calendar: '日历' },
+  ko: { Month: '월', Year: '연도', Calendar: '달력' },
+  hi: { Month: 'महीना', Year: 'वर्ष', Calendar: 'कैलेंडर' },
+  th: { Month: 'เดือน', Year: 'ปี', Calendar: 'ปฏิทิน' },
+  hu: { Month: 'Hónap', Year: 'Év', Calendar: 'Naptár' },
+}

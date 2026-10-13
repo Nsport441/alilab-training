@@ -18,6 +18,7 @@ import Icon from './Icon.jsx'
 import { sheetKeyboardInsets } from '../lib/use-sheet-keyboard.js'
 import { NATIVE_KEYBOARD_EVENT } from '../lib/native-keyboard.js'
 import { t } from '../lib/i18n.js'
+import { numericInput } from '../lib/numerals.js'
 
 /* ============================ text ============================ */
 
@@ -38,7 +39,7 @@ export function NumberField({ value, onChange, decimal = true, nullable = false,
   // null and undefined are the same "empty" here — a nullable field's key is dropped once cleared.
   if (draft !== null && (committed.current ?? null) !== (value ?? null)) { setDraft(null); committed.current = null }
   const commit = raw => {
-    let s = raw.replace(/,/g, '.').replace(/[^0-9.]/g, '')
+    let s = numericInput(raw).replace(/[^0-9.]/g, '')
     const i = s.indexOf('.')
     if (i !== -1) s = decimal ? s.slice(0, i + 1) + s.slice(i + 1).replace(/\./g, '') : s.slice(0, i)
     const n = s === '' || s === '.' ? (nullable ? null : 0) : Math.max(0, parseFloat(s))

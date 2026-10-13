@@ -80,3 +80,15 @@ export function sampleState(over = {}) {
     ...over
   };
 }
+
+/** Queue/HTTP tests need real recent history; the literal snapshot above ages out after
+ * twelve weeks. Keep a consistent workout day and timestamp without faking live timers. */
+export function recentSampleState(over = {}) {
+  const S = sampleState();
+  const end = Date.now() - 60000;
+  const day = new Date(end).toISOString().slice(0, 10);
+  const prior = new Date(end - 19 * 86400000).toISOString().slice(0, 10);
+  S.workouts[0] = { ...S.workouts[0], d: day, start: end - 45 * 60000, end };
+  S.bodyweight = [{ d: prior, w: 78 }, { d: day, w: 78.5 }];
+  return { ...S, ...over };
+}

@@ -4,9 +4,10 @@
 // loads, the React subscription hook) live in i18n.js and re-export from here.
 
 import { productText } from './product.js'
+import { CALENDAR_LABELS } from '../locales/common/calendar.js'
 
 export const LANGS = {
-  en: 'English', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
+  en: 'English', fa: 'فارسی', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
   it: 'Italiano', pt: 'Português (Portugal)', 'pt-BR': 'Português (Brasil)', pl: 'Polski',
   tr: 'Türkçe', ru: 'Русский', uk: 'Українська', zh: '中文',
   ko: '한국어', hi: 'हिन्दी', th: 'ไทย', hu: 'Magyar', ar: 'العربية'
@@ -14,9 +15,9 @@ export const LANGS = {
 export const INSTR_LANGS = ['en', 'es', 'fr', 'it', 'tr', 'ru', 'zh', 'hi', 'pl', 'ko', 'pt-BR', 'hu', 'ar']
 export const EXERCISE_NAME_LANGS = ['pt-BR', 'hu', 'de', 'es', 'ru', 'it', 'fr']
 // Languages rendered right-to-left; i18n.js setLang applies the direction from this.
-export const RTL_LANGS = new Set(['ar'])
+export const RTL_LANGS = new Set(['ar', 'fa'])
 export const DATE_LOCALES = {
-  en: 'en-GB', de: 'de-DE', 'de-CH': 'de-CH', es: 'es-ES', fr: 'fr-FR', it: 'it-IT',
+  en: 'en-GB', fa: 'fa-IR-u-ca-persian', de: 'de-DE', 'de-CH': 'de-CH', es: 'es-ES', fr: 'fr-FR', it: 'it-IT',
   pt: 'pt-PT', 'pt-BR': 'pt-BR',
   pl: 'pl-PL', tr: 'tr-TR', ru: 'ru-RU', uk: 'uk-UA', zh: 'zh-CN', ko: 'ko-KR', hi: 'hi-IN', th: 'th-TH', hu: 'hu-HU', ar: 'ar-u-nu-latn'
 }
@@ -71,7 +72,7 @@ export const getVersion = () => version
 
 // Translate a source string; {0},{1}… are replaced with args (also on the English fallback).
 export function t(s, ...args) {
-  let v = productText(dict[s] || s)
+  let v = productText(dict[s] || CALENDAR_LABELS[baseLang(lang)]?.[s] || s)
   for (let i = 0; i < args.length; i++) v = v.replaceAll('{' + i + '}', args[i])
   return v
 }

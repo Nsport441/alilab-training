@@ -143,11 +143,12 @@ describe('parseHevyWorkouts', () => {
   })
 
   it('merges two Hevy sessions on the same local day', () => {
-    const a = { ...WORKOUT, id: 'a', title: 'AM', exercises: [WORKOUT.exercises[0]] }
+    // Both sessions occur on the same local day, independent of the runner's timezone.
+    const a = { ...WORKOUT, id: 'a', title: 'AM', start_time: new Date(2026, 7, 25, 8).toISOString(), end_time: new Date(2026, 7, 25, 9).toISOString(), exercises: [WORKOUT.exercises[0]] }
     const b = {
       ...WORKOUT, id: 'b', title: 'PM',
-      start_time: '2026-08-25T18:00:00+00:00',
-      end_time: '2026-08-25T19:00:00+00:00',
+      start_time: new Date(2026, 7, 25, 18).toISOString(),
+      end_time: new Date(2026, 7, 25, 19).toISOString(),
       exercises: [WORKOUT.exercises[1]],
     }
     const parsed = parseHevyWorkouts([a, b], TEMPLATES, { unit: 'kg' })

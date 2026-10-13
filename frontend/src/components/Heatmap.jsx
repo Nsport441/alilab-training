@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { fmtVol, isoOf, todayISO, MONTHS, weekStartOf, weekDayOffset } from '../lib/format.js'
+import { fmtVol, fmtDate, isoOf, todayISO, MONTHS, weekStartOf, weekDayOffset } from '../lib/format.js'
 import { workoutDay, workoutDuration, workoutVolume } from '../lib/history.js'
 import { t } from '../lib/i18n.js'
+import { calendarParts, calendarMonthName, persianCalendar } from '../lib/calendar.js'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { Segmented } from './ui.jsx'
 
@@ -58,10 +59,11 @@ export default function Heatmap({ S, onDay, metric: selectedMetric, onMetricChan
   let lastMonth = -1
   for (let wk = 0; wk <= 52; wk++) {
     const colStart = new Date(start); colStart.setDate(start.getDate() + wk * 7)
-    const mo = colStart.getMonth()
-    const showM = mo !== lastMonth && colStart.getDate() <= 7 && wk < 51
-    months.push(<span key={wk}>{showM ? t(MONTHS[mo]) : ''}</span>)
-    if (colStart.getDate() <= 7) lastMonth = mo
+    const p = calendarParts(isoOf(colStart))
+    const mo = p.month
+    const showM = mo !== lastMonth && p.day <= 7 && wk < 51
+    months.push(<span key={wk}>{showM ? calendarMonthName(isoOf(colStart)) : ''}</span>)
+    if (p.day <= 7) lastMonth = mo
     const cells = []
     for (let d = 0; d < 7; d++) {
       const day = new Date(colStart); day.setDate(colStart.getDate() + d)
@@ -69,7 +71,7 @@ export default function Heatmap({ S, onDay, metric: selectedMetric, onMetricChan
       const a = agg[key]
       const cls = 'hm-c l' + level(a) + (key === todayISO() ? ' today' : '') + (day > today ? ' future' : '')
       cells.push(<div key={d} className={cls}
-        title={key + (a ? ` · ${t(a.n === 1 ? '{0} workout' : '{0} workouts', a.n)} · ${t('{0} min', a.min)} · ${fmtVol(a.vol, S.unit)}` : '')}
+        title={(persianCalendar() ? fmtDate(key, false, true) : key) + (a ? ` · ${t(a.n === 1 ? '{0} workout' : '{0} workouts', a.n)} · ${t('{0} min', a.min)} · ${fmtVol(a.vol, S.unit)}` : '')}
         {...tappable(a ? () => onDay?.(key) : undefined)} />)
     }
     cols.push(<div key={wk} className="hm-col">{cells}</div>)

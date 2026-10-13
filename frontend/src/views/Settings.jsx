@@ -5,7 +5,7 @@ import { workoutControls } from '../lib/workout-controls.js'
 import { speedUnitOf } from '../lib/speed.js'
 import { copyText } from '../lib/clipboard.js'
 import { useUI } from '../store/useUI.js'
-import { ACCENTS, ACCENT_NAMES, todayISO, localTZ, weekStartOf, MONDAY, SUNDAY, fmtPlate } from '../lib/format.js'
+import { ACCENTS, ACCENT_NAMES, todayISO, localTZ, weekStartOf, MONDAY, SUNDAY, SATURDAY, fmtPlate } from '../lib/format.js'
 import { inventoryFor, ownsPlates } from '../lib/plates.js'
 import { effortOf } from '../lib/history.js'
 import { unlock, playOnSilentSupported, vibrateSupported } from '../lib/sound.js'
@@ -383,7 +383,7 @@ export default function Settings() {
           "this week" total follow it. Stored as a getDay() index (see lib/format.js). */}
       <Row icon="calendar" iconTint="var(--orange)" title={t('Week starts on')}>
         <Segmented className="seg-inline"
-          options={[{ value: MONDAY, label: t('Monday') }, { value: SUNDAY, label: t('Sunday') }]}
+          options={[{ value: MONDAY, label: t('Monday') }, { value: SUNDAY, label: t('Sunday') }, { value: SATURDAY, label: t('Saturday') }]}
           value={weekStartOf(S)} onChange={v => update(s => { s.weekStart = v })} />
       </Row>
       {/* Membership QR codes on Home (views/CheckIn.jsx); off = no Home card, no route. */}

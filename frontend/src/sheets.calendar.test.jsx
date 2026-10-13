@@ -6,6 +6,8 @@ import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { todayISO } from './lib/format.js'
 import { calendarSheet } from './sheets.jsx'
+import { _setLangState } from './lib/i18n-core.js'
+import fa from './locales/fa.js'
 
 const mounted = []
 
@@ -32,6 +34,7 @@ describe('Calendar canonical workout days', () => {
   afterEach(() => {
     act(() => { mounted.splice(0).forEach(root => root.unmount()) })
     useStore.setState({ S: original })
+    _setLangState('en', {}, null, null)
   })
 
   it('keeps multiple legacy sessions on the heatmap fallback day clickable in Calendar', () => {
@@ -55,5 +58,24 @@ describe('Calendar canonical workout days', () => {
     const sessions = renderTop()
     expect(sessions.textContent).toContain('Legacy A')
     expect(sessions.textContent).toContain('Legacy B')
+  })
+
+  it('counts Persian months across Gregorian boundaries and opens the correct saved record', () => {
+    _setLangState('fa', fa, null, null)
+    useStore.setState({ S: { ...original, weekStart: 6, workouts: [
+      { id: 'mehr-first', d: '2026-09-23', name: 'First Mehr', entries: [] },
+      { id: 'mehr-last', d: '2026-10-22', name: 'Last Mehr', entries: [] },
+      { id: 'aban-first', d: '2026-10-23', name: 'First Aban', entries: [] },
+    ] } })
+    calendarSheet('2026-10-13')
+    const host = renderTop()
+    expect(host.querySelector('h3').textContent).toContain('مهر')
+    expect(host.textContent).toContain('2 جلسهٔ تمرین')
+    expect(host.querySelectorAll('.cal-d')).toHaveLength(30)
+    expect(host.querySelectorAll('.cal-h')[0].textContent).toBe('ش')
+    const trained = [...host.querySelectorAll('.cal-d.has')]
+    expect(trained).toHaveLength(2)
+    act(() => trained[0].click())
+    expect(renderTop().textContent).toContain('First Mehr')
   })
 })

@@ -4,10 +4,14 @@
  * or from the synced state, and a client can put megabytes in either. The Coach runs on the
  * instance's own key, so an unbounded field is a bill someone else pays. These tests feed the
  * builder far more than any screen allows, through both doors, and check what comes out. */
-import test from 'node:test';
+import test, { after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { tempData, sampleState } from './helpers.mjs';
+
+// These literal snapshot dates must stay inside the review window on every CI run.
+mock.timers.enable({ apis: ['Date'], now: Date.UTC(2026, 6, 21, 12) });
+after(() => mock.timers.reset());
 
 tempData();
 const payload = await import('../coach/core/payload.js');

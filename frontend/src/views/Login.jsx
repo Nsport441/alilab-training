@@ -2,7 +2,7 @@ import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
 import { webauthnOK, passkeyLogin, passkeyRegister, bio } from '../lib/api.js'
 import { hasData } from '../store/useStore.js'
-import { t } from '../lib/i18n.js'
+import { t, LANGS, getLang } from '../lib/i18n.js'
 import { APP_NAME } from '../lib/product.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { guestAllowed } from '../lib/guest.js'
@@ -77,6 +77,9 @@ export default function Login() {
     catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') useUI.getState().toast(e.message || t('Sign-in failed')) }
   }
   const head = <>
+    <Segmented className="login-lang" value={getLang()}
+      options={[{ value: 'fa', label: LANGS.fa }, { value: 'en', label: LANGS.en }]}
+      onChange={v => useStore.getState().update(s => { s.lang = v; s.langAuto = false })} />
     <div style={{ fontSize: 54, display: 'flex', justifyContent: 'center', color: 'var(--acc)' }}><Icon name="dumbbell" /></div>
     <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-.028em', margin: '10px 0 4px' }}>{APP_NAME}</h1>
   </>

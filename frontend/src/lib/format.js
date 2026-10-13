@@ -1,5 +1,6 @@
 // Formatting + date helpers (ported from the vanilla app, unit taken from the store where needed).
 import { dateLocale, t, exerciseNameFor, exerciseNameClass } from './i18n-core.js'
+import { calendarParts } from './calendar.js'
 export const todayISO = () => {
   const d = new Date()
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
@@ -23,8 +24,9 @@ export function fmtDate(iso, long, withYear = false) {
 export function fmtDateRange(from, to, long, now = new Date()) {
   if (!from) return ''
   const last = to || from
-  const year = String(now.getFullYear())
-  const withYear = from.slice(0, 4) !== last.slice(0, 4) || from.slice(0, 4) !== year
+  const year = calendarParts(isoOf(now))?.year
+  const fromYear = calendarParts(from)?.year, toYear = calendarParts(last)?.year
+  const withYear = fromYear !== toYear || fromYear !== year
   return from === last ? fmtDate(from, long, withYear) : fmtDate(from, long, withYear) + ' – ' + fmtDate(last, long, withYear)
 }
 // In the UI language: the Latin h, m and min stood inside Arabic and Ukrainian rows.
@@ -89,13 +91,13 @@ export function fmtAgo(ts, now = Date.now()) {
    "this week" total. It is now S.weekStart, a getDay() index, and every one of those
    places asks these helpers instead of writing the assumption down again.
 
-   Only 1 and 0 are offered in the UI, but the helpers work for any weekday, so a
-   Saturday start (parts of the Middle East) would need a locale string and nothing
-   else. */
+   Saturday is also available for Iranian schedules. Changing language does not
+   silently change an existing profile's week boundaries. */
 export const MONDAY = 1
 export const SUNDAY = 0
+export const SATURDAY = 6
 /** The profile's first weekday, defaulting to Monday for every state written before this. */
-export const weekStartOf = S => (S?.weekStart === SUNDAY ? SUNDAY : MONDAY)
+export const weekStartOf = S => ([MONDAY, SUNDAY, SATURDAY].includes(S?.weekStart) ? S.weekStart : MONDAY)
 /** getDay() indices in display order — [1..6,0] for a Monday start, [0..6] for a Sunday one. */
 export const weekOrder = (ws = MONDAY) => Array.from({ length: 7 }, (_, i) => (ws + i) % 7)
 /** How many days a weekday sits past the start of its week. 0..6, so it doubles as a column. */
