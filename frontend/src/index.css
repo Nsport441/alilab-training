@@ -1700,7 +1700,7 @@ body.chips-dragging *{cursor:inherit}
 .coach-cta-t span{font-size:13px;color:var(--label-2);line-height:1.35}
 .coach-cta-chev{color:var(--acc);font-size:15px;flex:none}
 
-/* ----------------------------------------------------------- RTL (Arabic) -- */
+/* ----------------------------------------------------------- RTL (Arabic / Persian) -- */
 /* Directional icons flip: back chevrons point right, trailing chevrons point left. */
 [dir="rtl"] [data-icon="chevronLeft"],
 [dir="rtl"] [data-icon="chevronRight"]{transform:scaleX(-1)}
@@ -1723,3 +1723,13 @@ body.chips-dragging *{cursor:inherit}
 [dir="rtl"] .hm-wrap,[dir="rtl"] .cal-grid{direction:ltr}
 /* Tight tracking is tuned for Latin; Arabic is a connected script and gets none. */
 [dir="rtl"] *{letter-spacing:0}
+
+/* Persian typography uses installed fonts and makes no third-party font requests. */
+:lang(fa){font-family:Tahoma,"Segoe UI",sans-serif;line-height:1.65}
+:lang(fa) .cal-grid{direction:rtl}
+.login-lang{max-width:220px;width:100%;align-self:center;margin-bottom:22px}
+.date-field{display:flex;align-items:center;gap:4px;max-width:210px}
+.date-field input{width:150px;min-width:0;direction:ltr;text-align:center}
+.date-field input[aria-invalid="true"]{outline:2px solid var(--red)}
+.date-picker .cal-grid{margin-bottom:16px}
+.date-picker .row>.num{max-width:100px;text-align:center}

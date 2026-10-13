@@ -55,7 +55,7 @@ const swStamp = {
 // answer from inside the app. Unset (the ordinary case, and every upstream build) it changes
 // nothing: the string is exactly package.json's version.
 const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
-const appVersion = `${pkgVersion}+alilab.1b.branding${process.env.APP_BUILD ? '.' + process.env.APP_BUILD : ''}`
+const appVersion = `${pkgVersion}+alilab.1b.persian${process.env.APP_BUILD ? '.' + process.env.APP_BUILD : ''}`
 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(appVersion) },
