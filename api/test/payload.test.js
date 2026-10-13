@@ -1,6 +1,11 @@
-import test from 'node:test';
+import test, { after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { tempData, sampleState } from './helpers.mjs';
+
+// Pure payload snapshots deliberately use July 2026. Pin only Date in this process;
+// queue/HTTP tests use recentSampleState and keep their real clocks and timers.
+mock.timers.enable({ apis: ['Date'], now: Date.UTC(2026, 6, 21, 12) });
+after(() => mock.timers.reset());
 
 tempData();
 const payload = await import('../coach/core/payload.js');
