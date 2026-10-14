@@ -26,7 +26,7 @@ services:
       dockerfile: web/Dockerfile
       args:
         APP_BUILD: ${APP_BUILD:-phase1a-dev}
-        VERSION: 1.3.9-alilab.1a
+        VERSION: 1.3.9-alilab.1d.security
         VCS_REF: ${APP_BUILD:-phase1a-dev}
     restart: unless-stopped
     depends_on:
