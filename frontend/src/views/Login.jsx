@@ -80,7 +80,7 @@ export default function Login() {
     <Segmented className="login-lang" value={getLang()}
       options={[{ value: 'fa', label: LANGS.fa }, { value: 'en', label: LANGS.en }]}
       onChange={v => useStore.getState().update(s => { s.lang = v; s.langAuto = false })} />
-    <div style={{ fontSize: 54, display: 'flex', justifyContent: 'center', color: 'var(--acc)' }}><Icon name="dumbbell" /></div>
+    <img className="alilab-mark" src="./alilab-mark.svg" alt="" width="80" height="80" />
     <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-.028em', margin: '10px 0 4px' }}>{APP_NAME}</h1>
   </>
   const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh', textAlign: 'center' }

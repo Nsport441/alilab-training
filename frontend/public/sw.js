@@ -173,8 +173,8 @@ self.addEventListener('push', e => {
     try { for (const n of await self.registration.getNotifications({ tag })) n.close() } catch {}
     await self.registration.showNotification(data.title || 'AliLab Training', {
       body: data.body || '',
-      icon: 'icon-512.png',
-      badge: 'icon-180.png',
+      icon: 'alilab-icon-512.png',
+      badge: 'alilab-icon-180.png',
       tag,
       renotify: true
     })

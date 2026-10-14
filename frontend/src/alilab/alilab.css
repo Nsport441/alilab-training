@@ -1,0 +1,14 @@
+.alilab-mark { display:block; margin:8px auto 4px; border-radius:20px; }
+.overview-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:16px 0; }
+.overview-metrics>div { background:var(--surface-2); padding:14px; border-radius:var(--r); min-width:0; }
+.overview-metrics dt { font-size:14px; color:var(--label-2); margin-bottom:8px; }
+.overview-metrics dd { margin:0 0 8px; font-size:26px; font-weight:600; overflow-wrap:anywhere; }
+.training-overview p { line-height:1.7; margin:8px 0 0; }
+.catalogue-figure { margin:0 0 12px; }
+.catalogue-credit { font-size:12px; color:var(--label-2); line-height:1.7; margin-top:6px; overflow-wrap:anywhere; }
+.catalogue-credit a { color:var(--label-2); text-decoration:underline; text-underline-offset:3px; }
+.catalogue-next { display:block; margin:6px auto; border:1px solid var(--sep); color:var(--label); background:var(--surface-2); border-radius:10px; padding:8px 16px; min-height:40px; cursor:pointer; }
+.catalogue-next:focus-visible,.full-instructions summary:focus-visible { outline:2px solid var(--acc); outline-offset:3px; }
+.full-instructions { margin-top:12px; }
+.full-instructions summary { cursor:pointer; color:var(--label-2); padding:8px 0; }
+@media(max-width:600px) { .overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .overview-metrics>div { padding:12px; } }

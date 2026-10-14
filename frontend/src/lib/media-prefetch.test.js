@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { planMediaUrls, prefetchAllowed, prefetchMedia, startMediaPrefetch, installedApp, MEDIA_CACHE, PREFETCH_DELAY_MS } from './media-prefetch.js'
 import { EXIDX, imgSrc, gifSrc } from './exercises.js'
 
-vi.mock('../alilab/catalogue-media.js', () => ({ catalogueMediaSrc: (ex, kind) => ex?.[kind] ? (import.meta.env[kind === 'img' ? 'VITE_IMG_BASE' : 'VITE_GIF_BASE'] || `catalogue-media/${kind}/`) + ex[kind] : null }))
+vi.mock('../alilab/catalogue-media.js', () => ({ catalogueMediaSources:()=>[], catalogueMediaSrc: (ex, kind) => ex?.[kind] ? (import.meta.env[kind === 'img' ? 'VITE_IMG_BASE' : 'VITE_GIF_BASE'] || `catalogue-media/${kind}/`) + ex[kind] : null }))
 
 const BASE = 'https://gym.test/app/'
 const abs = src => new URL(src, BASE).href

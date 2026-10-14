@@ -1,6 +1,6 @@
-// AliLab Phase 1A deliberately ships no public exercise media. Generated upstream filenames
-// are metadata, not permission to use the underlying assets. Keep this gate independent of
-// VITE_* settings so a stale mobile/demo build command cannot re-enable the old CDN.
-// A later reviewed media registry will replace this gate without changing exercise IDs.
-export const CATALOGUE_MEDIA_POLICY = 'text-only'
-export const catalogueMediaSrc = () => null
+import { CATALOGUE_MEDIA } from './catalogue-media-registry.js'
+// Raw dataset filenames and VITE CDN overrides cannot add assets to this explicit registry.
+export const CATALOGUE_MEDIA_POLICY = 'licensed-registry'
+export const catalogueMediaFor = ex => ex && !ex.custom ? CATALOGUE_MEDIA[ex.id] || null : null
+export const catalogueMediaSources = ex => catalogueMediaFor(ex)?.images.map(image => image.path) || []
+export const catalogueMediaSrc = (ex, kind) => kind === 'img' ? catalogueMediaSources(ex)[0] || null : null

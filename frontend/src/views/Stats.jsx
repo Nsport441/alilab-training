@@ -23,6 +23,7 @@ import {
 import { Button, Segmented, SelectRow } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { isWarmupRow } from '../lib/workout-model.js'
+import TrainingOverview from '../alilab/TrainingOverview.jsx'
 
 // Which muscles the training in a window actually hit — and, the point of the card,
 // which ones it keeps missing. Shading is relative within the window (lib/muscles.js).
@@ -461,6 +462,7 @@ export default function Stats() {
 
     </div>
 
+    <TrainingOverview S={S} />
     <div className="card">
       <h2>{t('Activity — last 12 months')}</h2>
       <Heatmap

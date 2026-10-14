@@ -4,13 +4,15 @@ import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 import CustomMedia, { CustomThumb } from './CustomMedia.jsx'
+import { catalogueMediaFor, catalogueMediaSources } from '../alilab/catalogue-media.js'
+import { alilabText } from '../alilab/copy.js'
 
 // An exercise's picture, wherever one shows. A custom exercise goes to CustomMedia.jsx — its own
 // photo, GIF, video or link, from the local media store — and never through imgSrc/gifSrc, which
 // name files of the shipped dataset (a stray img/gif on a custom exercise, written by a fork, is
 // ignored). The split is by component, not by branch, so each side keeps its own hooks in order.
 export default function Media(p) {
-  return p.ex?.custom ? <CustomMedia {...p} /> : <BuiltinMedia {...p} />
+  return p.ex?.custom ? <CustomMedia {...p} /> : <BuiltinMedia key={p.ex?.id} {...p} />
 }
 
 // Big autoplaying animation; tap toggles to the still frame. `compact` shrinks it (superset cards).
@@ -21,6 +23,7 @@ export default function Media(p) {
 // an exercise without media. Any other/legacy value behaves as 'full'.
 function BuiltinMedia({ ex, id, compact, minimizable }) {
   const [playing, setPlaying] = useState(true)
+  const [frame, setFrame] = useState(0)
   // 'gif' → the animation failed, the still is showing; 'all' → the still failed too. Media is
   // fetched from wherever the build points (a mount, a CDN): a dropped connection, an expired
   // session on a gated instance or a CDN hiccup used to leave the browser's broken-image glyph
@@ -31,6 +34,8 @@ function BuiltinMedia({ ex, id, compact, minimizable }) {
   const update = useStore(s => s.update)
   const animation = gifSrc(ex)
   const still = imgSrc(ex)
+  const registered = catalogueMediaFor(ex)
+  const frames = catalogueMediaSources(ex)
   if (!animation && !still) return null
   if (minimizable && gifSize === 'off') return null
   const mini = minimizable && gifSize === 'mini'
@@ -39,13 +44,15 @@ function BuiltinMedia({ ex, id, compact, minimizable }) {
   const onError = () => setFailed(showGif && still ? 'gif' : 'all')
   const onTap = () => {
     if (failed) { setFailed(null); setPlaying(true); return }
-    setPlaying(p => !p)
+    if (!animation && frames.length > 1) setFrame(n => (n + 1) % frames.length)
+    else setPlaying(p => !p)
   }
   return (
+    <figure className="catalogue-figure">
     <div className={'exmedia' + (compact ? ' compact' : '') + (mini ? ' mini' : '') + (failed === 'all' ? ' broken' : '')} id={id} onClick={onTap}>
       {failed === 'all'
         ? <div className="exmedia-x"><Icon name="dumbbell" /></div>
-        : <img decoding="async" draggable={false} src={showGif ? animation : (still || animation)} alt={exerciseNameFor(ex)} onError={onError} />}
+        : <img decoding="async" draggable={false} src={showGif ? animation : (frames[frame % frames.length] || still || animation)} alt={exerciseNameFor(ex)} onError={onError} />}
       {minimizable && (
         <button className="giftoggle" onClick={toggleSize}>
           <Icon name={mini ? 'expand' : 'minimize'} />{mini ? t('Expand') : t('Minimize')}
@@ -57,6 +64,9 @@ function BuiltinMedia({ ex, id, compact, minimizable }) {
         </span>
       )}
     </div>
+    {frames.length > 1 && !mini && !failed && <button type="button" className="catalogue-next" onClick={onTap}>{alilabText('Next image')} · {frame % frames.length + 1}/{frames.length}</button>}
+    {registered && <figcaption className="catalogue-credit"><a href={registered.sourceUrl} target="_blank" rel="noopener noreferrer">{alilabText('Image source')}: {registered.images[0].author} / wger</a> · <a href={registered.images[0].licenseUrl} target="_blank" rel="noopener noreferrer">{registered.images[0].license}</a></figcaption>}
+    </figure>
   )
 }
 
@@ -68,7 +78,7 @@ export function Thumb(p) {
   return p.ex?.custom ? <CustomThumb {...p} /> : <BuiltinThumb {...p} />
 }
 function BuiltinThumb({ ex }) {
-  const src = ex.img ? imgSrc(ex) : null
+  const src = imgSrc(ex)
   const [broken, setBroken] = useState(null)
   if (!src || broken === src) return <div className="thumb thumb-x"><Icon name="dumbbell" /></div>
   return <img className="thumb" loading="lazy" decoding="async" draggable={false} src={src} alt="" onError={() => setBroken(src)} />

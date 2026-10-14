@@ -12,8 +12,8 @@ export const LANGS = {
   tr: 'Türkçe', ru: 'Русский', uk: 'Українська', zh: '中文',
   ko: '한국어', hi: 'हिन्दी', th: 'ไทย', hu: 'Magyar', ar: 'العربية'
 }
-export const INSTR_LANGS = ['en', 'es', 'fr', 'it', 'tr', 'ru', 'zh', 'hi', 'pl', 'ko', 'pt-BR', 'hu', 'ar']
-export const EXERCISE_NAME_LANGS = ['pt-BR', 'hu', 'de', 'es', 'ru', 'it', 'fr']
+export const INSTR_LANGS = ['en', 'fa', 'es', 'fr', 'it', 'tr', 'ru', 'zh', 'hi', 'pl', 'ko', 'pt-BR', 'hu', 'ar']
+export const EXERCISE_NAME_LANGS = ['fa', 'pt-BR', 'hu', 'de', 'es', 'ru', 'it', 'fr']
 // Languages rendered right-to-left; i18n.js setLang applies the direction from this.
 export const RTL_LANGS = new Set(['ar', 'fa'])
 export const DATE_LOCALES = {
@@ -78,13 +78,15 @@ export function t(s, ...args) {
 }
 
 // Instructions for an exercise in the current language (English steps as fallback).
-export const instrFor = ex => (instr && instr[ex.id]) || ex.st || []
+export const instrFor = ex => (!ex?.custom && instr && instr[ex?.id]) || ex?.st || []
+export const hasLocalizedInstructions = ex => !!ex?.custom || lang === 'en' || !!(instr && instr[ex?.id]?.length)
 
 // Built-in catalogue names are bilingual when a translated name pack is active. A pack need not
 // be complete: German covers the equipment exercises and not the body-weight ones, and an
 // exercise the pack has no entry for keeps its English title, one exercise at a time.
 // User-created exercises have no entry in the pack and keep their exact chosen name.
 export const exerciseNameFor = ex => {
+  if (ex?.custom) return ex.n || ''
   // A language that chose "English names only" sees the canonical catalogue title, not the
   // translation — and never the parenthetical either. Custom exercises keep their exact name.
   if (enOnly) return ex?.n || ''
@@ -107,7 +109,8 @@ export const exerciseNameFor = ex => {
 // the English names ("supino com barra"). Left without the title-casing English gets, those
 // read all lower-case in every list, card and history row. A new pack goes here only when it
 // carries real casing; i18n-core.test.js checks this list against the packs themselves.
-export const CASED_NAME_LANGS = ['de']
+// Persian has no letter casing; preserve the written name and uppercase Latin loanwords too.
+export const CASED_NAME_LANGS = ['de', 'fa']
 
 // EXDB stores English names lower-case and the UI title-cases them with CSS. A pack in
 // CASED_NAME_LANGS carries its own casing and must not be cased again on top, so the class that
@@ -124,7 +127,7 @@ export const exerciseNameClass = ex => (!enOnly && exerciseNames && ex && exerci
 
 // Search both the localized and canonical English title without changing persisted data.
 export const exerciseNameSearchText = ex => {
-  const translated = exerciseNames && ex && exerciseNames[ex.id]
+  const translated = !ex?.custom && exerciseNames && ex && exerciseNames[ex.id]
   return translated ? `${translated} ${ex.n}` : (ex?.n || '')
 }
 
