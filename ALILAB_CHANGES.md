@@ -36,3 +36,9 @@ Catalogue and observed-training update (2026-10-14):
 - Add an observed 28-day training overview using existing work-set and volume contracts.
 - Add offline authenticated encrypted backup and restore, not an active off-host backup service.
 - Preserve API behavior, storage and sync formats; see docs/ALILAB_CATALOGUE_INSIGHTS_FA.md.
+# ۱۴ اکتبر ۲۰۲۶ — وابستگی‌ها و ابزار بک‌آپ
+
+- حذف تولیدکنندهٔ قدیمی آیکون `@capacitor/assets` و اصلاح چهار lockfile با patchهای سازگار.
+- audit کامل توسعه/اختیاری، تست MCP و بررسی ریشه به CI اضافه شدند.
+- گزینهٔ صریح حذف پوشهٔ خصوصی آرشیو از snapshot برای جلوگیری از ورود کلید و آرشیوهای قبلی اضافه شد.
+- جزئیات و محدودیت‌ها: [راهنمای وابستگی و بک‌آپ](docs/ALILAB_DEPENDENCY_BACKUP_FA.md).

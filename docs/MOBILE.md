@@ -156,16 +156,15 @@ into both native projects — re-run it after every web-code change before build
 
 ## App icons & splash screens
 
-`frontend/resources/icon.svg` is the 1024×1024 source (the app's dumbbell glyph on the
-app background). Generate all platform assets from it on a machine with the tooling:
+AliLab currently distributes the web/PWA build. Its source mark is
+`frontend/public/alilab-mark.svg`; the checked-in `alilab-icon-180.png` and
+`alilab-icon-512.png` are referenced by the PWA manifest.
 
-```sh
-cd frontend
-npx @capacitor/assets generate --iconBackgroundColor '#0c0e12' --splashBackgroundColor '#0c0e12'
-```
-
-(If the generator won't take the SVG directly, export it to `resources/icon.png` at
-1024×1024 first — any image tool can do it.)
+The inherited `@capacitor/assets` generator has been removed: it brought vulnerable
+native-image and changelog dependencies into every web installation. Do not reinstall
+that old generator to build this pilot. A future native release needs a separately
+reviewed icon/splash export step and platform-specific assets; no native release is
+published by this fork at present.
 
 ## Distribution — deliberately no app stores
 

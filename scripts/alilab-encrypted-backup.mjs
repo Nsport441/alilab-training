@@ -10,13 +10,17 @@ const MAGIC=Buffer.from('ALILAB-BACKUP-1\n'), LIMIT=256*1024*1024
 const validName=n=>typeof n==='string'&&n.length>0&&!n.includes('\\')&&!n.includes('\0')&&!path.posix.isAbsolute(n)&&n.split('/').every(p=>p&&p!=='.'&&p!=='..')
 const assertKey=k=>{if(!Buffer.isBuffer(k)||k.length!==32)throw new Error('A 32-byte key is required')}
 const contains=(parent,child)=>child===parent||child.startsWith(parent+path.sep)
-export async function encryptBackup(dataDir,outputFile,key){
+export async function encryptBackup(dataDir,outputFile,key,{excludeBackupArtifacts=false}={}){
   assertKey(key)
   const data=path.resolve(dataDir),output=path.resolve(outputFile)
-  if(contains(data,output))throw new Error('Backup output must be outside the data directory')
+  const artifactDir=path.join(data,'.alilab-backups')
+  if(contains(data,output)&&!(excludeBackupArtifacts&&output!==artifactDir&&contains(artifactDir,output)))throw new Error('Backup output must be outside the data directory or inside the explicitly excluded artifact directory')
+  if(excludeBackupArtifacts){
+    try{const stat=await fs.lstat(artifactDir);if(!stat.isDirectory()||stat.isSymbolicLink())throw new Error('Backup artifact directory must be a regular directory')}catch(error){if(error.code!=='ENOENT')throw error}
+  }
   const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'alilab-backup-'))
   try{
-    const snapshot=path.join(tmp,'snapshot'),manifest=await createSnapshot(data,snapshot),files={}
+    const snapshot=path.join(tmp,'snapshot'),manifest=await createSnapshot(data,snapshot,{excludeBackupArtifacts}),files={}
     let bytes=0
     for(const name of Object.keys(manifest.files)){
       if(!validName(name))throw new Error('Unsafe snapshot path')
@@ -61,13 +65,13 @@ export async function decryptBackup(inputFile,targetDir,key){
   }finally{await fs.rm(tmp,{recursive:true,force:true})}
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  const [command,source,target,keyFile,stopped]=process.argv.slice(2)
+  const [command,source,target,keyFile,stopped,...flags]=process.argv.slice(2)
   try{
-    if(!source||!target||!keyFile||stopped!=='--api-stopped'||!['create','restore'].includes(command))throw new Error('Usage: node scripts/alilab-encrypted-backup.mjs <create|restore> SOURCE TARGET PRIVATE_KEY_FILE --api-stopped')
+    if(!source||!target||!keyFile||stopped!=='--api-stopped'||!['create','restore'].includes(command)||flags.some(f=>f!=='--exclude-backup-artifacts')||(command==='restore'&&flags.length))throw new Error('Usage: node scripts/alilab-encrypted-backup.mjs <create|restore> SOURCE TARGET PRIVATE_KEY_FILE --api-stopped [--exclude-backup-artifacts]')
     const stat=await fs.lstat(keyFile)
     if(!stat.isFile()||stat.isSymbolicLink()||(process.platform!=='win32'&&(stat.mode&0o077)))throw new Error('Key must be a private regular file (0600)')
     const key=await fs.readFile(keyFile)
-    try{await(command==='create'?encryptBackup:decryptBackup)(source,target,key)}finally{key.fill(0)}
+    try{await(command==='create'?encryptBackup:decryptBackup)(source,target,key,{excludeBackupArtifacts:flags.includes('--exclude-backup-artifacts')})}finally{key.fill(0)}
     console.log(`Encrypted backup ${command} complete.`)
   }catch(error){console.error(error.message);process.exitCode=1}
 }
