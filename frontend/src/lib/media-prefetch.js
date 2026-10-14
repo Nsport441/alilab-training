@@ -19,6 +19,7 @@
 //
 // Not in the phone app: it has no service worker, and its media comes from the CDN.
 import { EXIDX, imgSrc, gifSrc } from './exercises.js'
+import { catalogueMediaSources } from '../alilab/catalogue-media.js'
 
 // The worker's media cache, public/sw.js MEDIA. Duplicated because the worker is not bundled;
 // sw-media.test.js pins the two together.
@@ -43,7 +44,7 @@ export function planMediaUrls(S, base = globalThis.location?.href, index = EXIDX
     // A custom exercise's photo or video is not a file of the shipped dataset: it lives in the
     // local media store and has its own prefetch (lib/media-sync.js). An unknown id has nothing.
     if (!ex || ex.custom) continue
-    for (const src of [ex.gif && gifSrc(ex), ex.img && imgSrc(ex)]) {
+    for (const src of [...catalogueMediaSources(ex), gifSrc(ex), imgSrc(ex)]) {
       if (!src) continue
       const u = new URL(src, base)
       // Media on another origin (a build that points at a CDN) never passes through this

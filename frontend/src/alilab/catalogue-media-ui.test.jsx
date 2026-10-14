@@ -12,9 +12,19 @@ it('renders catalogue cards without any img source, animation or broken-media pa
   const host = document.createElement('div')
   const root = createRoot(host)
   try {
-    act(() => root.render(<><Thumb ex={EXIDX['0025']} /><Media ex={EXIDX['0025']} /></>))
+    act(() => root.render(<><Thumb ex={EXIDX['0032']} /><Media ex={EXIDX['0032']} /></>))
     expect(host.querySelectorAll('img')).toHaveLength(0)
     expect(host.querySelector('.thumb-x')).toBeTruthy()
     expect(host.querySelector('.exmedia')).toBeNull()
   } finally { act(() => root.unmount()) }
+})
+it('renders verified images, a keyboard-accessible next-image button and attribution',()=>{
+  const host=document.createElement('div'),root=createRoot(host)
+  try{
+    act(()=>root.render(<Media ex={EXIDX['0025']} />))
+    expect(host.querySelector('img').getAttribute('src')).toBe('./catalogue-media/wger-68.png')
+    expect(host.querySelector('figcaption').textContent).toContain('CC BY-SA 3.0')
+    act(()=>host.querySelector('.catalogue-next').click())
+    expect(host.querySelector('img').getAttribute('src')).toBe('./catalogue-media/wger-70.png')
+  }finally{act(()=>root.unmount())}
 })

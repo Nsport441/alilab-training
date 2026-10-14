@@ -5,7 +5,7 @@ WORKDIR /source
 COPY . .
 ARG APP_BUILD=phase1a-dev
 ARG VCS_REF=dev
-ARG VERSION=1.3.9-alilab.1b.persian
+ARG VERSION=1.3.9-alilab.1c.catalogue
 RUN node -e 'require("fs").writeFileSync("deployment-source.json", JSON.stringify({build:process.env.APP_BUILD,commit:process.env.VCS_REF,version:process.env.VERSION},null,2))' \
  && mkdir /export && tar -czf /export/corresponding-source.tar.gz .
 

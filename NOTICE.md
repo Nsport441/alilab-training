@@ -5,6 +5,12 @@ This fork does not download, bundle, display or cache upstream public exercise m
 Descriptions below of the downloader/CDN refer to upstream openGym. Code modifications
 remain AGPL-3.0-or-later; see `ALILAB_CHANGES.md` and `UPSTREAM.json`.
 
+**AliLab catalogue update (2026-10-14):** 38 separately licensed, unmodified still images
+by Everkinetic, obtained from wger, are now included under CC BY-SA 3.0. These are distinct
+from the inherited upstream media described below. See [per-file attribution](docs/ALILAB_MEDIA_ATTRIBUTION.md)
+and the registry for original URLs and hashes. The images retain CC BY-SA 3.0; the code
+and AliLab-authored Persian names/short guides remain AGPL-3.0-or-later.
+
 openGym — Copyright (C) 2026 Duarte Santos.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 

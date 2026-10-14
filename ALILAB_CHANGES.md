@@ -1,7 +1,7 @@
-# AliLab Training — Phase 1A and Phase 1B branding
+# AliLab Training — fork changes
 
 Modified fork of openGym; baseline is pinned in `UPSTREAM.json`. Modification date: 2026-10-07.
-Code remains AGPL-3.0-or-later. Original copyright and third-party notices remain in LICENSE
+Latest modification: 2026-10-14. Code remains AGPL-3.0-or-later. Original copyright and third-party notices remain in LICENSE
 and NOTICE.md. No public exercise image or animation licence is claimed by this fork.
 
 - Disable public catalogue media centrally, including stale VITE_IMG_BASE/VITE_GIF_BASE overrides.
@@ -27,3 +27,12 @@ Native releases, MCP deployment,
 AI, database migrations and an approved public media catalogue are outside this phase.
 The legacy `kubernetes/` manifests and upstream hosting guides are historical references;
 use `docs/ALILAB_PHASE1A_FA.md` for this fork's staging configuration.
+
+Catalogue and observed-training update (2026-10-14):
+
+- Complete Persian UI values; add 1324 display names and 280 short AliLab guides with per-exercise English fallback and original instructions.
+- Bundle 38 unchanged CC BY-SA 3.0 Everkinetic/wger stills for 19 explicitly matched IDs, with attribution and checksums. Legacy CDN media remains denied.
+- Add AliLab SVG/PWA icon and dark/light surfaces without changing account accent settings.
+- Add an observed 28-day training overview using existing work-set and volume contracts.
+- Add offline authenticated encrypted backup and restore, not an active off-host backup service.
+- Preserve API behavior, storage and sync formats; see docs/ALILAB_CATALOGUE_INSIGHTS_FA.md.
