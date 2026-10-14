@@ -4,11 +4,15 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
-async function filesIn(root, prefix = '') {
+async function filesIn(root, prefix = '', excludeBackupArtifacts = false) {
   const out = []
   for (const entry of await fs.readdir(path.join(root, prefix), { withFileTypes: true })) {
     const relative = path.join(prefix, entry.name)
-    if (entry.isDirectory()) out.push(...await filesIn(root, relative))
+    if (excludeBackupArtifacts && relative === '.alilab-backups') {
+      if (!entry.isDirectory() || entry.isSymbolicLink()) throw new Error('Backup artifact directory must be a regular directory')
+      continue
+    }
+    if (entry.isDirectory()) out.push(...await filesIn(root, relative, excludeBackupArtifacts))
     else if (entry.isFile()) out.push(relative)
     else throw new Error('Snapshot refuses symlinks and special files')
   }
@@ -17,9 +21,9 @@ async function filesIn(root, prefix = '') {
 const digest = async file => createHash('sha256').update(await fs.readFile(file)).digest('hex')
 const contains = (parent, child) => child === parent || child.startsWith(parent + path.sep)
 
-async function copyPrivate(from, to) {
+async function copyPrivate(from, to, names = null) {
   await fs.mkdir(to, { recursive: true, mode: 0o700 })
-  for (const relative of await filesIn(from)) {
+  for (const relative of names || await filesIn(from)) {
     const target = path.join(to, relative)
     await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 })
     await fs.copyFile(path.join(from, relative), target, fs.constants.COPYFILE_EXCL)
@@ -27,16 +31,17 @@ async function copyPrivate(from, to) {
   }
 }
 
-export async function createSnapshot(dataDir, outputDir) {
+export async function createSnapshot(dataDir, outputDir, { excludeBackupArtifacts = false } = {}) {
   const data = path.resolve(dataDir), output = path.resolve(outputDir)
   if (contains(data, output) || contains(output, data)) throw new Error('Data and snapshot paths must be separate')
-  const names = await filesIn(data)
+  const names = await filesIn(data, '', excludeBackupArtifacts)
   if (!names.includes('db.json') || !names.includes('secret')) throw new Error('Snapshot requires initialized API data')
   await fs.mkdir(output, { mode: 0o700 }) // existing snapshots are never overwritten
-  await copyPrivate(data, path.join(output, 'data'))
+  await copyPrivate(data, path.join(output, 'data'), names)
   const files = {}
   for (const relative of names) files[relative] = await digest(path.join(output, 'data', relative))
   const manifest = { format: 1, created: new Date().toISOString(), build: process.env.APP_BUILD || 'unspecified', files }
+  if (excludeBackupArtifacts) manifest.excludedPaths = ['.alilab-backups']
   await fs.writeFile(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2), { mode: 0o600, flag: 'wx' })
   return manifest
 }

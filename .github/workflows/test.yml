@@ -34,7 +34,7 @@ jobs:
       - run: node scripts/check-locales.mjs
         working-directory: frontend
       - run: node scripts/check-alilab-boundary.mjs
-      - run: npm audit --omit=dev --audit-level=high
+      - run: npm audit --audit-level=low
         working-directory: frontend
 
   api:
@@ -53,12 +53,42 @@ jobs:
       - run: node --test scripts/test/alilab-ops.test.mjs scripts/test/alilab-encrypted-backup.test.mjs
       - run: node scripts/build-coach-assets.mjs --check
       - run: node api/scripts/check-core-loadable.mjs
-      - run: npm audit --omit=dev --omit=optional --audit-level=high
+      - run: npm audit --include=optional --audit-level=low
         working-directory: api
+
+  mcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: mcp
+      - run: npm test
+        working-directory: mcp
+      - run: npm run check:node-loadable
+        working-directory: mcp
+      - run: npm audit --audit-level=low
+        working-directory: mcp
+
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=low
 
   containers:
     runs-on: ubuntu-latest
-    needs: [frontend, api]
+    needs: [frontend, api, mcp, dependencies]
     steps:
       - uses: actions/checkout@v7
       - run: cp .env.example .env

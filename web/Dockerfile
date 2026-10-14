@@ -5,7 +5,7 @@ WORKDIR /source
 COPY . .
 ARG APP_BUILD=phase1a-dev
 ARG VCS_REF=dev
-ARG VERSION=1.3.9-alilab.1c.catalogue
+ARG VERSION=1.3.9-alilab.1d.security
 RUN node -e 'require("fs").writeFileSync("deployment-source.json", JSON.stringify({build:process.env.APP_BUILD,commit:process.env.VCS_REF,version:process.env.VERSION},null,2))' \
  && mkdir /export && tar -czf /export/corresponding-source.tar.gz .
 
@@ -25,9 +25,8 @@ FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 # is exactly what made the v1.2.15 web image fail to build.
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
-# --ignore-scripts: the web image only needs `vite build`; the one heavy postinstall in this tree
-# (@capacitor/assets -> sharp, a libvips download from GitHub) is for drawing app icons and has
-# timed out on the shared runners — a lockfile-ignoring `npm install` fallback is no answer to that.
+# The web image needs only the source build; do not run dependency lifecycle scripts.
+# AliLab's checked-in SVG/PNG icons need no native asset generator during this build.
 RUN npm ci --ignore-scripts
 COPY api/coach/core/ /app/api/coach/core/
 COPY frontend/ ./
