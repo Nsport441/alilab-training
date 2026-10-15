@@ -31,6 +31,7 @@ import {
 } from './passkeys-store.js';
 import { createDeviceLink, findDeviceLink, burnDeviceLink, dropDeviceLinks } from './device-link.js';
 import { createMediaStore, mediaLimits, mediaConfig, MediaError, HASH_RE } from './media.js';
+import { createOperationalBackup } from './alilab-backup.js';
 
 const PORT = +(process.env.PORT || 3000);
 const DATA = process.env.DATA_DIR || '/data';
@@ -1729,8 +1730,11 @@ const mediaRoutes = {
 };
 
 /* ---------- routes ---------- */
+const operationalBackup = createOperationalBackup({ dataDir: DATA });
 const routes = {
   'GET /api/health': async (req, res) => json(res, 200, { ok: true, users: db.users.length }),
+  'POST /api/ops/backup': async (req, res) => operationalBackup
+    ? operationalBackup(req, res) : json(res, 404, { error: 'not found' }),
 
   // Public config the login screen needs before anyone is signed in. `coach` is absent unless
   // the instance has both switched the Coach on and successfully connected a provider — the

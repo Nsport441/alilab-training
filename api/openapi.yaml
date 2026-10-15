@@ -159,6 +159,36 @@ security:
   - bearerAuth: []
 
 paths:
+  /api/ops/backup:
+    post:
+      tags: [meta]
+      operationId: exportAliLabSealedBackup
+      summary: Optional public-key-encrypted operational export
+      description: |
+        Disabled by default (404). Requires the separately configured backup token;
+        a session cookie or user bearer token is insufficient. Available only for
+        the small single-writer pilot with Coach and uploads disabled. Synchronous
+        in-process capture does not coordinate other processes or rolling deployments.
+        Limits: 16 MiB and 512 files; symlinks refused; .alilab-backups excluded.
+        Each archive uses a new AES-256-GCM key wrapped to the owner's RSA public key.
+        Recovery requires the private key held outside the server and n8n.
+        A successful export starts a one-hour in-memory cooldown (reset on restart).
+      security:
+        - backupToken: []
+      responses:
+        '200':
+          description: Sealed envelope, with Cache-Control no-store and SHA256/key-ID headers.
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '401':
+          description: Missing or invalid operational backup token.
+        '404':
+          description: Export is disabled.
+        '429':
+          description: Export cooldown; Retry-After states remaining seconds.
+        '503':
+          description: Snapshot limits, unsafe paths or unavailable source data.
   /api/health:
     get:
       tags: [meta]
@@ -2854,6 +2884,12 @@ paths:
 
 components:
   securitySchemes:
+    backupToken:
+      type: http
+      scheme: bearer
+      description: >-
+        Dedicated 64-character hex backup token; only its SHA256 is configured on the
+        API. It cannot authenticate to user or admin endpoints.
     cookieAuth:
       type: apiKey
       in: cookie
