@@ -79,7 +79,13 @@ export function createOperationalBackup({ dataDir, env = process.env, now = Date
   }
   if (!/^[a-f0-9]{64}$/.test(env.ALILAB_BACKUP_TOKEN_SHA256 || '')) throw new Error('Invalid backup token hash');
   const expected = Buffer.from(env.ALILAB_BACKUP_TOKEN_SHA256, 'hex');
-  const publicKey = createPublicKey((env.ALILAB_BACKUP_PUBLIC_KEY || '').replaceAll('\\n', '\n'));
+  const publicPem = (env.ALILAB_BACKUP_PUBLIC_KEY || '').replaceAll('\\n', '\n').trim();
+  // createPublicKey also accepts private PEMs. Require exactly one public-only PEM
+  // so a mistaken recovery-key paste cannot silently persist private material here.
+  if (!/^-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY)-----\r?\n[A-Za-z0-9+/=\r\n]+-----END \1-----$/.test(publicPem)) {
+    throw new Error('Backup public-key setting requires a public-only PEM');
+  }
+  const publicKey = createPublicKey(publicPem);
   if (publicKey.asymmetricKeyType !== 'rsa' || publicKey.asymmetricKeyDetails.modulusLength < 3072) {
     throw new Error('Backup requires an RSA public key of at least 3072 bits');
   }

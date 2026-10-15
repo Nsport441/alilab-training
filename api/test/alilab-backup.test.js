@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { createHash, generateKeyPairSync, randomBytes } from 'node:crypto';
+import { createHash, createPrivateKey, generateKeyPairSync, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { captureSmallSnapshot, createOperationalBackup, publicKeyId, sealSnapshot } from '../alilab-backup.js';
 import { restoreSealedBackup } from '../../scripts/alilab-restore-sealed-backup.mjs';
@@ -61,6 +61,17 @@ test('disabled default needs no credentials; enabled exports reject unsupported 
     { ALILAB_BACKUP_PUBLIC_KEY: 'bad' }, { ALILAB_BACKUP_TOKEN_SHA256: 'bad' }]) {
     assert.throws(() => createOperationalBackup({ env: { ...env, ...override } }));
   }
+});
+test('public-key configuration refuses private or mixed PEMs, including encrypted recovery keys', () => {
+  const privateKey = createPrivateKey(pair.privateKey);
+  for (const pem of [pair.privateKey,
+    privateKey.export({ type: 'pkcs1', format: 'pem' }),
+    privateKey.export({ type: 'pkcs8', format: 'pem', cipher: 'aes-256-cbc', passphrase: 'fixture-only' }),
+    pair.publicKey + pair.privateKey]) {
+    assert.throws(() => createOperationalBackup({ env: { ...env, ALILAB_BACKUP_PUBLIC_KEY: pem } }), /public-only PEM/);
+  }
+  assert.equal(typeof createOperationalBackup({ env: { ...env,
+    ALILAB_BACKUP_PUBLIC_KEY: pair.publicKey.replaceAll('\n', '\\n') } }), 'function');
 });
 async function start(t, data, extra) {
   const child = spawn(process.execPath, ['api/server.js'], { cwd: ROOT, env: { ...process.env,
