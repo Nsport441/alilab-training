@@ -82,8 +82,8 @@ function UserDetail({ id, onChanged, close }) {
   const pwInstance = typeof u.password === 'boolean'
   const resetPassword = () => confirmSheet({
     title: adminText('Reset ') + u.name + adminText('’s password?'),
-    message: 'You get a one-time code to hand them. Their current password stops working now and they are signed out everywhere; their passkeys keep working. They set a new password with the code under “Sign in with password”. It is shown once and is valid for 24 hours.',
-    confirmText: 'Create reset code',
+    message: adminText("You get a one-time code to hand them. Their current password stops working now and they are signed out everywhere; their passkeys keep working. They set a new password with the code under “Sign in with password”. It is shown once and is valid for 24 hours."),
+    confirmText: adminText("Create reset code"),
     danger: true,
     onConfirm: () => api('/api/admin/user/password-reset', { method: 'POST', body: JSON.stringify({ id: u.id }) })
       .then(r => { onChanged(); close(); openSheet(done => <ResetCodeSheet name={r.name} email={u.email} code={r.code} expires={r.expires} close={done} />, { locked: true }) })
@@ -110,22 +110,22 @@ function UserDetail({ id, onChanged, close }) {
     {!u.admin && <>
       <button className={'btn ' + (u.disabled ? 'primary' : 'danger')} style={{ margin: '12px 0 4px' }}
         onClick={() => u.disabled ? setDisabled(false)
-          : confirmSheet({ title: adminText('Disable ') + u.name + adminText('?'), message: 'They are signed out everywhere and can no longer sync or log in until re-enabled. Their data stays.', confirmText: 'Disable', danger: true, onConfirm: () => setDisabled(true) })}>
-        {u.disabled ? 'Enable account' : 'Disable account'}</button>
-      <div className="adm-hint">{u.disabled ? 'Enabling lets them sign in and sync again.' : 'Disabling signs them out everywhere and blocks sign-in. Nothing is deleted.'}</div>
+          : confirmSheet({ title: adminText('Disable ') + u.name + adminText('?'), message: adminText("They are signed out everywhere and can no longer sync or log in until re-enabled. Their data stays."), confirmText: adminText("Disable"), danger: true, onConfirm: () => setDisabled(true) })}>
+        {adminText(u.disabled ? 'Enable account' : 'Disable account')}</button>
+      <div className="adm-hint">{adminText(u.disabled ? 'Enabling lets them sign in and sync again.' : 'Disabling signs them out everywhere and blocks sign-in. Nothing is deleted.')}</div>
       {/* The one destructive action in the app (issue #107), so it asks twice and offers the
           export first — that history is theirs. The second step names the account again, because
           the first sheet can be dismissed by anyone who was not reading. */}
       <button className="btn danger" style={{ margin: '14px 0 4px' }}
         onClick={() => confirmSheet({
           title: adminText('Delete ') + u.name + adminText('?'),
-          message: 'Everything goes: their workouts, weigh-ins, routines, passkeys and notifications. This cannot be undone, and the invite code they joined with stays used. Download their data first if they might want it.',
-          confirmText: 'Continue',
+          message: adminText("Everything goes: their workouts, weigh-ins, routines, passkeys and notifications. This cannot be undone, and the invite code they joined with stays used. Download their data first if they might want it."),
+          confirmText: adminText("Continue"),
           danger: true,
           onConfirm: () => confirmSheet({
             title: adminText('Delete ') + u.name + adminText(' for good?'),
-            message: 'Last chance — there is no undo and no backup of this on the server.',
-            confirmText: 'Delete account',
+            message: adminText("Last chance — there is no undo and no backup of this on the server."),
+            confirmText: adminText("Delete account"),
             danger: true,
             onConfirm: doDelete,
           }),
@@ -135,8 +135,8 @@ function UserDetail({ id, onChanged, close }) {
       {pwInstance && <>
         <button className="btn" style={{ margin: '14px 0 4px' }} onClick={resetPassword}>{adminText("Reset password")}</button>
         <div className="adm-hint">{u.password
-          ? 'For a forgotten password: a one-time code lets them choose a new one. Their current password stops working at once.'
-          : 'No password yet. A one-time code lets them set one — the way back in after losing their only passkey.'}</div>
+          ? adminText('For a forgotten password: a one-time code lets them choose a new one. Their current password stops working at once.')
+          : adminText('No password yet. A one-time code lets them set one — the way back in after losing their only passkey.')}</div>
       </>}
     </>}
     <h4 className="sec">{adminText("Workout history")}</h4>
@@ -156,8 +156,8 @@ function InvitesCard({ invites, reload, inviteOnly }) {
     .then(({ invite }) => { navigator.clipboard?.writeText(invite.code).catch(() => {}); toast(adminText('Code ') + invite.code + adminText(' created & copied')); reload() })
     .catch(e => toast(e.message))
   const revoke = code => confirmSheet({
-    title: adminText('Revoke code ') + code + adminText('?'), message: 'Anyone who has it can no longer use it. People who already signed up with it are not affected.',
-    confirmText: 'Revoke', danger: true,
+    title: adminText('Revoke code ') + code + adminText('?'), message: adminText("Anyone who has it can no longer use it. People who already signed up with it are not affected."),
+    confirmText: adminText("Revoke"), danger: true,
     onConfirm: () => api('/api/admin/invites/revoke', { method: 'POST', body: JSON.stringify({ code }) })
       .then(() => { toast(adminText('Code revoked')); reload() }).catch(e => toast(e.message))
   })
@@ -169,8 +169,8 @@ function InvitesCard({ invites, reload, inviteOnly }) {
       <Button variant="primary" size="sm" onClick={gen} icon="plus">{adminText("New code")}</Button></div>
     <div className="adm-lead">
       {inviteOnly
-        ? 'Sign-up is invite-only: someone needs one of these codes to create a profile. Each code works once.'
-        : 'Sign-up is open, so codes are optional here — they only record who invited whom.'}
+        ? adminText('Sign-up is invite-only: someone needs one of these codes to create a profile. Each code works once.')
+        : adminText('Sign-up is open, so codes are optional here — they only record who invited whom.')}
     </div>
     {open.length ? <>
       <div className="adm-group-t">{adminText("Unused · tap to copy")}</div>
@@ -210,9 +210,9 @@ function AuditCard({ tick }) {
   useEffect(() => { load(cat) }, [tick])
 
   const clear = () => confirmSheet({
-    title: 'Clear the activity log?',
-    message: 'Every recorded event is deleted. The clear itself is logged, so the gap stays visible.',
-    confirmText: 'Clear', danger: true,
+    title: adminText('Clear the activity log?'),
+    message: adminText("Every recorded event is deleted. The clear itself is logged, so the gap stays visible."),
+    confirmText: adminText("Clear"), danger: true,
     onConfirm: () => api('/api/admin/audit/clear', { method: 'POST', body: '{}' })
       .then(() => { toast(adminText('Activity log cleared')); pick(cat) }).catch(e => toast(e.message))
   })
