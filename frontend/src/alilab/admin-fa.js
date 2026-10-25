@@ -165,7 +165,7 @@ export default {
   "Remove": "حذف",
   "The stored credential can't be decrypted. This usually means ": "اطلاعات اتصال ذخیره‌شده قابل رمزگشایی نیست؛ ممکن است ",
   " was restored without its ": " بدون فایل ",
-  " file. Add the key again to fix it.": " بازیابی شده باشد. برای رفع مشکل کلید را دوباره وارد کنید.",
+  " file. Add the key again to fix it.": " را نداشته باشد. برای رفع مشکل کلید را دوباره وارد کنید.",
   "This endpoint works without a key. Add one only if your server asks for it (OpenRouter does; a model on your own network usually does not).": "این Endpoint بدون کلید هم کار می‌کند. فقط اگر سرور به کلید نیاز داشت آن را وارد کنید.",
   "Paste either a Claude Code setup token (your subscription) or an Anthropic API key (pay per use).": "توکن راه‌اندازی Claude Code یا API Key از Anthropic را وارد کنید.",
   "Paste an API key from the provider's console. It is stored encrypted on this server and sent to the provider only while a job runs.": "API Key را از پنل سرویس‌دهنده بگیرید. کلید رمزنگاری و فقط هنگام اجرای کار به سرویس‌دهنده ارسال می‌شود.",
