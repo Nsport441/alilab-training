@@ -1,3 +1,12 @@
+/* Bundled with the app: Persian typography must not depend on a font CDN. */
+@font-face {
+  font-family:"Vazirmatn";
+  src:url('/fonts/vazirmatn/Vazirmatn-v33.003.woff2') format('woff2');
+  font-style:normal;
+  font-weight:100 900;
+  font-display:swap;
+}
+
 .alilab-mark { display:block; margin:8px auto 4px; border-radius:20px; }
 .overview-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:16px 0; }
 .overview-metrics>div { background:var(--surface-2); padding:14px; border-radius:var(--r); min-width:0; }

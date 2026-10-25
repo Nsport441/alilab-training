@@ -1725,8 +1725,9 @@ body.chips-dragging *{cursor:inherit}
 /* Tight tracking is tuned for Latin; Arabic is a connected script and gets none. */
 [dir="rtl"] *{letter-spacing:0}
 
-/* Persian typography uses installed fonts and makes no third-party font requests. */
-:lang(fa){font-family:Tahoma,"Segoe UI",sans-serif;line-height:1.65}
+/* The Persian UI uses the bundled variable font, including form controls and sheets.
+   Keep connected letters untracked and enough leading for Persian dots and marks. */
+:lang(fa){font-family:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;line-height:1.65;letter-spacing:normal}
 :lang(fa) .cal-grid{direction:rtl}
 .login-lang{max-width:220px;width:100%;align-self:center;margin-bottom:22px}
 .date-field{display:flex;align-items:center;gap:4px;max-width:210px}
