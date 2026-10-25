@@ -52,22 +52,22 @@ const button = (host, text) => [...host.querySelectorAll('button')].find(b => b.
 beforeEach(() => { mocks.webauthn = true; mocks.config = null; mocks.sheets.length = 0 })
 afterEach(() => { act(() => { mounted.splice(0).forEach(({ root, host }) => { root.unmount(); host.remove() }) }) })
 
-describe('Login: a code from another device', () => {
-  it('sits under the ways in where passkeys work, and opens the sheet that redeems a code', () => {
-    mocks.config = { allow_guest: true }
+describe('Login: device-link entry hidden', () => {
+  it('does not offer the other-device code or passkeys when the browser supports passkeys', () => {
+    mocks.config = { password_login: true, allow_guest: true }
     const page = mount(<Login />)
-    const all = buttons(page)
-    expect(all.indexOf('Use a code from your other device')).toBe(all.indexOf('Create new profile') + 1)
-    act(() => button(page, 'Use a code from your other device').click())
-    const sheet = mount(mocks.sheets[0](() => {}))
-    expect(sheet.querySelector('h3').textContent).toBe('Add this device')
-    expect(sheet.querySelector('input[placeholder="Code from your other device"]')).toBeTruthy()
+    expect(buttons(page)).toContain('Sign in with password')
+    expect(buttons(page)).not.toContain('Use a code from your other device')
+    expect(buttons(page)).not.toContain('Sign in with passkey')
+    expect(mocks.sheets).toHaveLength(0)
   })
 
-  it('is not offered in a browser that cannot make a passkey, with or without passwords', () => {
+  it('does not offer a device-link code in a browser without passkeys', () => {
     mocks.webauthn = false
-    expect(buttons(mount(<Login />))).not.toContain('Use a code from your other device')
     mocks.config = { password_login: true }
-    expect(buttons(mount(<Login />))).not.toContain('Use a code from your other device')
+    const page = mount(<Login />)
+    expect(buttons(page)).not.toContain('Use a code from your other device')
+    expect(buttons(page)).not.toContain('Sign in with passkey')
+    expect(buttons(page)).toContain('Sign in with password')
   })
 })
