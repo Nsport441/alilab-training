@@ -1663,4 +1663,7 @@ export default {
   'Teal': 'Turkuaz',
   'Yellow': 'Sarı',
   'Enter how long it took — at least 1 minute.': 'Ne kadar sürdüğünü gir — en az 1 dakika.',
+  "Sign in to your account": "Hesabına giriş yap",
+  "Choose your preferred sign-in method.": "Tercih ettiğin giriş yöntemini seç.",
+  "New here?": "Burada yeni misin?",
 }

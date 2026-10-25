@@ -1660,4 +1660,7 @@ export default {
   'Teal': 'Бірюзовий',
   'Yellow': 'Жовтий',
   'Enter how long it took — at least 1 minute.': 'Вкажи, скільки це тривало — щонайменше 1 хвилину.',
+  "Sign in to your account": "Увійдіть у свій обліковий запис",
+  "Choose your preferred sign-in method.": "Оберіть зручний спосіб входу.",
+  "New here?": "Ви тут уперше?",
 }

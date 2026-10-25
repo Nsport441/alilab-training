@@ -1716,4 +1716,7 @@ export default {
   'Teal': 'أزرق مخضر',
   'Yellow': 'أصفر',
   'Enter how long it took — at least 1 minute.': 'أدخل المدة التي استغرقها — دقيقة واحدة على الأقل.',
+  "Sign in to your account": "تسجيل الدخول إلى حسابك",
+  "Choose your preferred sign-in method.": "اختر طريقة تسجيل الدخول المفضلة لديك.",
+  "New here?": "جديد هنا؟",
 }

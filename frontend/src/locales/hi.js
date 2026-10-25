@@ -1663,4 +1663,7 @@ export default {
   'Teal': 'फ़िरोज़ी',
   'Yellow': 'पीला',
   'Enter how long it took — at least 1 minute.': 'बताएँ कि इसमें कितना समय लगा — कम से कम 1 मिनट।',
+  "Sign in to your account": "अपने खाते में साइन इन करें",
+  "Choose your preferred sign-in method.": "साइन इन करने का अपना पसंदीदा तरीका चुनें।",
+  "New here?": "यहाँ नए हैं?",
 }
