@@ -1,7 +1,7 @@
 // Operator-only translations. Keep account IDs, API payloads and provider identifiers
 // untouched; translate only strings rendered to the administrator.
 import { baseLang, getLang } from '../lib/i18n-core.js'
-import fa from './admin-fa.json'
+import fa from './admin-fa.js'
 
 export function adminText(value) {
   if (typeof value !== 'string') return value
