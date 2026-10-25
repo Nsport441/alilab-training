@@ -18,12 +18,12 @@ import { adminText } from '../alilab/admin-i18n.js'
    decision, so it lives with the operator. */
 
 const rel = ts => {
-  if (!ts) return 'never'
+  if (!ts) return adminText('never')
   const s = Math.max(0, (Date.now() - new Date(ts).getTime()) / 1000)
-  if (s < 60) return 'just now'
-  if (s < 3600) return Math.floor(s / 60) + ' min ago'
-  if (s < 86400) return Math.floor(s / 3600) + ' h ago'
-  return Math.floor(s / 86400) + ' d ago'
+  if (s < 60) return adminText('just now')
+  if (s < 3600) return Math.floor(s / 60) + adminText(' min ago')
+  if (s < 86400) return Math.floor(s / 3600) + adminText(' h ago')
+  return Math.floor(s / 86400) + adminText(' d ago')
 }
 
 // Which chips go under which heading. Runtime-backed providers are the ones that need the
@@ -47,7 +47,7 @@ export default function AdminCoach() {
   // that once per boot, and the Plan tab's Coach card hangs off it: without the re-read, an admin
   // who has just switched the Coach on and connected it finds no Coach anywhere until a reload,
   // which reads as a setup that failed (Discord #install-help, 2026-09-19).
-  const load = () => api('/api/admin/coach').then(r => { setD(r); setModels(r.knownModels || null); useStore.getState().refreshConfig() }).catch(e => toast(e.message || 'Failed to load'))
+  const load = () => api('/api/admin/coach').then(r => { setD(r); setModels(r.knownModels || null); useStore.getState().refreshConfig() }).catch(e => toast(e.message || adminText('Failed to load')))
   useEffect(() => { load() }, [])
 
   const patch = async body => {
@@ -60,7 +60,7 @@ export default function AdminCoach() {
     setBusy(true)
     try {
       const r = await api('/api/admin/coach/models', { method: 'POST', body: '{}' })
-      if (r.ok) { setModels(r.models); toast(r.models.length + ' models') } else toast(r.error || 'Could not list models')
+      if (r.ok) { setModels(r.models); toast(r.models.length + adminText(' models')) } else toast(r.error || adminText('Could not list models'))
     } catch (e) { toast(e.message) }
     setBusy(false)
   }
@@ -154,7 +154,7 @@ export default function AdminCoach() {
     {!live && <div className="adm-progress" aria-hidden="true"><i style={{ width: Math.round(doneCount / flags.length * 100) + '%' }} /></div>}
     <div className="adm-lead">
       {live ? adminText("Users find the Coach under Plan → Coach. This switch is the only place it can be turned off for everyone.")
-        : `${doneCount} of ${flags.length} steps done — finish the open step and the next one unfolds.`}
+        : `${doneCount}${adminText(' of ')}${flags.length}${adminText(' steps done — finish the open step and the next one unfolds.')}`}
     </div>
 
     {d.enabled && <>
@@ -190,7 +190,7 @@ export default function AdminCoach() {
           <CredentialPill auth={d.auth} />
         </div>
         {authState === 'connected' ? <>
-          <div className="adm-hint">{adminText("Connected")}{d.auth.account ? ' as ' + d.auth.account : ''}{adminText(" via ")}{credentialLabel(d.auth.type)}{d.auth.connectedAt ? adminText(" · added ") + rel(d.auth.connectedAt) : ''}{adminText(". The key is stored encrypted and is never shown again.")}</div>
+          <div className="adm-hint">{adminText("Connected")}{d.auth.account ? adminText(' as ') + d.auth.account : ''}{adminText(" via ")}{credentialLabel(d.auth.type)}{d.auth.connectedAt ? adminText(" · added ") + rel(d.auth.connectedAt) : ''}{adminText(". The key is stored encrypted and is never shown again.")}</div>
           <div className="adm-actions">
             {meta.apiKey && <Button size="sm" variant="tinted" icon="lock" disabled={busy}
               onClick={() => openSheet(close => <ApiKeySheet close={close} onDone={load} label={meta.label} placeholder={meta.keyPlaceholder} optional={meta.keyOptional} />)}>{adminText("Replace key")}</Button>}
@@ -237,7 +237,7 @@ export default function AdminCoach() {
       </Step>
 
       {/* ---------- test ---------- */}
-      <Step n={num()} title={adminText("Test")} hint={step5Done ? 'passed' : adminText("one real round trip, no user data")} done={step5Done} {...stepAt()} forceOpen={!!testResult}>
+      <Step n={num()} title={adminText("Test")} hint={step5Done ? adminText('passed') : adminText("one real round trip, no user data")} done={step5Done} {...stepAt()} forceOpen={!!testResult}>
         <div className="adm-hint">{adminText("Sends one tiny question to the provider and checks the answer. No training data is involved. Do this after every change above.")}</div>
         <div className="adm-actions">
           <Button size="sm" variant="primary" icon="check" disabled={busy || !authed || !hasEndpoint} onClick={test}>{adminText("Test the Coach")}</Button>
@@ -247,7 +247,7 @@ export default function AdminCoach() {
         </div>}
         {testResult && <div className={'adm-result ' + (testResult.pending ? '' : testResult.ok ? 'ok' : 'bad')}>
           {testResult.pending ? adminText("Asking the provider…")
-            : testResult.ok ? <><b>{adminText("Passed")}</b>{testResult.version ? 'Provider: ' + testResult.version : adminText("The provider answered as expected.")}</>
+            : testResult.ok ? <><b>{adminText("Passed")}</b>{testResult.version ? adminText('Provider: ') + testResult.version : adminText("The provider answered as expected.")}</>
               : <><b>{adminText("Failed")}</b>{testResult.error || adminText("No answer from the provider.")}</>}
         </div>}
         <div className="adm-kv" style={{ marginTop: 10 }}>
@@ -320,7 +320,7 @@ export default function AdminCoach() {
           <div className="adm-group-t">{adminText("Recent jobs")}</div>
           {d.recent?.length ? <div className="adm-log">
             {d.recent.slice(0, 10).map((e, i) => <div key={i} className="adm-log-row">
-              <span>{e.kind === 'create' ? adminText("Plan") : adminText("Review")}{e.trigger === 'scheduled' ? adminText(" · scheduled") : ''} · <span style={{ color: e.outcome === 'failed' ? 'var(--red)' : e.outcome === 'ready' ? 'var(--acc)' : 'var(--label-2)' }}>{e.outcome}</span>{e.ms ? ' · ' + Math.round(e.ms / 1000) + ' s' : ''}</span>
+              <span>{e.kind === 'create' ? adminText("Plan") : adminText("Review")}{e.trigger === 'scheduled' ? adminText(" · scheduled") : ''} · <span style={{ color: e.outcome === 'failed' ? 'var(--red)' : e.outcome === 'ready' ? 'var(--acc)' : 'var(--label-2)' }}>{adminText(e.outcome)}</span>{e.ms ? ' · ' + Math.round(e.ms / 1000) + ' s' : ''}</span>
               <span className="when">{rel(e.at)}</span>
             </div>)}
           </div> : <div className="adm-empty">{adminText("No jobs yet.")}</div>}
@@ -396,7 +396,7 @@ function SetupTokenSheet({ close, onDone, label }) {
     try {
       const r = await api('/api/admin/coach/connect', { method: 'POST', body: JSON.stringify({ type: 'cli-token', token: token.trim(), account: account.trim() }) })
       setToken('')
-      toast(r.test?.ok ? 'Connected ✅' : 'Token saved')
+      toast(adminText(r.test?.ok ? 'Connected ✅' : 'Token saved'))
       close(); onDone()
     } catch (e) { toast(e.message); setBusy(false) }
   }
@@ -423,7 +423,7 @@ function ApiKeySheet({ close, onDone, label, placeholder, optional }) {
     setBusy(true)
     try {
       const r = await api('/api/admin/coach/connect', { method: 'POST', body: JSON.stringify({ type: 'apikey', token: key.trim() }) })
-      toast(r.test?.ok ? 'Key saved ✅' : 'Key saved')
+      toast(adminText(r.test?.ok ? 'Key saved ✅' : 'Key saved'))
       close(); onDone()
     } catch (e) { toast(e.message); setBusy(false) }
   }
