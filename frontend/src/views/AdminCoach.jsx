@@ -148,7 +148,7 @@ export default function AdminCoach() {
       <Switch checked={!!d.enabled} disabled={busy} onChange={v => patch({ enabled: v })} />
     </div>
     <div className="adm-status">
-      <span className={'adm-pill ' + (live ? 'ok' : 'warn')}>{live ? 'ready' : adminText("not ready")}</span>
+      <span className={'adm-pill ' + (live ? 'ok' : 'warn')}>{adminText(live ? 'ready' : 'not ready')}</span>
       <span>{status}</span>
     </div>
     {!live && <div className="adm-progress" aria-hidden="true"><i style={{ width: Math.round(doneCount / flags.length * 100) + '%' }} /></div>}
@@ -177,7 +177,7 @@ export default function AdminCoach() {
       {needsEndpoint && <Step n={num()} title="Endpoint" hint={d.baseUrl || adminText("Where the model runs")} done={step2Done} {...stepAt()}>
         <div className="adm-hint">{adminText("The address of any server that speaks OpenAI's chat API: ")}<b>Ollama</b>, <b>LM Studio</b>, <b>vLLM</b>, <b>OpenRouter</b>{adminText(", or a gateway of your own. Just the base — no ")}<code>/v1</code>{adminText(", no key in the URL.")}</div>
         <div className="adm-field">
-          <label>Base URL</label>
+          <label>{adminText('Base URL')}</label>
           <TextField key={d.baseUrl || ''} defaultValue={d.baseUrl || ''} placeholder="http://ollama:11434  or  https://openrouter.ai/api" inputMode="url" autoCapitalize="none" autoCorrect="off"
             onBlur={e => e.target.value !== (d.baseUrl || '') && patch({ baseUrl: e.target.value })} />
         </div>
@@ -215,19 +215,19 @@ export default function AdminCoach() {
       </Step>}
 
       {/* ---------- model ---------- */}
-      <Step n={num()} title="Model" hint={d.model || (meta.defaultModel ? adminText("default: ") + meta.defaultModel : adminText("not chosen yet"))} done={step4Done} {...stepAt()}>
+      <Step n={num()} title={adminText('Model')} hint={d.model || (meta.defaultModel ? adminText("default: ") + meta.defaultModel : adminText("not chosen yet"))} done={step4Done} {...stepAt()}>
         <div className="adm-hint">{meta.http
           ? adminText("Which model the provider should use. \"List models\" asks the provider for its current list, so nothing here goes stale.")
           : adminText("Optional. Leave it empty to use the runtime's own default.")}</div>
         <div className="adm-field">
-          <label>Model</label>
+          <label>{adminText('Model')}</label>
           {models && models.length
             ? <select className="adm-select" value={models.includes(d.model) ? d.model : ''} disabled={busy} onChange={e => patch({ model: e.target.value })}>
-              <option value="">{meta.defaultModel ? `Default (${meta.defaultModel})` : adminText("Pick a model…")}</option>
+              <option value="">{meta.defaultModel ? `${adminText('Default')} (${meta.defaultModel})` : adminText("Pick a model…")}</option>
               {d.model && !models.includes(d.model) && <option value={d.model}>{d.model}{adminText(" (not in the list)")}</option>}
               {models.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
-            : <TextField key={d.provider} defaultValue={d.models?.[d.provider] || ''} placeholder={meta.defaultModel ? `Default: ${meta.defaultModel}` : needsEndpoint ? 'e.g. qwen2.5:3b — or press "List models"' : adminText("(runtime default)")}
+            : <TextField key={d.provider} defaultValue={d.models?.[d.provider] || ''} placeholder={meta.defaultModel ? `${adminText('Default')}: ${meta.defaultModel}` : needsEndpoint ? adminText('e.g. qwen2.5:3b — or press "List models"') : adminText("(runtime default)")}
               onBlur={e => e.target.value !== (d.models?.[d.provider] || '') && patch({ model: e.target.value })} />}
         </div>
         {meta.http && <div className="adm-actions">
@@ -276,7 +276,7 @@ export default function AdminCoach() {
           <div className="adm-group-t" style={{ marginTop: 14 }}>{adminText("Compare with others")}</div>
           <div className="row between" style={{ gap: 12, alignItems: 'flex-start' }}>
             <div className="adm-hint" style={{ margin: 0 }}>
-              <b>{adminText("Let people compare with each other.")}</b> Anonymous medians (estimated 1RM, sessions per week) across profiles that opt in; at least three must share before anyone sees a number. Each person switches themselves on in the Coach chat, and sees nothing unless they do.
+              <b>{adminText("Let people compare with each other.")}</b>{adminText(' Anonymous medians (estimated 1RM, sessions per week) across profiles that opt in; at least three must share before anyone sees a number. Each person switches themselves on in the Coach chat, and sees nothing unless they do.')}
             </div>
             <Switch checked={!!d.community} disabled={busy} onChange={v => patch({ community: v })} />
           </div>
@@ -356,7 +356,7 @@ function CredentialPill({ auth }) {
 
 const credentialHint = (auth, meta) => {
   const s = auth?.state
-  if (s === 'connected') return adminText("Connected") + (auth.account ? ' as ' + auth.account : '')
+  if (s === 'connected') return adminText("Connected") + (auth.account ? adminText(' as ') + auth.account : '')
   if (s === 'not-required') return adminText("Not needed")
   if (s === 'optional') return adminText("Optional for this endpoint")
   if (s === 'unreadable') return adminText("Stored key can't be read — add it again")
@@ -404,7 +404,7 @@ function SetupTokenSheet({ close, onDone, label }) {
   return <>
     <h3>{adminText("Connect ")}{label}</h3>
     <div className="muted small" style={{ lineHeight: 1.5, marginBottom: 12 }}>
-      On a trusted computer where you use Claude Code, run <code>claude setup-token</code>{adminText(", complete its normal browser sign-in, then paste the token it prints here. This app never opens or handles Claude's authorization flow.")}
+      {adminText('On a trusted computer where you use Claude Code, run ')}<code>claude setup-token</code>{adminText(", complete its normal browser sign-in, then paste the token it prints here. This app never opens or handles Claude's authorization flow.")}
     </div>
     <TextField value={token} autoFocus type="password" placeholder={adminText("paste setup token")} onChange={e => setToken(e.target.value)} />
     <div style={{ height: 8 }} />
@@ -428,9 +428,9 @@ function ApiKeySheet({ close, onDone, label, placeholder, optional }) {
     } catch (e) { toast(e.message); setBusy(false) }
   }
   return <>
-    <h3>{label} API key</h3>
+    <h3>{label} <span dir="ltr">API Key</span></h3>
     <div className="muted small" style={{ lineHeight: 1.5, marginBottom: 12 }}>
-      {adminText("Stored encrypted on this server and sent to the provider only while a job runs. It is never shown again and never leaves the server")}{optional ? ' — and for an endpoint that takes no key, you can leave this empty and close the sheet.' : '.'}
+      {adminText("Stored encrypted on this server and sent to the provider only while a job runs. It is never shown again and never leaves the server")}{optional ? adminText(' — and for an endpoint that takes no key, you can leave this empty and close the sheet.') : '.'}
     </div>
     <TextField value={key} autoFocus type="password" placeholder={placeholder || 'sk-…'} autoCapitalize="none" autoCorrect="off" onChange={e => setKey(e.target.value)} />
     <div style={{ height: 12 }} />
