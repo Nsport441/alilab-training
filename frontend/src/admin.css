@@ -1,4 +1,4 @@
-/* Admin dashboard — operator-facing, English-only. Sits on top of the app's tokens; nothing
+/* Admin dashboard — operator-facing and language-aware. Sits on top of the app's tokens; nothing
    here is used outside views/Admin.jsx and views/AdminCoach.jsx. The page is looked at maybe
    twice a year, so every card says what it is for in a sentence and every state is a word, not
    a colour to decode. */
@@ -43,8 +43,8 @@
 .adm-step-t span{font-size:13px;color:var(--label-2);line-height:1.3}
 .adm-step>summary .chev{color:var(--label-3);font-size:14px;transition:transform .18s ease;flex:none}
 .adm-step[open]>summary .chev{transform:rotate(90deg)}
-.adm-step-b{padding:2px 0 14px 38px}
-@media (max-width:380px){.adm-step-b{padding-left:0}}
+.adm-step-b{padding:2px 0 14px;padding-inline-start:38px}
+@media (max-width:380px){.adm-step-b{padding-inline-start:0}}
 
 /* a dim explainer that reads like a sentence, not a footnote */
 .adm-hint{font-size:13px;color:var(--label-2);line-height:1.45;margin:6px 0 10px}
@@ -100,10 +100,10 @@
 .adm-kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:var(--hair) solid var(--sep);font-size:14px}
 .adm-kv:last-child{border-bottom:0}
 .adm-kv .k{color:var(--label-2);flex:none}
-.adm-kv .v{text-align:right;min-width:0;overflow-wrap:anywhere}
+.adm-kv .v{text-align:end;min-width:0;overflow-wrap:anywhere}
 /* the two daily-limit numbers: a real field, not the browser's white default box */
 .adm-kv .v input{
-  width:84px;min-height:40px;padding:6px 10px;text-align:right;font-size:16px;font-weight:600;
+  width:84px;min-height:40px;padding:6px 10px;text-align:end;font-size:16px;font-weight:600;
   border:0;border-radius:10px;background:var(--surface-2);color:var(--label);outline:none;
   -moz-appearance:textfield;appearance:textfield
 }
@@ -153,3 +153,10 @@
 
 /* a finished step's summary reads as a receipt, not a control */
 .adm-step.done>summary .adm-step-t span{color:var(--acc)}
+
+/* Bidirectional operator controls: keep tokens/URLs legible in Persian. */
+[dir="rtl"] .adm-field input[inputmode="url"],
+[dir="rtl"] .adm-code { direction: ltr; text-align: left; }
+[dir="rtl"] .adm-select { padding-inline-start: 38px; padding-inline-end: 12px;
+  background-position: 20px 50%, 14px 50%; }
+[dir="rtl"] .adm-kv input[type="number"] { direction: ltr; text-align: center; }
