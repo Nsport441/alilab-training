@@ -198,12 +198,12 @@ export default function AdminCoach() {
           </div>
         </> : <>
           {authState === 'unreadable' && <div className="adm-hint" style={{ color: 'var(--red)' }}>
-            The stored credential can't be decrypted. This usually means <code>./data</code>{adminText(" was restored without its ")}<code>secret</code> file. Add the key again to fix it.
+            {adminText("The stored credential can't be decrypted. This usually means ")}<code>./data</code>{adminText(" was restored without its ")}<code>secret</code>{adminText(" file. Add the key again to fix it.")}
           </div>}
           {authState === 'optional' && <div className="adm-hint">{adminText("This endpoint works without a key. Add one only if your server asks for it (OpenRouter does; a model on your own network usually does not).")}</div>}
           {authState === 'none' && <div className="adm-hint">{meta.setupToken
-            ? 'Paste either a Claude Code setup token (your subscription) or an Anthropic API key (pay per use).'
-            : 'Paste an API key from the provider\'s console. It is stored encrypted on this server and sent to the provider only while a job runs.'}</div>}
+            ? adminText('Paste either a Claude Code setup token (your subscription) or an Anthropic API key (pay per use).')
+            : adminText("Paste an API key from the provider's console. It is stored encrypted on this server and sent to the provider only while a job runs.")}</div>}
           <div className="adm-actions">
             {meta.setupToken && <Button size="sm" variant="primary" icon="key" disabled={busy}
               onClick={() => openSheet(close => <SetupTokenSheet close={close} onDone={load} label={meta.label} />)}>{adminText("Add Claude Code token")}</Button>}
