@@ -38,7 +38,7 @@ function ResetCodeSheet({ name, email, code, expires, close }) {
   const copy = () => { navigator.clipboard?.writeText(code).catch(() => {}); toast(adminText('Copied')) }
   return <>
     <h3>{adminText("Reset code for ")}{name}</h3>
-    <div className="adm-lead">{adminText("Give them this code. They choose “Sign in with password” → “Have a reset code from your admin?”, enter their name ")}<b>{name}</b>{email && <>{adminText(" (or their sign-in e-mail ")}<b>{email}</b>{adminText(')')}</>}{adminText('), the code and a new password. It works once, until ')}{new Date(expires).toLocaleString(dateLocale())}{adminText(", and will not be shown again.")}</div>
+    <div className="adm-lead">{adminText("Give them this code. They choose “Sign in with password” → “Have a reset code from your admin?”, enter their name ")}<b>{name}</b>{email && <>{adminText(" (or their sign-in e-mail ")}<b>{email}</b>)</>}{adminText(', the code and a new password. It works once, until ')}{new Date(expires).toLocaleString(dateLocale())}{adminText(", and will not be shown again.")}</div>
     <button className="adm-code" style={{ fontSize: 22, width: '100%', padding: '14px 0' }} onClick={copy} aria-label={adminText("copy code")}>{code}</button>
     <div style={{ height: 12 }} />
     <Button variant="primary" onClick={close}>{adminText("Done")}</Button>
@@ -224,8 +224,8 @@ function AuditCard({ tick }) {
       <button className="iconbtn adm-iconbtn" style={{ color: 'var(--red)' }} onClick={clear} aria-label={adminText("clear log")}><Icon name="trash" /></button></div>
     <div className="adm-lead">
       {adminText("Who signed in, what failed, and what an admin changed.")}
-      {meta ? ' ' + fmtNum(meta.total) + ' events'
-        + (meta.retention.days ? adminText(", kept for ") + meta.retention.days + ' days' : '')
+      {meta ? ' ' + fmtNum(meta.total) + adminText(' events')
+        + (meta.retention.days ? adminText(", kept for ") + meta.retention.days + adminText(' days') : '')
         + (meta.ip_mode === 'off' ? adminText(", without IP addresses") : '') + '.' : ''}
     </div>
     <div className="chips" style={{ marginBottom: 10 }}>
@@ -285,7 +285,7 @@ export default function Admin() {
     <div className="hdr">
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={adminText("Back")}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>{adminText("Admin")}</h1>
-        <div className="sub">{users ? users.length + ' users · ' + activeCount + ' active this week' : usersErr ? adminText("Could not load") : 'Loading…'}</div></div>
+        <div className="sub">{users ? users.length + adminText(' users · ') + activeCount + ' ' + adminText('active this week') : usersErr ? adminText('Could not load') : adminText('Loading…')}</div></div>
       <button className="iconbtn" onClick={() => { loadUsers(); loadInvites(); setTick(n => n + 1) }} aria-label={adminText("refresh")}>↻</button>
     </div>
     <div className="adm-intro">
@@ -329,7 +329,7 @@ export default function Admin() {
       <div className="list">
         {(users || []).map(u => <div key={u.id} className="item" onClick={() => openUser(u.id)} style={u.disabled ? { opacity: .55 } : null}>
           <div className="grow"><div className="tt">{u.live && <Icon name="dot" style={{ fontSize: 9, color: 'var(--green)', display: 'inline-block', marginInlineEnd: 5 }} />}{u.name} {u.admin && <span className="adm-pill acc" style={{ marginInlineStart: 4 }}>{adminText("admin")}</span>}{u.disabled && <span className="adm-pill bad" style={{ marginInlineStart: 4 }}>{adminText("disabled")}</span>}</div>
-            <div className="ss">{u.live ? 'training now · ' + u.live.name : u.workouts + ' workouts' + (u.lastWorkout ? ' · last ' + fmtDate(u.lastWorkout) : '') + adminText(" · last sync ") + rel(u.lastSync)}</div>
+            <div className="ss">{u.live ? adminText('training now · ') + u.live.name : u.workouts + ' ' + adminText('workouts') + (u.lastWorkout ? adminText(' · last ') + fmtDate(u.lastWorkout) : '') + adminText(' · last sync ') + rel(u.lastSync)}</div>
             {u.email && <div className="ss" title={adminText("sign-in e-mail")}>{u.email}</div>}</div>
           {u.hasPush && <Icon name="bell" title={adminText("push notifications on")} style={{ fontSize: 15, color: 'var(--label-3)' }} />}<Icon name="chevronRight" className="chev" />
         </div>)}
