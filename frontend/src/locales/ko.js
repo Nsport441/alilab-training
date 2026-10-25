@@ -1663,4 +1663,7 @@ export default {
   'Teal': '청록',
   'Yellow': '노랑',
   'Enter how long it took — at least 1 minute.': '걸린 시간을 입력하세요 — 최소 1분.',
+  "Sign in to your account": "계정에 로그인",
+  "Choose your preferred sign-in method.": "원하는 로그인 방법을 선택하세요.",
+  "New here?": "처음이신가요?",
 }

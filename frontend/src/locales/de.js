@@ -1683,4 +1683,7 @@ export default {
   'Teal': 'Türkis',
   'Yellow': 'Gelb',
   'Enter how long it took — at least 1 minute.': 'Gib ein, wie lange es gedauert hat — mindestens 1 Minute.',
+  "Sign in to your account": "Bei deinem Konto anmelden",
+  "Choose your preferred sign-in method.": "Wähle deine bevorzugte Anmeldemethode.",
+  "New here?": "Neu hier?",
 }

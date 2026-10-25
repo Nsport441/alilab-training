@@ -1663,4 +1663,7 @@ export default {
   'Teal': '青色',
   'Yellow': '黄色',
   'Enter how long it took — at least 1 minute.': '请输入用时 — 至少 1 分钟。',
+  "Sign in to your account": "登录您的账户",
+  "Choose your preferred sign-in method.": "选择您偏好的登录方式。",
+  "New here?": "第一次使用？",
 }

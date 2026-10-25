@@ -1663,4 +1663,7 @@ export default {
   'Teal': 'Бирюзовый',
   'Yellow': 'Жёлтый',
   'Enter how long it took — at least 1 minute.': 'Укажите, сколько это длилось — не меньше 1 минуты.',
+  "Sign in to your account": "Войдите в свою учётную запись",
+  "Choose your preferred sign-in method.": "Выберите удобный способ входа.",
+  "New here?": "Впервые здесь?",
 }

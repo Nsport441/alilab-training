@@ -1674,4 +1674,7 @@ export default {
   'Teal': 'เขียวน้ำทะเล',
   'Yellow': 'เหลือง',
   'Enter how long it took — at least 1 minute.': 'ใส่ระยะเวลาที่ใช้ — อย่างน้อย 1 นาที',
+  "Sign in to your account": "เข้าสู่ระบบบัญชีของคุณ",
+  "Choose your preferred sign-in method.": "เลือกวิธีเข้าสู่ระบบที่คุณต้องการ",
+  "New here?": "เพิ่งมาที่นี่ใช่ไหม?",
 }

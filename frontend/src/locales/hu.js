@@ -1666,4 +1666,7 @@ export default {
   'Teal': 'Türkiz',
   'Yellow': 'Sárga',
   'Enter how long it took — at least 1 minute.': 'Add meg, meddig tartott — legalább 1 perc.',
+  "Sign in to your account": "Jelentkezz be a fiókodba",
+  "Choose your preferred sign-in method.": "Válaszd ki a kívánt bejelentkezési módot.",
+  "New here?": "Új vagy itt?",
 }

@@ -1008,6 +1008,9 @@ export const PT_BR_OVERRIDES = {
   'Teal': 'Turquesa',
   'Yellow': 'Amarelo',
   'Enter how long it took — at least 1 minute.': 'Informe quanto tempo levou — pelo menos 1 minuto.',
+  "Sign in to your account": "Entre na sua conta",
+  "Choose your preferred sign-in method.": "Escolha sua forma preferida de entrar.",
+  "New here?": "Primeira vez por aqui?",
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }

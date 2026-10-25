@@ -80,55 +80,55 @@ export default function Login() {
     <Segmented className="login-lang" value={getLang()}
       options={[{ value: 'fa', label: LANGS.fa }, { value: 'en', label: LANGS.en }]}
       onChange={v => useStore.getState().update(s => { s.lang = v; s.langAuto = false })} />
-    <img className="alilab-mark" src="./alilab-mark.svg" alt="" width="80" height="80" />
-    <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-.028em', margin: '10px 0 4px' }}>{APP_NAME}</h1>
+    <header className="alilab-login-brand">
+      <img className="alilab-mark" src="./alilab-mark.svg" alt="" width="72" height="72" />
+      <h1>{APP_NAME}</h1>
+      <p>{t('Your workouts. Your weights. Your profile.')}</p>
+    </header>
   </>
-  const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh', textAlign: 'center' }
 
-  // Demo build: no backend to sign in against — the only way in is the local guest profile.
-  if (DEMO) return (
-    <div className="narrow" style={wrap}>
-      {head}
-      <div className="muted" style={{ marginBottom: 30 }}>{t('Live demo — everything stays in this browser.')}</div>
-      <Button variant="primary" icon="sparkles" onClick={() => setGuest(true)}>{t('Start the demo')}</Button>
-      <div className="card small muted" style={{ textAlign: 'start', marginTop: 16 }}>
-        {t('This demo runs entirely in your browser on example data — nothing is sent anywhere. Passkey sign-in and sync across your devices come with the openGym server, which you get by self-hosting it.')}
-      </div>
-      <div className="dim small" style={{ marginTop: 22, lineHeight: 1.6 }}>
-        <a href={REPO} target="_blank" rel="noopener">{t('Self-host it in a minute →')}</a>
-      </div>
-    </div>
-  )
-
+  // Keep authentication and account creation exactly as they were: this view
+  // changes only presentation, not the passkey/password/device-link flows.
   return (
-    <div className="narrow" style={wrap}>
-      {head}
-      <div className="muted" style={{ marginBottom: 34 }}>{t('Your workouts. Your weights. Your profile.')}</div>
-      {webauthnOK() ? <>
-        <Button variant="primary" icon="person" onClick={signIn}>{t('Sign in with passkey')}</Button>
-        <div style={{ height: 10 }} />
-        {pwOn && <><Button icon="key" onClick={() => openPasswordSignIn()}>{t('Sign in with password')}</Button><div style={{ height: 10 }} /></>}
-        <Button icon="sparkles" onClick={register}>{t('Create new profile')}</Button>
-        {/* Already signed in on another device: a code from there gives this one a passkey of
-            its own (#95), instead of a new, empty profile. */}
-        <div style={{ height: 10 }} />
-        <Button variant="ghost" className="dim" icon="qr" onClick={openDeviceLinkRedeem}>{t('Use a code from your other device')}</Button>
-        {canGuest && <div style={{ height: 4 }} />}
-      </> : pwOn ? <>
-        {/* Plain http on a LAN address, or a browser without passkey support: the password is
-            the way in, and the only way to create a profile from here. */}
-        <div className="card small muted" style={{ textAlign: 'start', marginBottom: 14 }}>{t("This browser doesn't support passkeys — sign in with your name and password instead.")}</div>
-        <Button variant="primary" icon="key" onClick={() => openPasswordSignIn()}>{t('Sign in with password')}</Button>
-        <div style={{ height: 10 }} />
-        <Button icon="sparkles" onClick={register}>{t('Create new profile')}</Button>
-        {canGuest && <div style={{ height: 10 }} />}
-      </> : <div className="card small muted" style={{ textAlign: 'start' }}>{canGuest
-        ? t("This browser doesn't support passkeys — you can still use openGym locally on this device.")
-        // Without passkeys and without the guest entrance there is no way in from this browser,
-        // so say that plainly instead of offering a local profile that cannot be created.
-        : t("This browser doesn't support passkeys, and this instance requires an account. Try a browser or device with passkey support.")}</div>}
-      {canGuest && <Button variant="ghost" className="dim" onClick={() => setGuest(true)}>{t('Continue without account')}</Button>}
-      <div className="dim small" style={{ marginTop: 26, lineHeight: 1.5 }}>{pwOn ? t('Passkeys use {0}. A password works too, where passkeys do not.', bio()) : t('Passkeys use {0} — no passwords.', bio())}<br />{t('Each profile keeps its own plan, workouts & body weight.')}</div>
+    <div className="alilab-login-screen">
+      <main className="alilab-login-card">
+        {head}
+        <section className="alilab-login-content" aria-labelledby="alilab-login-title">
+          <h2 id="alilab-login-title">{DEMO ? t('Start the demo') : t('Sign in to your account')}</h2>
+          {DEMO ? <>
+            <p className="alilab-login-intro">{t('Live demo — everything stays in this browser.')}</p>
+            <Button variant="primary" icon="sparkles" onClick={() => setGuest(true)}>{t('Start the demo')}</Button>
+            <p className="alilab-login-notice">{t('This demo runs entirely in your browser on example data — nothing is sent anywhere. Passkey sign-in and sync across your devices come with the openGym server, which you get by self-hosting it.')}</p>
+            <a className="alilab-login-repo" href={REPO} target="_blank" rel="noopener noreferrer">{t('Self-host it in a minute →')}</a>
+          </> : <>
+            <p className="alilab-login-intro">{t('Choose your preferred sign-in method.')}</p>
+            {webauthnOK() ? <>
+              <div className="alilab-login-methods">
+                <Button variant="primary" icon="person" onClick={signIn}>{t('Sign in with passkey')}</Button>
+                {pwOn && <Button variant="secondary" icon="key" onClick={() => openPasswordSignIn()}>{t('Sign in with password')}</Button>}
+              </div>
+              <div className="alilab-login-divider"><span>{t('New here?')}</span></div>
+              <Button variant="tinted" icon="sparkles" onClick={register}>{t('Create new profile')}</Button>
+              <div className="alilab-login-extra">
+                {/* A second device joins the existing profile instead of creating a duplicate. */}
+                <Button variant="ghost" icon="qr" onClick={openDeviceLinkRedeem}>{t('Use a code from your other device')}</Button>
+              </div>
+            </> : pwOn ? <>
+              <p className="alilab-login-notice">{t("This browser doesn't support passkeys — sign in with your name and password instead.")}</p>
+              <Button variant="primary" icon="key" onClick={() => openPasswordSignIn()}>{t('Sign in with password')}</Button>
+              <div className="alilab-login-divider"><span>{t('New here?')}</span></div>
+              <Button variant="tinted" icon="sparkles" onClick={register}>{t('Create new profile')}</Button>
+            </> : <p className="alilab-login-notice">{canGuest
+              ? t("This browser doesn't support passkeys — you can still use openGym locally on this device.")
+              : t("This browser doesn't support passkeys, and this instance requires an account. Try a browser or device with passkey support.")}</p>}
+            {canGuest && <div className="alilab-login-guest"><Button variant="ghost" onClick={() => setGuest(true)}>{t('Continue without account')}</Button></div>}
+          </>}
+        </section>
+      </main>
+      {!DEMO && <p className="alilab-login-footnote">
+        {pwOn ? t('Passkeys use {0}. A password works too, where passkeys do not.', bio()) : t('Passkeys use {0} — no passwords.', bio())}
+        <span>{t('Each profile keeps its own plan, workouts & body weight.')}</span>
+      </p>}
     </div>
   )
 }

@@ -1663,4 +1663,7 @@ export default {
   'Teal': 'Turquoise',
   'Yellow': 'Jaune',
   'Enter how long it took — at least 1 minute.': 'Indique combien de temps ça a duré — au moins 1 minute.',
+  "Sign in to your account": "Connectez-vous à votre compte",
+  "Choose your preferred sign-in method.": "Choisissez votre méthode de connexion préférée.",
+  "New here?": "Vous êtes nouveau ici ?",
 }
