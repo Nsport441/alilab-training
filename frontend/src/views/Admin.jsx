@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
 import { api } from '../lib/api.js'
 import { fmtDate, fmtNum, fmtVol, fmtDur } from '../lib/format.js'
+import { dateLocale } from '../lib/i18n-core.js'
 import { auditCat, auditLine, fmtWhen } from '../lib/audit.js'
 import { workoutVolume, setsDone } from '../lib/history.js'
 import { confirmSheet } from '../sheets.jsx'
@@ -21,23 +22,23 @@ import { adminText, adminDirection } from '../alilab/admin-i18n.js'
 // code means.
 
 const rel = ts => {
-  if (!ts) return 'never'
+  if (!ts) return adminText('never')
   const s = Math.max(0, (Date.now() - ts) / 1000)
-  if (s < 60) return 'just now'
-  if (s < 3600) return Math.floor(s / 60) + ' min ago'
-  if (s < 86400) return Math.floor(s / 3600) + ' h ago'
-  return Math.floor(s / 86400) + ' d ago'
+  if (s < 60) return adminText('just now')
+  if (s < 3600) return Math.floor(s / 60) + adminText(' min ago')
+  if (s < 86400) return Math.floor(s / 3600) + adminText(' h ago')
+  return Math.floor(s / 86400) + adminText(' d ago')
 }
-const dur = ms => { const m = Math.max(0, Math.floor(ms / 60000)); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min' }
+const dur = ms => { const m = Math.max(0, Math.floor(ms / 60000)); return m < 60 ? m + adminText(' min') : Math.floor(m / 60) + adminText(' h ') + (m % 60) + adminText(' min') }
 
 // The one time the reset code is visible. Locked, so a tap beside the sheet cannot lose it
 // before it has been copied or written down.
 function ResetCodeSheet({ name, email, code, expires, close }) {
   const toast = useUI(s => s.toast)
-  const copy = () => { navigator.clipboard?.writeText(code).catch(() => {}); toast('Copied') }
+  const copy = () => { navigator.clipboard?.writeText(code).catch(() => {}); toast(adminText('Copied')) }
   return <>
     <h3>{adminText("Reset code for ")}{name}</h3>
-    <div className="adm-lead">{adminText("Give them this code. They choose “Sign in with password” → “Have a reset code from your admin?”, enter their name ")}<b>{name}</b>{email && <>{adminText(" (or their sign-in e-mail ")}<b>{email}</b>)</>}, the code and a new password. It works once, until {new Date(expires).toLocaleString()}{adminText(", and will not be shown again.")}</div>
+    <div className="adm-lead">{adminText("Give them this code. They choose “Sign in with password” → “Have a reset code from your admin?”, enter their name ")}<b>{name}</b>{email && <>{adminText(" (or their sign-in e-mail ")}<b>{email}</b>{adminText(')')}</>}{adminText('), the code and a new password. It works once, until ')}{new Date(expires).toLocaleString(dateLocale())}{adminText(", and will not be shown again.")}</div>
     <button className="adm-code" style={{ fontSize: 22, width: '100%', padding: '14px 0' }} onClick={copy} aria-label={adminText("copy code")}>{code}</button>
     <div style={{ height: 12 }} />
     <Button variant="primary" onClick={close}>{adminText("Done")}</Button>
@@ -68,19 +69,19 @@ function UserDetail({ id, onChanged, close }) {
   }
   const doDelete = () => {
     api('/api/admin/user/delete', { method: 'POST', body: JSON.stringify({ id: u.id }) })
-      .then(() => { toast('Account deleted'); onChanged(); close() })
+      .then(() => { toast(adminText('Account deleted')); onChanged(); close() })
       .catch(e => toast(e.message))
   }
   const setDisabled = disabled => {
     api('/api/admin/user/disable', { method: 'POST', body: JSON.stringify({ id: u.id, disabled }) })
-      .then(() => { toast(disabled ? 'User disabled' : 'User enabled'); onChanged(); close() })
+      .then(() => { toast(adminText(disabled ? 'User disabled' : 'User enabled')); onChanged(); close() })
       .catch(e => toast(e.message))
   }
   // Password sign-in (#118): the server only sends `password` when the instance offers it. The
   // code comes back once, is shown once, and is never stored anywhere but as a hash.
   const pwInstance = typeof u.password === 'boolean'
   const resetPassword = () => confirmSheet({
-    title: 'Reset ' + u.name + '’s password?',
+    title: adminText('Reset ') + u.name + adminText('’s password?'),
     message: 'You get a one-time code to hand them. Their current password stops working now and they are signed out everywhere; their passkeys keep working. They set a new password with the code under “Sign in with password”. It is shown once and is valid for 24 hours.',
     confirmText: 'Create reset code',
     danger: true,
@@ -97,7 +98,7 @@ function UserDetail({ id, onChanged, close }) {
       {u.password && <span className="adm-pill">{adminText("password")}</span>}
       {/* The sign-in e-mail (password instances only): shown to admins and nobody else. */}
       {u.email && <span className="adm-pill" title={adminText("sign-in e-mail")}>{u.email}</span>}
-      {u.resetUntil && <span className="adm-pill acc">{adminText("reset code until ")}{new Date(u.resetUntil).toLocaleString()}</span>}
+      {u.resetUntil && <span className="adm-pill acc">{adminText("reset code until ")}{new Date(u.resetUntil).toLocaleString(dateLocale())}</span>}
       <span className="adm-pill">{adminText("joined ")}{u.created ? fmtDate(u.created.slice(0, 10)) : '—'}</span>
     </div>
     <div className="tiles" style={{ textAlign: 'start' }}>
@@ -109,7 +110,7 @@ function UserDetail({ id, onChanged, close }) {
     {!u.admin && <>
       <button className={'btn ' + (u.disabled ? 'primary' : 'danger')} style={{ margin: '12px 0 4px' }}
         onClick={() => u.disabled ? setDisabled(false)
-          : confirmSheet({ title: 'Disable ' + u.name + '?', message: 'They are signed out everywhere and can no longer sync or log in until re-enabled. Their data stays.', confirmText: 'Disable', danger: true, onConfirm: () => setDisabled(true) })}>
+          : confirmSheet({ title: adminText('Disable ') + u.name + adminText('?'), message: 'They are signed out everywhere and can no longer sync or log in until re-enabled. Their data stays.', confirmText: 'Disable', danger: true, onConfirm: () => setDisabled(true) })}>
         {u.disabled ? 'Enable account' : 'Disable account'}</button>
       <div className="adm-hint">{u.disabled ? 'Enabling lets them sign in and sync again.' : 'Disabling signs them out everywhere and blocks sign-in. Nothing is deleted.'}</div>
       {/* The one destructive action in the app (issue #107), so it asks twice and offers the
@@ -117,12 +118,12 @@ function UserDetail({ id, onChanged, close }) {
           the first sheet can be dismissed by anyone who was not reading. */}
       <button className="btn danger" style={{ margin: '14px 0 4px' }}
         onClick={() => confirmSheet({
-          title: 'Delete ' + u.name + '?',
+          title: adminText('Delete ') + u.name + adminText('?'),
           message: 'Everything goes: their workouts, weigh-ins, routines, passkeys and notifications. This cannot be undone, and the invite code they joined with stays used. Download their data first if they might want it.',
           confirmText: 'Continue',
           danger: true,
           onConfirm: () => confirmSheet({
-            title: 'Delete ' + u.name + ' for good?',
+            title: adminText('Delete ') + u.name + adminText(' for good?'),
             message: 'Last chance — there is no undo and no backup of this on the server.',
             confirmText: 'Delete account',
             danger: true,
@@ -152,15 +153,15 @@ function UserDetail({ id, onChanged, close }) {
 function InvitesCard({ invites, reload, inviteOnly }) {
   const toast = useUI(s => s.toast)
   const gen = () => api('/api/admin/invites/new', { method: 'POST', body: '{}' })
-    .then(({ invite }) => { navigator.clipboard?.writeText(invite.code).catch(() => {}); toast('Code ' + invite.code + ' created & copied'); reload() })
+    .then(({ invite }) => { navigator.clipboard?.writeText(invite.code).catch(() => {}); toast(adminText('Code ') + invite.code + adminText(' created & copied')); reload() })
     .catch(e => toast(e.message))
   const revoke = code => confirmSheet({
-    title: 'Revoke code ' + code + '?', message: 'Anyone who has it can no longer use it. People who already signed up with it are not affected.',
+    title: adminText('Revoke code ') + code + adminText('?'), message: 'Anyone who has it can no longer use it. People who already signed up with it are not affected.',
     confirmText: 'Revoke', danger: true,
     onConfirm: () => api('/api/admin/invites/revoke', { method: 'POST', body: JSON.stringify({ code }) })
-      .then(() => { toast('Code revoked'); reload() }).catch(e => toast(e.message))
+      .then(() => { toast(adminText('Code revoked')); reload() }).catch(e => toast(e.message))
   })
-  const copy = code => { navigator.clipboard?.writeText(code).catch(() => {}); toast('Copied ' + code) }
+  const copy = code => { navigator.clipboard?.writeText(code).catch(() => {}); toast(adminText('Copied ') + code) }
   const open = (invites || []).filter(i => !i.usedBy)
   const used = (invites || []).filter(i => i.usedBy)
   return <div className="card">
@@ -174,7 +175,7 @@ function InvitesCard({ invites, reload, inviteOnly }) {
     {open.length ? <>
       <div className="adm-group-t">{adminText("Unused · tap to copy")}</div>
       {open.map(i => <div key={i.code} className="row between" style={{ padding: '6px 0', borderBottom: 'var(--hair) solid var(--sep)' }}>
-        <button className="adm-code" onClick={() => copy(i.code)} aria-label={'copy ' + i.code}>{i.code}</button>
+        <button className="adm-code" onClick={() => copy(i.code)} aria-label={adminText('copy') + ' ' + i.code}>{i.code}</button>
         <div className="row" style={{ gap: 4 }}>
           <button className="iconbtn adm-iconbtn" onClick={() => copy(i.code)} aria-label={adminText("copy")}><Icon name="clipboard" /></button>
           <button className="iconbtn adm-iconbtn" style={{ color: 'var(--red)' }} onClick={() => revoke(i.code)} aria-label={adminText("revoke")}><Icon name="trash" /></button>
@@ -184,7 +185,7 @@ function InvitesCard({ invites, reload, inviteOnly }) {
     {used.length ? <>
       <div className="adm-group-t" style={{ marginTop: open.length ? 12 : 0 }}>{adminText("Already used")}</div>
       {used.map(i => <div key={i.code} className="row between dim" style={{ padding: '6px 0', fontSize: '.82rem' }}>
-        <span style={{ fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', letterSpacing: '.06em' }}>{i.code}</span><span>→ {i.usedByName || 'used'}</span>
+        <span style={{ fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', letterSpacing: '.06em' }}>{i.code}</span><span>→ {i.usedByName || adminText('used')}</span>
       </div>)}
     </> : null}
     {!open.length && !used.length && <div className="adm-empty">{adminText("No codes yet. \"New code\" makes one and copies it to your clipboard.")}</div>}
@@ -213,7 +214,7 @@ function AuditCard({ tick }) {
     message: 'Every recorded event is deleted. The clear itself is logged, so the gap stays visible.',
     confirmText: 'Clear', danger: true,
     onConfirm: () => api('/api/admin/audit/clear', { method: 'POST', body: '{}' })
-      .then(() => { toast('Activity log cleared'); pick(cat) }).catch(e => toast(e.message))
+      .then(() => { toast(adminText('Activity log cleared')); pick(cat) }).catch(e => toast(e.message))
   })
 
   if (meta && !meta.enabled) return null      // AUDIT_LOG=0 — the card isn't there at all
@@ -229,17 +230,17 @@ function AuditCard({ tick }) {
     </div>
     <div className="chips" style={{ marginBottom: 10 }}>
       {[['', 'All'], ['auth', 'Sign-ins'], ['admin', adminText("Admin")], ['fail', adminText("Failed")]].map(([v, l]) =>
-        <button key={v} className={'chip' + (cat === v ? ' on' : '')} onClick={() => pick(v)}>{l}</button>)}
+        <button key={v} className={'chip' + (cat === v ? ' on' : '')} onClick={() => pick(v)}>{adminText(l)}</button>)}
     </div>
     {rows.map(e => {
       const line = auditLine(e)
       return <div key={e.id} className="row between" style={{ padding: '8px 2px', borderBottom: 'var(--hair) solid var(--sep)' }}>
         <div className="grow">
-          <div className="small" style={{ fontWeight: 600 }}>{line.title}
+          <div className="small" style={{ fontWeight: 600 }}>{adminText(line.title)}
             {/* a red pill, not a red row: twenty fumbled Face IDs in a row shouldn't read as an incident */}
             {!e.ok && <span className="adm-pill bad" style={{ marginInlineStart: 6 }}>{adminText("failed")}</span>}
             {auditCat(e.ev) === 'admin' && <span className="adm-pill acc" style={{ marginInlineStart: 6 }}>{adminText("admin")}</span>}</div>
-          {line.sub && <div className="dim" style={{ fontSize: '.72rem' }}>{line.sub}</div>}
+          {line.sub && <div className="dim" style={{ fontSize: '.72rem' }}>{adminText(line.sub)}</div>}
         </div>
         <span className="small muted" style={{ flex: 'none', marginInlineStart: 8 }}>{fmtWhen(e.ts, meta?.now)}</span>
       </div>
@@ -295,7 +296,7 @@ export default function Admin() {
       <div className="row between"><h2 style={{ margin: 0 }}>{users ? adminText("The last update failed") : adminText("Could not load the users")}</h2>
         <Button size="sm" icon="reset" onClick={loadUsers}>{adminText("Try again")}</Button></div>
       <div className="adm-lead" style={{ marginBottom: 0 }}>
-        {usersErr} {users ? adminText("The list below is the last one that loaded.") : adminText("It tries again every 15 seconds.")}
+        {adminText(usersErr)} {users ? adminText("The list below is the last one that loaded.") : adminText("It tries again every 15 seconds.")}
       </div>
     </div>}
 
