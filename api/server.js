@@ -41,7 +41,10 @@ const RP_NAME = process.env.RP_NAME || 'openGym';
 // Admin dashboard (issue): admins are matched by uid; INVITE_ONLY gates new signups behind a
 // code the admin generates. Both default off so a fresh self-hosted instance stays open.
 const ADMIN_UIDS = (process.env.ADMIN_UIDS || '').split(',').map(s => s.trim()).filter(Boolean);
-const INVITE_ONLY = /^(1|true|yes|on)$/i.test(process.env.INVITE_ONLY || '');
+// AliLab's web deployment uses passwords only, with open self-registration.
+// Keep the upstream mode available for existing deployments and compatibility tests.
+const PASSWORD_ONLY = /^(1|true|yes|on)$/i.test(process.env.PASSWORD_ONLY || '');
+const INVITE_ONLY = !PASSWORD_ONLY && /^(1|true|yes|on)$/i.test(process.env.INVITE_ONLY || '');
 // Guest mode ("Continue without account") keeps everything in the browser and never touches this
 // server — but on an instance meant for a known set of people, an entrance nobody can walk back
 // out of is still the wrong front door (#42). Default ON, so existing instances are unchanged;
@@ -50,7 +53,7 @@ const ALLOW_GUEST = !/^(0|false|no|off)$/i.test(process.env.ALLOW_GUEST || '');
 // Name-and-password sign-in next to passkeys (#118). Off by default: it adds a second way into
 // every account that opts in, so an instance has to ask for it. While it is off every password
 // route answers 404 and the app shows none of it; hashes already stored stay where they are.
-const PASSWORD_LOGIN = /^(1|true|yes|on)$/i.test(process.env.PASSWORD_LOGIN || '');
+const PASSWORD_LOGIN = PASSWORD_ONLY || /^(1|true|yes|on)$/i.test(process.env.PASSWORD_LOGIN || '');
 // The language the sign-in screen, and every profile that never picked one, starts in (#303) —
 // for an instance whose people share a language. Only a tag's shape is checked here; the app
 // matches it against the languages it has and ignores one it does not know. Unset, it is left
@@ -1049,7 +1052,7 @@ function passwordAttempt(req, res, k) {
 // proof is logged as `auth.proof.fail` for that change, not as a failed sign-in — the owner was
 // signed in all along, and "Password sign-in failed" sent an admin looking for the wrong thing.
 async function proveOwner(req, res, user, body, act) {
-  if (body.credential) {
+  if (body.credential && !PASSWORD_ONLY) {
     if (await passkeyStepUp(user, body)) return 'passkey';
     audit(req, 'auth.proof.fail', { ok: false, user, msg: 'step-up-failed', act });
     json(res, 403, { error: 'the passkey could not be verified', code: 'passkey' });
@@ -1193,7 +1196,7 @@ const passwordRoutes = {
     const user = readSession(req);
     if (!user) return json(res, 401, { error: 'not signed in' });
     json(res, 200, {
-      set: hasPassword(user), setAt: user.pw?.set || null, passkeys: passkeyCount(user),
+      set: hasPassword(user), setAt: user.pw?.set || null, passkeys: PASSWORD_ONLY ? 0 : passkeyCount(user),
       name: user.name, nameTaken: nameTaken(user.name, user.id),
       // Only the owner's own session is ever handed their address.
       email: user.email || null
@@ -1757,6 +1760,7 @@ const routes = {
     // that has no Coach. The key's absence is that answer.
     json(res, 200, {
       invite_only: INVITE_ONLY, allow_guest: ALLOW_GUEST,
+      ...(PASSWORD_ONLY ? { password_only: true } : {}),
       // Only when on, so an instance without passwords answers exactly as it did before (#118).
       ...(PASSWORD_LOGIN ? { password_login: true } : {}),
       // Public: the sign-in screen is the first thing that reads it.
@@ -2413,6 +2417,15 @@ const server = http.createServer(async (req, res) => {
   try { url = new URL(req.url, 'http://x'); }
   catch { return json(res, 400, { error: 'bad request' }); }
   let key = req.method + ' ' + url.pathname;
+  // Remove alternate authentication and invitation management at the server too.
+  // Existing credentials remain stored, but cannot authenticate in password-only mode.
+  if (PASSWORD_ONLY && (
+    /^\/api\/(?:register|login)\/(?:options|verify)$/.test(url.pathname) ||
+    /^\/api\/(?:device-link|pair)(?:\/|$)/.test(url.pathname) ||
+    /^\/api\/account\/(?:passkeys|device-link)(?:\/|$)/.test(url.pathname) ||
+    /^\/api\/admin\/invites(?:\/|$)/.test(url.pathname) ||
+    key === 'DELETE /api/account/password'
+  )) return json(res, 404, { error: 'not found' });
   // The one route with a parameter in its path. Mapped onto its template key here so the table
   // above stays a plain lookup, and so csrfOk and the catch-all see one name for every file.
   const mm = /^\/api\/media\/([0-9a-f]{64})$/.exec(url.pathname);

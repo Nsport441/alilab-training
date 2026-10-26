@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
   syncNow: null, signOut: null, syncMedia: null, MOBILE: false
 }))
 vi.mock('../store/useStore.js', () => {
-  const snap = () => ({ sync: mocks.sync, syncNow: mocks.syncNow, signOut: mocks.signOut, config: null })
+  const snap = () => ({ sync: mocks.sync, syncNow: mocks.syncNow, signOut: mocks.signOut, config: { password_login: true } })
   const useStore = selector => (selector ? selector(snap()) : snap())
   useStore.getState = snap
   return { useStore }
@@ -114,7 +114,7 @@ describe('OwedSheet with photos and videos waiting', () => {
     expect(host.textContent).toContain('1 photo or video has not reached your server yet.')
     expect(host.textContent).toContain('Sign in again, or export a backup first.')
     expect(host.textContent).not.toContain('Try again')
-    expect(button('Sign in with passkey')).toBeTruthy()
+    expect(button('Sign in')).toBeTruthy()
     expect(button('Export with photos & videos (.zip)')).toBeTruthy()
   })
 

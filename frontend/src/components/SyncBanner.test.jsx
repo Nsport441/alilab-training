@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => {
   state.syncNow = vi.fn(async () => state.sync)
   state.passkeyLogin = vi.fn(async () => ({ id: 'u1', name: 'andi' }))
   state.snapshot = () => ({
-    user: state.user, sync: state.sync, needsMobileOnboarding: state.onboarding,
+    user: state.user, sync: state.sync, config: { password_login: true }, needsMobileOnboarding: state.onboarding,
     isGuest: () => state.guest, syncNow: state.syncNow,
     setUser: vi.fn(), adoptProfile: vi.fn(async () => ({})),
   })
@@ -188,13 +188,14 @@ describe('not connected — it says so, and what to do', () => {
     expect(openedConnect().dataset.url).toBe('')
   })
 
-  it('browser refused mid-session: "Sign in" is the passkey, right there', async () => {
+  it('browser refused mid-session opens password sign-in', async () => {
     mocks.sync = sync('auth', { auth: true, pending: true, lastError: { status: 401, code: 'auth' } })
     render()
     expect(text()).toBe('Your server no longer accepts this browser. Your changes are kept here.')
     expect(label()).toBe('Sign in')
     await act(async () => { button().click() })
-    expect(mocks.passkeyLogin).toHaveBeenCalledTimes(1)
+    expect(mocks.passkeyLogin).not.toHaveBeenCalled()
+    expect(mocks.sheets).toHaveLength(1)
   })
 
   it('on the sign-in screen after the server ended the session, it says the changes are still here', () => {
@@ -230,14 +231,14 @@ describe('no server at all', () => {
     expect(mocks.passkeyLogin).not.toHaveBeenCalled()
   })
 
-  it('a browser without passkeys still hears it, with nothing to press', () => {
+  it('a browser without passkeys can still reach password sign-in', () => {
     mocks.user = null
     mocks.guest = true
     mocks.webauthn = false
     mocks.sync = sync('local')
     render()
     expect(text()).toBe('Guest mode — data lives only in this browser.')
-    expect(button()).toBeNull()
+    expect(label()).toBe('Sign in')
   })
 
   it('the sign-in screen of a browser nobody signed in on is left alone', () => {

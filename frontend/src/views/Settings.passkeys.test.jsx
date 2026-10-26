@@ -81,99 +81,26 @@ afterEach(() => { act(() => { mounted.splice(0).forEach(({ root, host }) => { ro
 
 const asked = path => mocks.api.mock.calls.filter(([p]) => p === path).length
 
-describe('Settings: passkeys and another device', () => {
-  it('a signed-in browser lists its passkeys and offers a code for another device, in Account', async () => {
+describe('Settings: password-only account access', () => {
+  it('keeps password settings and removes passkeys, pairing and device linking even for an existing passkey account', async () => {
     const page = mount(<Settings />)
     await settle()
     const account = section(page, 'Account')
-    expect(titles(account)).toEqual(expect.arrayContaining(['Passkeys', 'Add another device']))
-    expect(rowByTitle(account, 'Passkeys').textContent).toContain('2 passkeys')
-    // Above pairing and the password, which are about other ways in.
-    const order = titles(account)
-    expect(order.indexOf('Passkeys')).toBeLessThan(order.indexOf('Pair the mobile app'))
-    expect(order.indexOf('Add another device')).toBeLessThan(order.indexOf('Password'))
+    expect(titles(account)).toContain('Password')
+    for (const title of ['Passkeys', 'Add another device', 'Pair the mobile app']) expect(titles(account)).not.toContain(title)
+    expect(asked('/api/account/passkeys')).toBe(0)
+    act(() => rowByTitle(account, 'Password').click())
+    const sheet = mount(mocks.sheets.at(-1).render(() => {}))
+    expect(sheet.querySelector('input[autocomplete="current-password"]')).toBeTruthy()
+    expect(sheet.textContent).not.toContain('passkey')
+    expect(sheet.textContent).not.toContain('Remove password')
   })
-
-  it('a guest gets neither, and nothing is asked', async () => {
+  it('offers guest password registration and login without querying passkeys', async () => {
     mocks.user = null
     const page = mount(<Settings />)
     await settle()
-    expect(titles(page)).not.toContain('Passkeys')
-    expect(titles(page)).not.toContain('Add another device')
+    expect(titles(section(page, 'Account'))).toContain('Create new profile')
+    expect(titles(section(page, 'Account'))).toContain('Sign in with password')
     expect(asked('/api/account/passkeys')).toBe(0)
-  })
-
-  it('a server without the list shows neither row', async () => {
-    const list = mocks.list
-    mocks.list = {}
-    try {
-      const page = mount(<Settings />)
-      await settle()
-      expect(titles(page)).not.toContain('Passkeys')
-      expect(titles(page)).not.toContain('Add another device')
-      expect(titles(section(page, 'Account'))).toContain('Password')
-    } finally { mocks.list = list }
-  })
-
-  // Settings opened while the server was down: both reads failed, and the rows stayed missing
-  // until Settings was opened again, even with the block above saying "All synced".
-  it('rows that found the server down come back once the store hears from it, and rows that loaded are not asked again', async () => {
-    const answer = mocks.api.getMockImplementation()
-    mocks.api.mockImplementation(async path => {
-      if (path === '/api/account/passkeys' || path === '/api/account/password') throw Object.assign(new Error('HTTP 502'), { status: 502, data: {} })
-      return answer(path)
-    })
-    const page = mount(<Settings />)
-    await settle()
-    expect(titles(section(page, 'Account'))).not.toEqual(expect.arrayContaining(['Passkeys']))
-    expect(titles(section(page, 'Account'))).not.toContain('Password')
-
-    mocks.api.mockImplementation(answer)
-    mocks.sync = { ...mocks.sync, lastSynced: mocks.sync.lastSynced + 30000 }   // a check that found both sides in step
-    act(() => mounted.at(-1).root.render(<Settings />))
-    await settle()
-    expect(titles(section(page, 'Account'))).toEqual(expect.arrayContaining(['Passkeys', 'Add another device', 'Password']))
-    expect(asked('/api/account/passkeys')).toBe(2)
-    expect(asked('/api/account/password')).toBe(2)
-
-    mocks.sync = { ...mocks.sync, lastSynced: mocks.sync.lastSynced + 30000 }
-    act(() => mounted.at(-1).root.render(<Settings />))
-    await settle()
-    expect(asked('/api/account/passkeys')).toBe(2)
-    expect(asked('/api/account/password')).toBe(2)
-  })
-
-  it('a refusal is an answer: a row the server turned down is not asked for on every sync', async () => {
-    const answer = mocks.api.getMockImplementation()
-    mocks.api.mockImplementation(async path => {
-      if (path === '/api/account/passkeys') throw Object.assign(new Error('HTTP 404'), { status: 404, data: {} })
-      return answer(path)
-    })
-    try {
-      const page = mount(<Settings />)
-      await settle()
-      mocks.sync = { ...mocks.sync, lastSynced: mocks.sync.lastSynced + 30000 }
-      act(() => mounted.at(-1).root.render(<Settings />))
-      await settle()
-      expect(titles(page)).not.toContain('Passkeys')
-      expect(asked('/api/account/passkeys')).toBe(1)
-    } finally { mocks.api.mockImplementation(answer) }
-  })
-
-  it('a change to the passkeys reads the list and the password row again', async () => {
-    const page = mount(<Settings />)
-    await settle()
-    expect(asked('/api/account/passkeys')).toBe(1)
-    expect(asked('/api/account/password')).toBe(1)
-    act(() => rowByTitle(section(page, 'Account'), 'Passkeys').click())
-    const list = mount(mocks.sheets.at(-1).render(() => {}))
-    await settle()
-    act(() => rowByTitle(list, 'Laptop').click())
-    const edit = mount(mocks.sheets.at(-1).render(() => {}))
-    await act(async () => { edit.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })) })
-    await settle()
-    expect(asked('/api/account/passkeys/rename')).toBe(1)
-    expect(asked('/api/account/passkeys')).toBe(3)   // Settings, the sheet, and Settings again
-    expect(asked('/api/account/password')).toBe(2)
   })
 })

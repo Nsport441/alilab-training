@@ -88,7 +88,7 @@ describe('Login with password-only entry', () => {
     expect(buttons(sheet)).toContain('Create profile')
   })
 
-  it('registers with password even when passkeys are supported and an invite is required', () => {
+  it('registers without invitations even if an old server config advertises them', () => {
     mocks.config = { password_login: true, invite_only: true }
     const page = mount(<Login />)
     act(() => button(page, 'Create new profile').click())
@@ -96,7 +96,7 @@ describe('Login with password-only entry', () => {
     expect(sheet.querySelector('.seg')).toBeNull()
     expect(buttons(sheet)).not.toContain('Create passkey')
     expect(buttons(sheet)).not.toContain('Passkey')
-    expect(sheet.querySelector('input[placeholder="Invite code"]')).toBeTruthy()
+    expect(sheet.querySelector('input[placeholder="Invite code"]')).toBeNull()
     expect(sheet.querySelector('input[autocomplete="new-password"]')).toBeTruthy()
   })
 })

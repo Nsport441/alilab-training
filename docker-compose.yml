@@ -14,6 +14,7 @@ services:
       PORT: ${PORT:-3000}
       DATA_DIR: /data
       TRUST_PROXY: "1"
+      PASSWORD_ONLY: "1"
       COACH_DISABLED: "1"
       MEDIA_UPLOADS: "0"
     volumes:

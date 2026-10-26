@@ -644,3 +644,38 @@ test('a disabled account is refused even with the right password', async t => {
   assert.equal(r.status, 403);
   assert.equal(r.cookie, null);
 });
+
+test('AliLab password-only mode registers without an invitation and disables alternate entry points', async t => {
+  const h = await startServer(t, { env: { PASSWORD_ONLY: '1', PASSWORD_LOGIN: '', INVITE_ONLY: '1' } });
+  const config = await h.req('GET', '/api/config');
+  assert.equal(config.body.password_login, true);
+  assert.equal(config.body.password_only, true);
+  assert.equal(config.body.invite_only, false);
+  const registered = await h.req('POST', '/api/register/password', { body: { name: 'New owner', password: GOOD } });
+  assert.equal(registered.status, 200);
+  assert.ok(registered.cookie);
+  assert.notEqual(registered.body.user.admin, true, 'public registration never grants admin');
+  assert.equal(h.db().invites.length, 0);
+  const signedIn = await h.req('POST', '/api/login/password', { body: { name: 'New owner', password: GOOD } });
+  assert.equal(signedIn.status, 200);
+  const cookie = signedIn.cookie;
+  assert.equal((await h.req('GET', '/api/me', { cookie })).body.user.id, registered.body.user.id);
+  for (const [method, route] of [
+    ['POST', '/api/register/options'], ['POST', '/api/register/verify'],
+    ['POST', '/api/login/options'], ['POST', '/api/login/verify'],
+    ['GET', '/api/account/passkeys'], ['POST', '/api/account/passkeys/options'],
+    ['POST', '/api/account/passkeys/verify'], ['POST', '/api/account/passkeys/rename'],
+    ['DELETE', '/api/account/passkeys'], ['POST', '/api/account/device-link'],
+    ['POST', '/api/device-link/options'], ['POST', '/api/device-link/verify'],
+    ['POST', '/api/pair/create'], ['POST', '/api/pair/redeem'],
+    ['GET', '/api/admin/invites'], ['POST', '/api/admin/invites/new'],
+    ['POST', '/api/admin/invites/revoke'], ['DELETE', '/api/account/password']
+  ]) assert.equal((await h.req(method, route, { body: method === 'GET' ? undefined : {}, cookie })).status, 404, route);
+  const wrong = await h.req('POST', '/api/login/password', { body: { name: 'New owner', password: 'wrong password' } });
+  assert.equal(wrong.status, 401);
+  const change = await h.req('POST', '/api/account/password', { cookie, body: { next: GOOD + ' changed', credential: { id: 'fake' } } });
+  assert.equal(change.status, 403);
+  assert.equal(change.body.code, 'current-required');
+  const noPassword = await h.req('POST', '/api/register/password', { body: { name: 'Empty', password: '' } });
+  assert.equal(noPassword.status, 400);
+});

@@ -8,8 +8,7 @@ import { useState, useEffect } from 'react'
 import { Button, Segmented } from '../components/ui.jsx'
 import { passwordOn, PasswordRegisterForm, openPasswordSignIn } from '../components/PasswordAuth.jsx'
 
-// Password-only entry is a temporary UI choice. The underlying passkeys,
-// recovery facilities and stored credentials are deliberately left untouched.
+// AliLab offers one entry method: a profile name (or e-mail) and password.
 const passwordUnavailable = () => getLang() === 'fa'
   ? 'ورود با رمز عبور در تنظیمات این سرور فعال نیست. برای فعال‌سازی با مدیر تماس بگیرید.'
   : 'Password sign-in is not enabled on this server. Contact the administrator to enable it.'
@@ -18,8 +17,6 @@ function RegisterSheet({ close }) {
   const { loadConfig } = useStore()
   const config = useStore(s => s.config)
   const [name, setName] = useState('')
-  const [code, setCode] = useState('')
-  const inviteOnly = !!config?.invite_only
 
   // Keep server feature flags authoritative; never offer a registration mode
   // users cannot later sign in with from this password-only entry page.
@@ -29,8 +26,7 @@ function RegisterSheet({ close }) {
     <h3>{t('Create your profile')}</h3>
     {passwordOn(config) ? <>
       <div className="muted small" style={{ marginBottom: 14 }}>{t('Pick a name and a password. You sign in with both.')}</div>
-      <PasswordRegisterForm close={close} inviteOnly={inviteOnly}
-        name={name} setName={setName} code={code} setCode={setCode} />
+      <PasswordRegisterForm close={close} name={name} setName={setName} />
     </> : <p className="alilab-login-notice" role="status">{passwordUnavailable()}</p>}
   </>
 }
