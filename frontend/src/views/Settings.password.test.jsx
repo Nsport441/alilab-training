@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => {
   // fresh [] per answer would re-render it forever.
   const state = { S: null, user: null, sync: null, config: null, webauthn: true, sheets: [], kept: [] }
   state.passkeyLogin = vi.fn(async () => ({ id: 'u1', name: 'andi' }))
-  state.api = vi.fn(async path => (path === '/api/account/password' ? { set: false, setAt: null, passkeys: 1, name: 'andi', nameTaken: false } : {}))
+  state.api = vi.fn(async path => (path === '/api/account/password' ? { set: true, setAt: null, passkeys: 1, name: 'andi', nameTaken: false } : {}))
   state.snapshot = () => ({
     S: state.S, user: state.user, sync: state.sync, config: state.config, coachLocal: null,
     update: vi.fn(), replaceState: vi.fn(), setUser: vi.fn(), pullState: vi.fn(), pushState: vi.fn(), resetDemo: vi.fn(),
@@ -83,7 +83,7 @@ describe('Settings with password sign-in', () => {
     await settle()
     const account = section(page, 'Account')
     expect(titles(account)).toContain('Password')
-    expect(rowByTitle(account, 'Password').textContent).toContain('Not set — lets you sign in where passkeys do not work.')
+    expect(rowByTitle(account, 'Password').textContent).toContain('Set · sign in as “andi”')
 
     mocks.config = null
     const off = mount(<Settings />)
@@ -104,10 +104,10 @@ describe('Settings with password sign-in', () => {
 
     mocks.config = null
     const off = mount(<Settings />)
-    expect(titles(section(off, 'Account'))).toEqual(['Passkeys not supported in this browser.'])
+    expect(titles(section(off, 'Account'))).toEqual(['Sign in with password'])
   })
 
-  it('"Sign in" after the server ended the session asks which way; the passkey is one tap on it', async () => {
+  it('session reauthentication only offers a password', async () => {
     mocks.sync = { status: 'auth', offline: false, pending: true, auth: true, lastError: { status: 401 }, lastSynced: 0, server: null }
     const page = mount(<Settings />)
     const row = rowByTitle(section(page, 'Server & sync'), 'Sign in')
@@ -115,8 +115,9 @@ describe('Settings with password sign-in', () => {
     act(() => row.click())
     expect(mocks.passkeyLogin).not.toHaveBeenCalled()
     const sheet = mount(mocks.sheets.at(-1).render(() => {}))
-    const passkey = [...sheet.querySelectorAll('button')].find(b => b.textContent === 'Sign in with passkey')
-    await act(async () => { passkey.click() })
-    expect(mocks.passkeyLogin).toHaveBeenCalledTimes(1)
+    expect(sheet.querySelector('input[autocomplete="current-password"]')).toBeTruthy()
+    expect(sheet.textContent).not.toContain('Sign in with passkey')
+    expect(mocks.passkeyLogin).not.toHaveBeenCalled()
+
   })
 })

@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => {
   state.signOutAll = vi.fn()
   state.shareExport = vi.fn(async () => {})
   state.snapshot = () => ({
-    S: state.S, user: state.user, sync: state.sync, coachLocal: null,
+    S: state.S, user: state.user, sync: state.sync, config: { password_login: true }, coachLocal: null,
     update: vi.fn(), replaceState: vi.fn(), setUser: vi.fn(), pullState: vi.fn(), pushState: vi.fn(), resetDemo: vi.fn(),
     syncNow: state.syncNow, unsyncedChanges: () => state.unsynced, keptChanges: async () => state.kept,
     disconnectServer: state.disconnectServer, signOut: state.signOut, signOutAll: state.signOutAll,
@@ -257,7 +257,7 @@ describe('leaving the server', () => {
     const sheet = openSheet()
     expect(sheet.textContent).toContain('Sign in again, or export a backup first.')
     expect(sheet.textContent).not.toContain('Try again')
-    expect(buttonByText(sheet, 'Sign in with passkey')).toBeTruthy()
+    expect(buttonByText(sheet, 'Sign in')).toBeTruthy()
   })
 
   it('a server that is only out of reach still offers Try again, and says so', async () => {
@@ -282,7 +282,7 @@ describe('leaving the server', () => {
     expect(mocks.toast).toHaveBeenLastCalledWith('Could not keep a copy of the changes on this device — nothing was removed.')
   })
 
-  it('browser: Sign out checks first too, and "Sign out everywhere" says paired phones have to be paired again', async () => {
+  it('browser: Sign out checks first too, and "Sign out everywhere" explains that sessions end on all devices', async () => {
     mocks.MOBILE = false
     mocks.signOut.mockResolvedValueOnce({ owed: true, count: 4 })
     const page = mount(<Settings />)
@@ -297,7 +297,7 @@ describe('leaving the server', () => {
     expect(mocks.navs).toEqual(['/home'])
 
     act(() => rowByTitle(page, 'Sign out everywhere').click())
-    expect(confirm().message).toContain('Phones paired with it are disconnected and have to be paired again.')
+    expect(confirm().message).toContain('Ends this profile’s sessions on all your devices.')
     mocks.signOutAll.mockRejectedValueOnce(new Error('HTTP 502'))
     await act(async () => { await confirm().onConfirm() })
     expect(mocks.toast).toHaveBeenLastCalledWith('Could not sign out everywhere — you are still signed in.')

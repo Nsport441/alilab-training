@@ -191,17 +191,12 @@ describe('PasswordSignInSheet', () => {
     expect(mocks.passwordResetRedeem).toHaveBeenCalledWith('ana@example.com', 'K7WQ-2MZP-4HXA', 'a brand new passphrase')
   })
 
-  it('offers the passkey only when the caller hands one over and this browser can make one', () => {
+  it('never offers a passkey even if a legacy caller provides one', () => {
     const onPasskey = vi.fn()
     const host = mount(<PasswordSignInSheet close={() => {}} onPasskey={onPasskey} />)
-    act(() => button(host, 'Sign in with passkey').click())
-    expect(onPasskey).toHaveBeenCalled()
-    mocks.webauthn = false
-    expect(button(mount(<PasswordSignInSheet close={() => {}} onPasskey={onPasskey} />), 'Sign in with passkey')).toBeUndefined()
-    mocks.webauthn = true
-    expect(button(mount(<PasswordSignInSheet close={() => {}} />), 'Sign in with passkey')).toBeUndefined()
-  })
-})
+    expect(button(host, 'Sign in with passkey')).toBeUndefined()
+    expect(onPasskey).not.toHaveBeenCalled()
+  })})
 
 describe('PasswordRegisterForm', () => {
   function Harness({ inviteOnly }) {
@@ -209,22 +204,20 @@ describe('PasswordRegisterForm', () => {
     const [code, setCode] = React.useState('')
     return <PasswordRegisterForm close={() => {}} inviteOnly={inviteOnly} name={name} setName={setName} code={code} setCode={setCode} />
   }
-  it('checks the invite and the repeated password here, then creates the profile', async () => {
+  it('ignores legacy invitation props and checks repeated passwords before registration', async () => {
     mocks.passwordRegister.mockResolvedValue({ id: 'u9', name: 'Cleo' })
     const host = mount(<Harness inviteOnly />)
     type(byPlaceholder(host, 'Your name'), 'Cleo')
     type(byPlaceholder(host, 'Password'), 'correct horse battery')
     type(byPlaceholder(host, 'Repeat the password'), 'correct horse battery')
-    await submit(host)
-    expect(alertText(host)).toBe('An invite code is required')
-    type(byPlaceholder(host, 'Invite code'), 'abc123')
+    expect(byPlaceholder(host, 'Invite code')).toBeNull()
     type(byPlaceholder(host, 'Repeat the password'), 'correct horse batterY')
     await submit(host)
     expect(alertText(host)).toBe('The two passwords are not the same.')
     expect(mocks.passwordRegister).not.toHaveBeenCalled()
     type(byPlaceholder(host, 'Repeat the password'), 'correct horse battery')
     await submit(host)
-    expect(mocks.passwordRegister).toHaveBeenCalledWith('Cleo', 'correct horse battery', 'ABC123', '')
+    expect(mocks.passwordRegister).toHaveBeenCalledWith('Cleo', 'correct horse battery', '', '')
     expect(mocks.setUser).toHaveBeenCalledWith({ id: 'u9', name: 'Cleo' })
     expect(mocks.pullState).toHaveBeenCalled()
     expect(mocks.toast).toHaveBeenCalledWith('Welcome, Cleo')

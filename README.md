@@ -1,6 +1,7 @@
 # AliLab Training — Phase 1A
 
-Modified openGym fork. Start with [the AliLab staging guide](docs/ALILAB_PHASE1A_FA.md).
+Modified openGym fork. Current authentication: [AliLab password-only guide](docs/ALILAB_PASSWORD_ONLY_FA.md).
+Original setup history: [AliLab staging guide](docs/ALILAB_PHASE1A_FA.md).
 Baseline and original notices: [UPSTREAM.json](UPSTREAM.json), [LICENSE](LICENSE),
 [NOTICE.md](NOTICE.md). Change record: [ALILAB_CHANGES.md](ALILAB_CHANGES.md).
 Public exercise media is disabled; AI and user uploads are disabled in the pilot stack.

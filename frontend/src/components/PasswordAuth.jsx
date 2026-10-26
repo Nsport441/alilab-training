@@ -83,9 +83,9 @@ const field = { autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false }
 const codeStyle = { letterSpacing: '.14em', fontWeight: 600, textAlign: 'center' }
 
 /* Sign in with name (or the profile's sign-in e-mail) and password, or — one tap away — redeem a reset code from the admin, which
-   sets a new password and signs in. `onPasskey`, when given, offers the passkey instead. The
+   sets a new password and signs in. The
    inputs carry the autocomplete names password managers look for, inside a real form. */
-export function PasswordSignInSheet({ close, onPasskey }) {
+export function PasswordSignInSheet({ close }) {
   const [mode, setMode] = useState('signin')   // 'signin' | 'reset'
   const [name, setName] = useState('')
   const [pw, setPw] = useState('')
@@ -144,17 +144,12 @@ export function PasswordSignInSheet({ close, onPasskey }) {
     <div style={{ height: 8 }} />
     <Button type="button" variant="ghost" className="dim" onClick={() => { setErr(null); setMode(reset ? 'signin' : 'reset') }}>
       {reset ? t('Sign in with password') : t('Have a reset code from your admin?')}</Button>
-    {onPasskey && !reset && webauthnOK() && <>
-      <div style={{ height: 8 }} />
-      <Button type="button" icon="person" onClick={() => { close(); onPasskey() }}>{t('Sign in with passkey')}</Button>
-    </>}
   </>
 }
-export const openPasswordSignIn = onPasskey => ui().openSheet(close => <PasswordSignInSheet close={close} onPasskey={onPasskey} />)
+export const openPasswordSignIn = () => ui().openSheet(close => <PasswordSignInSheet close={close} />)
 
-/* The password half of creating a profile. Name and invite code are the caller's state, so
-   switching between passkey and password on the sign-up sheet keeps what was typed. */
-export function PasswordRegisterForm({ close, inviteOnly, name, setName, code, setCode }) {
+/* AliLab registration: name, optional e-mail and a confirmed password. No invitation. */
+export function PasswordRegisterForm({ close, name, setName }) {
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [again, setAgain] = useState('')
@@ -167,14 +162,13 @@ export function PasswordRegisterForm({ close, inviteOnly, name, setName, code, s
     const mail = email.trim()
     const bad = !n ? t('Enter a name')
       : mail && !looksLikeEmail(mail) ? t('That is not an e-mail address.')
-      : inviteOnly && !code.trim() ? t('An invite code is required')
       : length(pw) < MIN_PASSWORD ? t('Use at least {0} characters.', MIN_PASSWORD)
       : pw !== again ? t('The two passwords are not the same.')
       : null
     if (bad) { setErr(bad); return }
     setBusy(true); setErr(null)
     try {
-      const u = await passwordRegister(n, pw, code.trim(), mail)
+      const u = await passwordRegister(n, pw, '', mail)
       const st = useStore.getState()
       st.setUser(u); close()
       if (hasData(useStore.getState().S)) { await st.pushState(); toast(t('Profile created — data from this device moved into it')) }
@@ -189,12 +183,6 @@ export function PasswordRegisterForm({ close, inviteOnly, name, setName, code, s
     <input className="input" type="email" name="email" autoComplete="email" inputMode="email" placeholder={t('E-mail (optional)')} maxLength={254}
       value={email} onChange={e => setEmail(e.target.value)} {...field} />
     <div className="dim small" style={{ marginTop: 6 }}>{t('Lets you sign in with it instead of your name. Nothing is ever sent to it.')}</div>
-    {inviteOnly && <>
-      <div style={{ height: 10 }} />
-      <input className="input" placeholder={t('Invite code')} maxLength={40} value={code}
-        onChange={e => setCode(e.target.value.toUpperCase())} style={codeStyle} />
-      <div className="dim small" style={{ marginTop: 6 }}>{t('This app is invite-only — enter the code you were given.')}</div>
-    </>}
     <div style={{ height: 10 }} />
     <input className="input" type="password" name="new-password" autoComplete="new-password" placeholder={t('Password')}
       value={pw} onChange={e => setPw(e.target.value)} />
@@ -208,15 +196,13 @@ export function PasswordRegisterForm({ close, inviteOnly, name, setName, code, s
   </form>
 }
 
-// The same form on its own sheet — Settings, in a browser that cannot make a passkey.
+// The same password registration form, reached from Settings.
 function PasswordRegisterSheet({ close }) {
-  const config = useStore(s => s.config)
   const [name, setName] = useState('')
-  const [code, setCode] = useState('')
   return <>
     <h3>{t('Create your profile')}</h3>
     <div className="muted small" style={{ marginBottom: 14 }}>{t('Pick a name and a password. You sign in with both.')}</div>
-    <PasswordRegisterForm close={close} inviteOnly={!!config?.invite_only} name={name} setName={setName} code={code} setCode={setCode} />
+    <PasswordRegisterForm close={close} name={name} setName={setName} />
   </>
 }
 export const openPasswordRegister = () => ui().openSheet(close => <PasswordRegisterSheet close={close} />)
@@ -308,10 +294,10 @@ export function useAgainOnceReached(unreached, load) {
    which the sheet says before anyone taps. */
 // `version` changes when the profile's passkeys do (Settings, components/Passkeys.jsx): whether the
 // password may be removed depends on them, so the row asks again.
-export function PasswordRow({ version = 0 }) {
+export function PasswordRow({ version = 0, passwordOnly = false }) {
   const [st, setSt] = useState(null)   // GET /api/account/password
   const [unreached, setUnreached] = useState(false)
-  const load = () => api('/api/account/password').then(r => { setSt(r); setUnreached(false) }).catch(e => setUnreached(notReached(e)))
+  const load = () => api('/api/account/password').then(r => { setSt(passwordOnly ? { ...r, passkeys: 0 } : r); setUnreached(false) }).catch(e => setUnreached(notReached(e)))
   useEffect(() => { load() }, [version])
   useAgainOnceReached(unreached, load)
   if (!st) return null
@@ -355,9 +341,6 @@ export function PasswordSheet({ status, close, done }) {
   const remove = () => ui().openSheet(c => <RemovePasswordSheet status={status} close={c} done={() => { close(); done() }} />)
   return <>
     <h3>{status.set ? t('Change password') : t('Set a password')}</h3>
-    <div className="muted small" style={{ marginBottom: 14 }}>
-      {t('Sign in as “{0}” with it on devices where passkeys do not work. Saving signs you out everywhere else, and paired phones have to be paired again.', status.name)}
-    </div>
     <form onSubmit={ev => { ev.preventDefault(); save(!status.set) }} noValidate>
       {/* Tells a password manager which account the new password belongs to. */}
       <input type="text" name="username" autoComplete="username" value={status.name} readOnly hidden />

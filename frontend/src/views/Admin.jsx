@@ -82,7 +82,7 @@ function UserDetail({ id, onChanged, close }) {
   const pwInstance = typeof u.password === 'boolean'
   const resetPassword = () => confirmSheet({
     title: adminText('Reset ') + u.name + adminText('’s password?'),
-    message: adminText("You get a one-time code to hand them. Their current password stops working now and they are signed out everywhere; their passkeys keep working. They set a new password with the code under “Sign in with password”. It is shown once and is valid for 24 hours."),
+    message: adminText("You get a one-time reset code. Their current password stops working and all sessions end. They set a new password under “Sign in with password”. The code is shown once and is valid for 24 hours."),
     confirmText: adminText("Create reset code"),
     danger: true,
     onConfirm: () => api('/api/admin/user/password-reset', { method: 'POST', body: JSON.stringify({ id: u.id }) })
@@ -94,7 +94,6 @@ function UserDetail({ id, onChanged, close }) {
     <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '8px 0 12px' }}>
       {u.admin && <span className="adm-pill acc">{adminText("admin")}</span>}
       {u.disabled && <span className="adm-pill bad">{adminText("disabled")}</span>}
-      {u.invitedBy && <span className="adm-pill">{adminText("invite ")}{u.invitedBy}</span>}
       {u.password && <span className="adm-pill">{adminText("password")}</span>}
       {/* The sign-in e-mail (password instances only): shown to admins and nobody else. */}
       {u.email && <span className="adm-pill" title={adminText("sign-in e-mail")}>{u.email}</span>}
@@ -119,7 +118,7 @@ function UserDetail({ id, onChanged, close }) {
       <button className="btn danger" style={{ margin: '14px 0 4px' }}
         onClick={() => confirmSheet({
           title: adminText('Delete ') + u.name + adminText('?'),
-          message: adminText("Everything goes: their workouts, weigh-ins, routines, passkeys and notifications. This cannot be undone, and the invite code they joined with stays used. Download their data first if they might want it."),
+          message: adminText("Their workouts, weigh-ins, routines, password and notifications will be deleted. This cannot be undone. Download their data first if they might want it."),
           confirmText: adminText("Continue"),
           danger: true,
           onConfirm: () => confirmSheet({
@@ -136,7 +135,7 @@ function UserDetail({ id, onChanged, close }) {
         <button className="btn" style={{ margin: '14px 0 4px' }} onClick={resetPassword}>{adminText("Reset password")}</button>
         <div className="adm-hint">{u.password
           ? adminText('For a forgotten password: a one-time code lets them choose a new one. Their current password stops working at once.')
-          : adminText('No password yet. A one-time code lets them set one — the way back in after losing their only passkey.')}</div>
+          : adminText('No password yet. A one-time reset code lets them set one.')}</div>
       </>}
     </>}
     <h4 className="sec">{adminText("Workout history")}</h4>
@@ -148,48 +147,6 @@ function UserDetail({ id, onChanged, close }) {
       </div>)}
     </div> : <div className="adm-empty">{adminText("No workouts logged.")}</div>}
   </>
-}
-
-function InvitesCard({ invites, reload, inviteOnly }) {
-  const toast = useUI(s => s.toast)
-  const gen = () => api('/api/admin/invites/new', { method: 'POST', body: '{}' })
-    .then(({ invite }) => { navigator.clipboard?.writeText(invite.code).catch(() => {}); toast(adminText('Code ') + invite.code + adminText(' created & copied')); reload() })
-    .catch(e => toast(e.message))
-  const revoke = code => confirmSheet({
-    title: adminText('Revoke code ') + code + adminText('?'), message: adminText("Anyone who has it can no longer use it. People who already signed up with it are not affected."),
-    confirmText: adminText("Revoke"), danger: true,
-    onConfirm: () => api('/api/admin/invites/revoke', { method: 'POST', body: JSON.stringify({ code }) })
-      .then(() => { toast(adminText('Code revoked')); reload() }).catch(e => toast(e.message))
-  })
-  const copy = code => { navigator.clipboard?.writeText(code).catch(() => {}); toast(adminText('Copied ') + code) }
-  const open = (invites || []).filter(i => !i.usedBy)
-  const used = (invites || []).filter(i => i.usedBy)
-  return <div className="card">
-    <div className="row between"><h2 style={{ margin: 0 }}>{adminText("Invite codes")}</h2>
-      <Button variant="primary" size="sm" onClick={gen} icon="plus">{adminText("New code")}</Button></div>
-    <div className="adm-lead">
-      {inviteOnly
-        ? adminText('Sign-up is invite-only: someone needs one of these codes to create a profile. Each code works once.')
-        : adminText('Sign-up is open, so codes are optional here — they only record who invited whom.')}
-    </div>
-    {open.length ? <>
-      <div className="adm-group-t">{adminText("Unused · tap to copy")}</div>
-      {open.map(i => <div key={i.code} className="row between" style={{ padding: '6px 0', borderBottom: 'var(--hair) solid var(--sep)' }}>
-        <button className="adm-code" onClick={() => copy(i.code)} aria-label={adminText('copy') + ' ' + i.code}>{i.code}</button>
-        <div className="row" style={{ gap: 4 }}>
-          <button className="iconbtn adm-iconbtn" onClick={() => copy(i.code)} aria-label={adminText("copy")}><Icon name="clipboard" /></button>
-          <button className="iconbtn adm-iconbtn" style={{ color: 'var(--red)' }} onClick={() => revoke(i.code)} aria-label={adminText("revoke")}><Icon name="trash" /></button>
-        </div>
-      </div>)}
-    </> : null}
-    {used.length ? <>
-      <div className="adm-group-t" style={{ marginTop: open.length ? 12 : 0 }}>{adminText("Already used")}</div>
-      {used.map(i => <div key={i.code} className="row between dim" style={{ padding: '6px 0', fontSize: '.82rem' }}>
-        <span style={{ fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', letterSpacing: '.06em' }}>{i.code}</span><span>→ {i.usedByName || adminText('used')}</span>
-      </div>)}
-    </> : null}
-    {!open.length && !used.length && <div className="adm-empty">{adminText("No codes yet. \"New code\" makes one and copies it to your clipboard.")}</div>}
-  </div>
 }
 
 // Who signed in, who tried and failed, what an admin changed. A card rather than its own route:
@@ -257,8 +214,6 @@ export default function Admin() {
   const openSheet = useUI(s => s.openSheet)
   const [users, setUsers] = useState(null)
   const [usersErr, setUsersErr] = useState(null)   // why the last load failed, until one succeeds
-  const [invites, setInvites] = useState(null)
-  const [inviteOnly, setInviteOnly] = useState(false)
   const [tick, setTick] = useState(0)          // the ↻ button; the activity log listens to it
 
   // A failed load, or an answer without a list, used to leave the page on "Loading…" for good —
@@ -268,12 +223,11 @@ export default function Admin() {
   const loadUsers = () => api('/api/admin/users')
     .then(d => {
       if (!Array.isArray(d?.users)) throw new Error(adminText("The server answered without a list of users."))
-      setUsers(d.users); setInviteOnly(!!d.invite_only); setUsersErr(null)
+      setUsers(d.users); setUsersErr(null)
     })
     .catch(e => setUsersErr(e.message || adminText("Failed to load")))
-  const loadInvites = () => api('/api/admin/invites').then(d => setInvites(d.invites)).catch(() => {})
   // poll every 15s so the "training now" section stays live without a manual refresh
-  useEffect(() => { if (!user?.admin) return; loadUsers(); loadInvites(); const iv = setInterval(loadUsers, 15000); return () => clearInterval(iv) }, [])
+  useEffect(() => { if (!user?.admin) return; loadUsers(); const iv = setInterval(loadUsers, 15000); return () => clearInterval(iv) }, [])
   if (!user?.admin) return null
 
   const openUser = id => openSheet(close => <UserDetail id={id} onChanged={loadUsers} close={close} />)
@@ -286,7 +240,7 @@ export default function Admin() {
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={adminText("Back")}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>{adminText("Admin")}</h1>
         <div className="sub">{users ? users.length + adminText(' users · ') + activeCount + ' ' + adminText('active this week') : usersErr ? adminText('Could not load') : adminText('Loading…')}</div></div>
-      <button className="iconbtn" onClick={() => { loadUsers(); loadInvites(); setTick(n => n + 1) }} aria-label={adminText("refresh")}>↻</button>
+      <button className="iconbtn" onClick={() => { loadUsers(); setTick(n => n + 1) }} aria-label={adminText("refresh")}>↻</button>
     </div>
     <div className="adm-intro">
       {adminText("Everything about running this instance: who uses it, how they get in, the AI Coach, and what has happened on it. Nothing here shows anyone's training data beyond counts.")}
@@ -321,7 +275,6 @@ export default function Admin() {
         page on a box that never enabled it is byte-for-byte the page it was before. */}
     <AdminCoach />
 
-    <InvitesCard invites={invites} reload={loadInvites} inviteOnly={inviteOnly} />
 
     <div className="card">
       <h2 style={{ margin: 0 }}>{adminText("Users")}</h2>
