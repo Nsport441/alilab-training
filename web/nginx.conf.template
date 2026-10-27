@@ -92,6 +92,19 @@ server {
         proxy_set_header CF-Connecting-IP "${CF_CONNECTING_IP}";
     }
 
+    # Version metadata of the Web image currently serving this origin. It is not
+    # an attestation of the Runflare platform status or a container digest.
+    location = ${BASE_PATH}/release-build.json {
+        rewrite ^${BASE_PATH}/(.*)$ /$1 break;
+        default_type application/json;
+        try_files /release-build.json =404;
+        add_header Cache-Control "no-store" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "same-origin" always;
+        add_header Content-Security-Policy "frame-ancestors 'none'" always;
+    }
+
     # The app routes behind the hash (/#/plan, /#/history …), so a path is never a screen, and the
     # shell's asset URLs are relative (vite base './' — the Pages demo lives under /demo/). Serving
     # index.html AT a deep path (/plan/r/x: a typo, a stale link) gave a page whose scripts resolved
