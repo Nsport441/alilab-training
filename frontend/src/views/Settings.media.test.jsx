@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => {
   const state = { S: null, user: null, config: null, sync: { status: 'ok' }, stashed: new Set() }
   state.replaceState = vi.fn()
   state.importBackup = vi.fn()
-  state.resetEverything = vi.fn()
+  state.resetEverything = vi.fn(() => { state.S = { ...state.S, customEx: [], workouts: [] } })
   state.menuSheet = vi.fn()
   state.conflict = null
   state.pushState = vi.fn(async () => {})
@@ -106,7 +106,7 @@ const mount = async () => { act(() => root.render(<Settings />)); await settle()
 describe('Settings — photos and videos', () => {
   it('the JSON export says it leaves them out, the zip row and the Photos & videos row appear', async () => {
     await mount()
-    expect(row('Export backup (JSON)').textContent).toContain('Without photos and videos')
+    expect(row('Download personal backup (JSON)').textContent).toContain('without photos and videos')
     expect(row('Export with photos & videos (.zip)')).toBeTruthy()
     expect(row('Photos & videos').textContent).toContain('Kept on this device only')
     expect(host.querySelector('input[type="file"][accept=".json,.zip,application/json,application/zip"]')).toBeTruthy()
@@ -136,7 +136,7 @@ describe('Settings — photos and videos', () => {
   it('without any, none of that shows', async () => {
     mocks.S = { ...stateWithPhoto(), customEx: [] }
     await mount()
-    expect(row('Export backup (JSON)').textContent).not.toContain('Without photos')
+    expect(row('Download personal backup (JSON)').textContent).not.toContain('Without photos')
     expect(row('Export with photos & videos')).toBeUndefined()
     expect(row('Photos & videos')).toBeUndefined()
   })
@@ -181,7 +181,31 @@ describe('Settings — photos and videos', () => {
     expect(await media.get(HASH)).toMatchObject({ mime: 'image/jpeg', pending: true })
     expect(mocks.importBackup).toHaveBeenCalledTimes(1)
     expect(mocks.importBackup.mock.calls[0][0].customEx[0].media.hash).toBe(HASH)
-    expect(mocks.importBackup.mock.calls[0][1]).toEqual({ mergeWith: null })   // the replace
+    expect(mocks.importBackup.mock.calls[0][1]).toEqual({ mergeWith: null, snapshot: null })   // the replace
+  })
+
+  it('does not restore when local data changes while confirmation is open', async () => {
+    await mount()
+    const input = host.querySelector('input[type="file"][accept^=".json"]')
+    Object.defineProperty(input, 'files', { value: [new File([JSON.stringify(stateWithPhoto())], 'backup.json')], configurable: true })
+    act(() => { input.dispatchEvent(new Event('change', { bubbles: true })) })
+    await until(() => mocks.confirmSheet.mock.calls.length > 0)
+    mocks.S = { ...mocks.S, restSec: 55 }
+    await act(async () => { await mocks.confirmSheet.mock.calls[0][0].onConfirm() })
+    expect(mocks.importBackup).not.toHaveBeenCalled()
+    expect(mocks.toast).toHaveBeenCalledWith('Data changed while the confirmation was open. Choose the backup again.')
+  })
+
+  it('rejects malformed backup before offering confirmation or changing data', async () => {
+    await mount()
+    const before = mocks.S
+    const input = host.querySelector('input[type="file"][accept^=".json"]')
+    Object.defineProperty(input, 'files', { value: [new File(['{"workouts": [null], "routines": []}'], 'bad.json')], configurable: true })
+    act(() => { input.dispatchEvent(new Event('change', { bubbles: true })) })
+    await until(() => mocks.toast.mock.calls.length > 0)
+    expect(mocks.S).toBe(before)
+    expect(mocks.importBackup).not.toHaveBeenCalled()
+    expect(mocks.confirmSheet).not.toHaveBeenCalled()
   })
 
   // QA, v1.3.9: the import replaced a workout another device had synced meanwhile, unsaid.
@@ -200,9 +224,9 @@ describe('Settings — photos and videos', () => {
     expect(sheet.items.map(i => i.label)).toEqual(['Replace anyway', 'Merge them in', 'Cancel'])
     await act(async () => { await sheet.items[1].onClick() })
     expect(mocks.importBackup).toHaveBeenCalledTimes(1)
-    expect(mocks.importBackup.mock.calls[0][1]).toEqual({ mergeWith: mocks.conflict })
+    expect(mocks.importBackup.mock.calls[0][1]).toEqual({ mergeWith: mocks.conflict, snapshot: mocks.conflict })
     await act(async () => { await sheet.items[0].onClick() })
-    expect(mocks.importBackup.mock.calls[1][1]).toEqual({ mergeWith: null })
+    expect(mocks.importBackup.mock.calls[1][1]).toEqual({ mergeWith: null, snapshot: mocks.conflict })
   })
 
   it('Reset, signed in: pushes, asks the server to sweep, and keeps only what a stash refers to', async () => {
@@ -213,7 +237,8 @@ describe('Settings — photos and videos', () => {
     await media.put(other, new Blob(['x']), { mime: 'image/png', pending: true })
     mocks.stashed = new Set([other])
     await mount()
-    act(() => { row('Reset everything').click() })
+    act(() => { row('Advanced data settings').click() })
+    act(() => { row('Reset my account training data').click() })
     act(() => { mocks.confirmSheet.mock.calls[0][0].onConfirm() })
     await until(async () => !(await media.has(HASH)))
     expect(mocks.pushState).toHaveBeenCalled()
@@ -227,7 +252,8 @@ describe('Settings — photos and videos', () => {
     mocks.config = { media: { imageMB: 2 } }
     mocks.sync = { status: 'offline' }
     await mount()
-    act(() => { row('Reset everything').click() })
+    act(() => { row('Advanced data settings').click() })
+    act(() => { row('Reset my account training data').click() })
     act(() => { mocks.confirmSheet.mock.calls[0][0].onConfirm() })
     await until(() => mocks.pushState.mock.calls.length > 0)
     await settle()
@@ -239,7 +265,8 @@ describe('Settings — photos and videos', () => {
     mocks.confirmSheet.mockClear(); mocks.api.mockClear()
     await media.put(HASH, new Blob([PHOTO]), { mime: 'image/jpeg', pending: true })
     await mount()
-    act(() => { row('Reset everything').click() })
+    act(() => { row('Advanced data settings').click() })
+    act(() => { row('Reset my account training data').click() })
     act(() => { mocks.confirmSheet.mock.calls[0][0].onConfirm() })
     await until(async () => !(await media.has(HASH)))
     expect(mocks.api).not.toHaveBeenCalled()

@@ -46,6 +46,8 @@ export default function Settings() {
   const toast = useUI(s => s.toast)
   const fileRef = useRef(null)
   const importRef = useRef(null)
+  const [advancedDataOpen, setAdvancedDataOpen] = useState(false)
+  const [dataBusy, setDataBusy] = useState(false)
   const wakeOK = wakeLockSupported()
 
   // Two honest choices on a unit switch (issue #22): convert the numbers, or keep them and only
@@ -175,26 +177,44 @@ export default function Settings() {
   // files go into the local store only once the import is confirmed, each checked against its
   // name first; the state's media refs and links pass the usual gates (lib/backup-media.js).
   const doImport = async ev => {
-    const f = ev.target.files[0]; if (!f) return
+    const f = ev.target.files[0]; if (!f || dataBusy) return
     ev.target.value = ''
+    setDataBusy(true)
     let read
     try {
       const { readBackupFile } = await import('../lib/backup-media.js')
       read = await readBackupFile(f)
-    } catch (e) { toast(t('Import failed: {0}', e.message)); return }
+    } catch { setDataBusy(false); toast(t('Invalid backup file. Your current data was not changed.')); return }
+    let conflict, checkedState
+    const uid = user?.id || null
     const apply = async mergeWith => {
-      if (read.files.length) {
-        const { storeBackupMedia } = await import('../lib/backup-media.js')
-        await storeBackupMedia(read.files, { limits: limitsFrom(useStore.getState().config) })
-      }
-      importBackup(read.state, { mergeWith })
-      toast(t('Backup imported'))
+      setDataBusy(true)
+      try {
+        if ((useStore.getState().user?.id || null) !== uid || useStore.getState().S !== checkedState) {
+          toast(t('Data changed while the confirmation was open. Choose the backup again.'))
+          return
+        }
+        if (read.files.length) {
+          const { storeBackupMedia } = await import('../lib/backup-media.js')
+          await storeBackupMedia(read.files, { limits: limitsFrom(useStore.getState().config) })
+        }
+        if ((useStore.getState().user?.id || null) !== uid || useStore.getState().S !== checkedState) {
+          toast(t('Data changed while the confirmation was open. Choose the backup again.'))
+          return
+        }
+        importBackup(read.state, { mergeWith, snapshot: conflict })
+        toast(user ? t('Backup restored on this device. Server sync may still be pending.') : t('Backup imported'))
+      } catch { toast(t('Something went wrong')) } finally { setDataBusy(false) }
     }
     // Signed in, the server is asked first: a workout logged since the backup was made, or on
     // another device meanwhile, would be deleted from the profile by the replace — said, with the
     // choice to merge those in instead (useStore importConflict / importBackup).
-    const conflict = await importConflict(read.state)
-    if (conflict) {
+    try { conflict = await importConflict(read.state) }
+    catch { setDataBusy(false); toast(t('Could not check server data. Try again when connected.')); return }
+    checkedState = useStore.getState().S
+    if ((useStore.getState().user?.id || null) !== uid) { setDataBusy(false); toast(t('Data changed while the confirmation was open. Choose the backup again.')); return }
+    setDataBusy(false)
+    if (conflict?.workouts) {
       const n = conflict.workouts
       menuSheet({
         title: t('Import backup?'),
@@ -250,17 +270,20 @@ export default function Settings() {
   // Each is cleared on its own; forgetCoach() alone would pick one by mode. A failed call must
   // not stop the reset.
   const resetEverything = () => confirmSheet({
-    title: t('Reset everything?'),
+    title: t('Reset my account training data?'),
     message: user
       ? t('Deletes your plan, workouts, body weight, photos and videos from your profile on this server and on every signed-in device. This cannot be undone.')
       : t('Deletes your plan, workouts, body weight, photos and videos on this device. This cannot be undone.'),
-    confirmText: t('Delete everything'), danger: true,
-    onConfirm: () => {
+    confirmText: t('Reset training data'), danger: true,
+    onConfirm: async () => {
+      setDataBusy(true)
+      try { await resetAll() } catch { setDataBusy(false); toast(t('Could not check server data. Try again when connected.')); return }
+      setDataBusy(false)
+      if (user && useStore.getState().user?.id !== user.id) return
       if (user) api('/api/coach/forget', { method: 'POST', body: '{}' }).catch(() => {})
       if (coachLocal?.mode === 'byok') forgetCoach().catch(() => {})
-      resetAll()
-      nav('/home'); toast(t('All data reset'))
-      clearMediaAfterReset(!!user).catch(() => {})
+      nav('/home'); toast(user ? t('Training data reset on this device. Server sync may still be pending.') : t('All data reset'))
+      clearMediaAfterReset(user?.id || null).catch(() => {})
     },
   })
 
@@ -527,16 +550,15 @@ export default function Settings() {
     </Section>
 
     {/* ---------- data: fill it, bring things over, back it up, wipe it ---------- */}
-    <Section title={t('Data')}>
-      <Row icon="sparkles" iconTint="var(--acc)" title={t('Load starter plan')} accessory="chevron" onClick={starterPlanSheet} />
+    <Section title={t('Account data management')}>
+      <Row icon="sparkles" iconTint="var(--acc)" title={t('Load starter plan')} subtitle={t('Choose a ready-made plan to get started.')} accessory="chevron" onClick={starterPlanSheet} />
       <Row icon="shuffle" iconTint="var(--teal)" title={t('Import from another app')}
         subtitle={t('FitNotes, Strong, Hevy — or body weight from Apple Health')}
         accessory="chevron" onClick={() => importRef.current.click()} />
       <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
         subtitle={t('Pull your history with a Hevy Pro API key')}
         accessory="chevron" onClick={importFromHevy} />
-      <Row icon="upload" iconTint="var(--blue)" title={t('Import backup')} accessory="chevron" onClick={() => fileRef.current.click()} />
-      <Row icon="download" iconTint="var(--blue)" title={t('Export backup (JSON)')} subtitle={hasMedia ? t('Without photos and videos') : undefined} accessory="chevron" onClick={doExport} />
+      <Row icon="download" iconTint="var(--blue)" title={t('Download personal backup (JSON)')} subtitle={t('Save a copy of your account data without photos and videos.')} accessory="chevron" onClick={doExport} />
       {hasMedia && <Row icon="download" iconTint="var(--blue)" title={t('Export with photos & videos (.zip)')} accessory="chevron" onClick={doExportZip} />}
       {hasMedia && <MediaRow />}
       {/* 14 is AUTO_BACKUP_KEEP in lib/mobile.js, written out because the Settings tests mock
@@ -545,7 +567,13 @@ export default function Settings() {
         subtitle={t('Saves a dated copy to Documents/openGym after finishing a workout or editing a routine, and keeps the newest {0} — point a sync app at that folder, or copy it out by hand.', 14)}>
         <Switch checked={!!S.autoBackup} onChange={v => update(s => { s.autoBackup = v })} />
       </Row>}
-      <Row icon="trash" iconTint="var(--red)" title={t('Reset everything')} danger onClick={resetEverything} />
+    </Section>
+    <Section title={t('Advanced data settings')}>
+      <Row icon="settings" title={t('Advanced data settings')} subtitle={t('Restore or reset data for this account.')} accessory="chevron" ariaExpanded={advancedDataOpen} ariaControls="advanced-data-controls" onClick={() => setAdvancedDataOpen(v => !v)} />
+      {advancedDataOpen && <div id="advanced-data-controls">
+        <Row icon="upload" iconTint="var(--blue)" title={t('Restore from backup')} subtitle={dataBusy ? t('Processing backup…') : t('Replace current data with a backup file.')} accessory="chevron" onClick={() => { if (!dataBusy) fileRef.current.click() }} />
+        <Row icon="trash" iconTint="var(--red)" title={t('Reset my account training data')} subtitle={dataBusy ? t('Processing data…') : t('Permanently delete the data on this account.')} danger onClick={() => { if (!dataBusy) resetEverything() }} />
+      </div>}
     </Section>
     <input ref={fileRef} type="file" accept=".json,.zip,application/json,application/zip" style={{ display: 'none' }} onChange={doImport} />
     {/* Reset after reading so picking the same file twice still fires onChange. */}
@@ -824,15 +852,23 @@ function EquipmentCard({ S, update }) {
    first and, once the server holds it, the server is asked to drop every file that state no
    longer refers to (POST /api/media/sweep) — asked before the push landed, it would still see the
    old state and keep everything, which is the safe side. Then this device keeps only the files a
-   stash refers to: another account's changes kept here are not this reset's to delete. */
-async function clearMediaAfterReset(signedIn) {
+   stash or the current state refers to: another account's changes and concurrent additions
+   are not this reset's to delete. */
+async function clearMediaAfterReset(uid) {
   const st = useStore.getState()
-  if (signedIn && typeof st.pushState === 'function') {
+  const sameAccount = () => (useStore.getState().user?.id || null) === uid
+  if (!sameAccount()) return
+  if (uid && typeof st.pushState === 'function') {
     await st.pushState()
+    if (!sameAccount()) return
     const now = useStore.getState()
     if (now.sync?.status === 'ok' && now.config?.media) await api('/api/media/sweep', { method: 'POST', body: '{}' }).catch(() => {})
   }
+  if (!sameAccount()) return
   const keep = typeof st.stashedMediaHashes === 'function' ? await st.stashedMediaHashes() : new Set()
+  if (!sameAccount()) return
+  // A concurrent write may have merged new media since the reset began.
+  for (const ref of referencedFiles(useStore.getState().S)) keep.add(ref.hash)
   await mediaStore.retainOnly(keep)
 }
 

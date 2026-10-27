@@ -992,68 +992,74 @@ export const useStore = create((set, get) => {
       persist(S, true)
       return convert && get().ready ? get().pushState() : null
     },
-    // Settings → Reset everything: the empty copy, stamped with when (`resetAt`). Pushed as a
-    // replace, and the stamp is what makes it hold: a device that has not seen the reset and
-    // still pushes a change of its own gets the 409, and its merge keeps only what that device
-    // made after the reset instead of bringing the whole profile back (lib/sync-merge.js).
-    //
-    // With it goes `resetIds`, the names of every entry the reset wiped: this copy's, the earlier
-    // resets' (a copy older than those too is still judged right), and the server's once it
-    // answers — it may hold entries this device never pulled. A device that has not seen the
-    // reset loses exactly those, and keeps whatever else it holds, whatever its dates say.
-    // Resolves once the server's names are in (or could not be had).
-    resetEverything() {
+    // Read the current revision before clearing training data. The conditional push will
+    // merge a concurrent write rather than silently replacing it; resetIds identify entries
+    // present when the user confirmed the reset.
+    async resetEverything() {
+      const uid = get().user?.id
+      const remote = uid ? await api('/api/data') : null
+      if (uid && (get().user?.id !== uid || !Number.isInteger(remote?.rev))) throw new Error('Could not check server data')
       const cur = get().S
-      const S = clone(DEF)
+      // Keep account preferences while clearing the training collections and their metadata.
+      const S = clone(cur)
+      for (const key of ['bodyweight', 'routines', 'week', 'dayPlan', 'exWeights', 'workouts',
+        'active', 'customEx', 'exNotes', 'favEx']) {
+        if (Object.hasOwn(DEF, key)) S[key] = clone(DEF[key])
+        else delete S[key]
+      }
       S.resetAt = Math.max(Date.now(), (Number(cur.resetAt) || 0) + 1)
-      S.resetIds = mergeResetIds(cur.resetIds, resetIdsOf(cur))
-      get().replaceState(S, !!get().user)
-      if (!get().user) return Promise.resolve()
-      return api('/api/data').then(res => {
-        const now = get().S
-        if (!res?.state || now.resetAt !== S.resetAt) return
-        const ids = mergeResetIds(now.resetIds, mergeResetIds(res.state.resetIds, resetIdsOf(res.state)))
-        if (JSON.stringify(ids) === JSON.stringify(now.resetIds)) return
-        persist(Object.assign(clone(now), { resetIds: ids }), true)
-      }).catch(() => {})
+      const trainingIds = state => {
+        const all = resetIdsOf(state)
+        return Object.fromEntries(['workouts', 'routines', 'customEx', 'bodyweight', 'exNotes', 'favEx']
+          .filter(key => all[key]).map(key => [key, all[key]]))
+      }
+      S.resetIds = mergeResetIds(mergeResetIds(cur.resetIds, trainingIds(cur)),
+        mergeResetIds(remote?.state?.resetIds, trainingIds(remote?.state)))
+      if (uid) writeSync(remote.rev, 0)
+      forceNext = false
+      persist(keepReset(cur, S), !!uid)
     },
-    // Before a backup replaces this copy (Settings → Import): the workouts the server holds that the
-    // backup does not — logged since it was made, or on another device meanwhile. The import is a
-    // deliberate replace and deletes them from the profile; the confirm says so and offers to merge
-    // them in instead (importBackup). null when there are none, when nobody is signed in, or when
-    // the server cannot be asked — the replace then goes as it always has.
+    // Capture the revision and account that the user is about to replace. A failed read
+    // stops the restore rather than guessing what it would overwrite.
     async importConflict(backup) {
-      if (!get().user) return null
-      let res
-      try { res = await api('/api/data') } catch { return null }
-      const state = res?.state
-      if (!state) return null
+      const uid = get().user?.id
+      if (!uid) return null
+      const res = await api('/api/data')
+      if (get().user?.id !== uid || !Number.isInteger(res?.rev)) throw new Error('Could not check server data')
+      const state = res.state
       const key = w => entryKey('workouts', w)
       const inBackup = new Set((Array.isArray(backup?.workouts) ? backup.workouts : []).filter(Boolean).map(key))
-      const server = (Array.isArray(state.workouts) ? state.workouts : []).filter(Boolean)
+      const server = (Array.isArray(state?.workouts) ? state.workouts : []).filter(Boolean)
       const onServer = new Set(server.map(key))
       const workouts = server.filter(w => !inBackup.has(key(w))).length
       // This device's own workouts the server has not received yet go the same way, and count too.
       const mine = owes() ? (get().S.workouts || []).filter(w => w && !inBackup.has(key(w)) && !onServer.has(key(w))).length : 0
-      return workouts + mine ? { workouts: workouts + mine, state, rev: res.rev, local: mine > 0 || owes() } : null
+      return { workouts: workouts + mine, state, rev: res.rev, uid, local: mine > 0 || owes() }
     },
     // A backup in place of this copy. With `mergeWith` — importConflict's answer — the server's copy
     // is merged in instead of replaced (with this device's changes not yet on it, when there are
     // any): the backup's settings and plan, every entry of all of them (mergeStates with the backup
     // preferred, in the backup's unit), pushed against that revision like any other change, so a
     // workout logged meanwhile elsewhere, or here, is not lost either.
-    importBackup(backup, { mergeWith } = {}) {
+    importBackup(backup, { mergeWith, snapshot } = {}) {
       const next = Object.assign(clone(DEF), backup)
-      if (!mergeWith?.state || !get().user) { get().replaceState(next, !!get().user); return }
+      if (!get().user) { get().replaceState(next, false); return }
+      const checked = snapshot || mergeWith
+      if (!checked || checked.uid !== get().user.id || !Number.isInteger(checked.rev)) throw new Error('Could not check server data')
+      forceNext = false
+      if (!mergeWith?.state) {
+        writeSync(checked.rev, 0)
+        persist(keepReset(get().S, next), true)
+        return
+      }
       const others = mergeWith.local ? mergeStates(get().S, mergeWith.state) : mergeWith.state
       const merged = keepReset(get().S, Object.assign(clone(DEF), mergeStates(next, others, { prefer: 'a' })))
       merged.active = next.active || null
       persist(merged, true)
       if (mergeWith.rev != null) writeSync(mergeWith.rev, 0)
     },
-    // A replace that is meant to reach the server (backup import, reset) is a deliberate
-    // overwrite, not a change to merge: the push it arms goes without a baseRev. It never takes
-    // the reset stamp back (keepReset).
+    // Other callers may still deliberately replace the state; backup and reset use a
+    // checked revision above instead.
     replaceState(S, push = false) { if (push) forceNext = true; persist(keepReset(get().S, clone(S)), push) },
 
     // Fires after the moments where losing local data would actually hurt — a workout just

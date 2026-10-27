@@ -80,7 +80,24 @@ export async function exportBackupZip(S, { media = mediaStore, fetchOne = null, 
   return { blob, included: entries.length - 2, missing }
 }
 
-const isBackup = d => !!d && typeof d === 'object' && !Array.isArray(d) && Array.isArray(d.workouts) && Array.isArray(d.routines)
+const isBackup = d => {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return false
+  const records = xs => Array.isArray(xs) && xs.every(x => x && typeof x === 'object' && !Array.isArray(x))
+  if (!records(d.workouts) || !records(d.routines)) return false
+  if (Object.hasOwn(d, '__proto__')) return false
+  for (const routine of d.routines) if (routine.ex != null && !records(routine.ex)) return false
+  for (const workout of d.workouts) {
+    if (workout.entries != null && !records(workout.entries)) return false
+    for (const entry of workout.entries || []) if (entry.sets != null && !records(entry.sets)) return false
+  }
+  for (const key of ['bodyweight', 'customEx', 'equipProfiles', 'gymCards']) {
+    if (d[key] != null && !records(d[key])) return false
+  }
+  for (const key of ['week', 'dayPlan', 'exWeights', 'exNotes', 'barWeights', 'plates']) {
+    if (d[key] != null && (typeof d[key] !== 'object' || Array.isArray(d[key]))) return false
+  }
+  return true
+}
 
 /**
  * Reads a picked backup, .json or .zip (told apart by its first bytes, not its name):

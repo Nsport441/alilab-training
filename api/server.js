@@ -2014,6 +2014,8 @@ const routes = {
     const user = readSession(req);
     if (!user) return json(res, 401, { error: 'not signed in' });
     const body = await readBody(req);
+    // A session can be revoked while the request body is being uploaded.
+    if (readSession(req) !== user) return json(res, 401, { error: 'not signed in' });
     if (!body.state || typeof body.state !== 'object') return json(res, 400, { error: 'state required' });
     // An object with nothing of the profile in it empties the document with the counter left
     // intact: what lands on disk is `{"_rev":n+1}`, every routine, workout and weigh-in gone, and

@@ -83,6 +83,20 @@ describe('import', () => {
     await expect(readBackupFile(new File([zip], 'x.zip'))).rejects.toThrow()
   })
 
+  it('rejects malformed collections before an import can change the profile', async () => {
+    for (const data of [
+      { workouts: [null], routines: [] },
+      { workouts: [], routines: ['invalid'] },
+      { workouts: [], routines: [], bodyweight: 'invalid' },
+      { workouts: [], routines: [], week: [] },
+      { workouts: [{ entries: 'invalid' }], routines: [] },
+      { workouts: [{ entries: [{ sets: 'invalid' }] }], routines: [] },
+      { workouts: [], routines: [{ ex: 'invalid' }] },
+    ]) {
+      await expect(readBackupFile(new File([JSON.stringify(data)], 'invalid.json'))).rejects.toThrow()
+    }
+  })
+
   it('sanitizeCustomMedia leaves a state without custom exercises alone', () => {
     expect(sanitizeCustomMedia({ workouts: [] })).toEqual({ workouts: [] })
   })

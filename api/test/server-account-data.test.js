@@ -1,0 +1,34 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { boundPort } from './helpers.mjs';
+
+const API = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+test('personal data reads and writes are scoped to the authenticated session', async t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gym-account-data-'));
+  const secret = crypto.randomBytes(32).toString('hex');
+  fs.writeFileSync(path.join(dir, 'secret'), secret);
+  fs.writeFileSync(path.join(dir, 'db.json'), JSON.stringify({ users: ['u1', 'u2'].map(id => ({ id, name: id })), creds: [], subs: [], invites: [] }));
+  const state = id => ({ _rev: 1, routines: [{ id }], workouts: [{ id }], bodyweight: [] });
+  for (const id of ['u1', 'u2']) fs.writeFileSync(path.join(dir, `state-${id}.json`), JSON.stringify(state(id)));
+  const child = spawn(process.execPath, ['server.js'], { cwd: API, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: '0', DATA_DIR: dir, ORIGIN: 'http://localhost:8080', RP_ID: 'localhost' } });
+  t.after(() => { child.kill(); fs.rmSync(dir, { recursive: true, force: true }); });
+  let log = ''; child.stdout.on('data', d => { log += d }); child.stderr.on('data', d => { log += d });
+  const port = await boundPort(child, () => log), base = `http://127.0.0.1:${port}`;
+  const cookie = uid => { const p = `${uid}:${Date.now() + 86400000}:0`; return `gymsid=${p}.${crypto.createHmac('sha256', secret).update(p).digest('base64url')}` };
+  const req = (url, uid, method = 'GET', body) => fetch(base + url, { method, headers: { ...(uid ? { Cookie: cookie(uid) } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  assert.equal((await req('/api/data', null)).status, 401);
+  assert.equal((await req('/api/data', 'u1').then(r => r.json())).state.workouts[0].id, 'u1');
+  assert.equal((await req('/api/data?userId=u2', 'u1').then(r => r.json())).state.workouts[0].id, 'u1');
+  assert.equal((await req('/api/admin/user?id=u2', 'u1')).status, 403);
+  assert.equal((await req('/api/data', 'u1', 'PUT', { userId: 'u2', state: { routines: [], workouts: [] }, baseRev: 1 })).status, 200);
+  assert.deepEqual((await req('/api/data', 'u2').then(r => r.json())).state, state('u2'));
+  assert.deepEqual((await req('/api/data', 'u1').then(r => r.json())).state.workouts, []);
+  assert.equal((await req('/api/data', 'u1', 'PUT', { state: { routines: [], workouts: [] }, baseRev: 1 })).status, 409);
+  assert.equal((await req('/api/data', null, 'PUT', { state: state('u2') })).status, 401);
+});
