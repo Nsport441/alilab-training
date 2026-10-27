@@ -46,7 +46,7 @@ Catalogue and observed-training update (2026-10-14):
 
 ## 2026-10-27 — Non-commercial openGym exercise media restoration
 
-- Retain official, unmodified 180px openGym stills and MP4 clips alongside the original upstream media NOTICE in frontend/public/opengym-media/ (source openGym main commit e6a95c28a6e3067bdd9b1188d5f37f448d528bd2; media tree e7650a186afc01b8a623588482466cd968efb088).
+- Retain the official, unmodified 180px openGym stills and MP4 clips for all 1,324 currently registered AliLab exercises, alongside the original upstream media NOTICE in frontend/public/opengym-media/ (source openGym main commit e6a95c28a6e3067bdd9b1188d5f37f448d528bd2; selected per-ID Git blobs from original media tree e7650a186afc01b8a623588482466cd968efb088).
 - Enable same-origin built-in exercise thumbnails and looping muted MP4 clips, retaining existing Everkinetic/wger still attribution for 19 exercises and independent Gym visual animation attribution.
 - Preserve all 1324 existing built-in exercise IDs and workout histories. No CDN or public third-party media downloader is introduced.
 - Media ownership is external to the AGPL. The upstream notice only excepts non-commercial openGym forks; before commercialization, remove/replace these files or secure a licence from Gym visual. No AI ingestion, training, generation or prompting from the media.
