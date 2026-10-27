@@ -56,8 +56,10 @@ export function createReleaseReader({ env = process.env, fetcher = fetch } = {})
     const runtime = {
       version: JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version,
       commit: sha(env.ALILAB_BUILD_COMMIT),
+      checkedAt: new Date().toISOString(),
     };
     return { github: upstream, runtime, deployed, comparisons: {
+      githubRuntimeApi: compare(upstream.commit, runtime.commit),
       githubApi: compare(upstream.commit, deployed?.api.commit),
       githubWeb: compare(upstream.commit, deployed?.web.commit),
       apiWeb: compare(deployed?.api.commit, deployed?.web.commit),
