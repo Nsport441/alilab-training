@@ -16,6 +16,7 @@ FROM node:22-alpine AS base
 # Declared on the base stage so both targets inherit the labels and the healthcheck.
 ARG VERSION=dev
 ARG VCS_REF=dev
+ENV ALILAB_BUILD_COMMIT=$VCS_REF
 ARG BUILD_DATE=unknown
 
 LABEL maintainer="AliLab" \
@@ -53,7 +54,7 @@ RUN npm ci --omit=dev --omit=optional && npm cache clean --force
 
 # Every module server.js imports from the api root has to be named here: the image carries nothing
 # else, and one that is missing only shows at boot, as ERR_MODULE_NOT_FOUND.
-COPY server.js push-messages.js verify-error.js password.js rate-limit.js passkeys-store.js device-link.js media.js alilab-backup.js ./
+COPY server.js push-messages.js verify-error.js password.js rate-limit.js passkeys-store.js device-link.js media.js alilab-backup.js admin-release.js ./
 COPY coach ./coach
 ENV NODE_ENV=production
 ENV PORT=3000
