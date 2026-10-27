@@ -138,3 +138,54 @@ it('keeps exactly five RTL management groups and unknown deployment evidence', a
   expect(release.textContent).toContain('شواهد معتبر استقرار Runflare ارائه نشده است')
   expect(page.querySelectorAll('#release-title')).toHaveLength(1)
 })
+
+
+describe('read-only release monitoring', () => {
+  const a = 'a'.repeat(40), b = 'b'.repeat(40)
+  it('compares the responding API, served Web and GitHub without Runflare operator evidence', async () => {
+    mocks.answers['/api/admin/releases'] = {
+      github: { commit: a, checkedAt: '2026-10-27T17:00:00Z' },
+      runtime: { commit: a, version: '1.3.9', checkedAt: '2026-10-27T17:00:00Z' },
+      deployed: null, comparisons: { githubRuntimeApi: 'same' }
+    }
+    mocks.answers['/release-build.json'] = { commit: a, version: '1.3.9+test' }
+    const page = render(<Admin />)
+    await settle()
+    const release = page.querySelector('[aria-labelledby="release-title"]')
+    const comparison = release.querySelector('[data-testid="release-comparisons"]').textContent
+    expect(comparison).toContain('GitHub در برابر API پاسخ‌دهندهیکسان')
+    expect(comparison).toContain('GitHub در برابر Web پاسخ‌دهندهیکسان')
+    expect(comparison).toContain('API و Web پاسخ‌دهندهیکسان')
+    expect(release.textContent).toContain('نسخه Web پاسخ‌دهنده')
+    expect(release.textContent).toContain('هیچ‌کدام به‌تنهایی')
+    expect(release.textContent).toContain('شواهد معتبر استقرار Runflare ارائه نشده است')
+  })
+  it('never describes mismatched Web/API commits as a proven Runflare deployment status', async () => {
+    mocks.answers['/api/admin/releases'] = {
+      github: { commit: a }, runtime: { commit: b, version: '1.3.9' },
+      deployed: null, comparisons: {}
+    }
+    mocks.answers['/release-build.json'] = { commit: a, version: '1.3.9+test' }
+    const page = render(<Admin />)
+    await settle()
+    const release = page.querySelector('[aria-labelledby="release-title"]')
+    expect(release.querySelector('[role="status"]').textContent).toContain('متفاوت‌اند')
+    const comparison = release.querySelector('[data-testid="release-comparisons"]').textContent
+    expect(comparison).toContain('GitHub در برابر API پاسخ‌دهندهمتفاوت')
+    expect(comparison).toContain('GitHub در برابر Web پاسخ‌دهندهیکسان')
+    expect(comparison).toContain('API و Web پاسخ‌دهندهمتفاوت')
+  })
+  it('does not turn malformed or unavailable build metadata into a matched status', async () => {
+    const a = 'a'.repeat(40)
+    mocks.answers['/api/admin/releases'] = {
+      github: { commit: a }, runtime: { commit: a }, deployed: null, comparisons: {}
+    }
+    mocks.answers['/release-build.json'] = { commit: 'main', version: 5 }
+    const page = render(<Admin />)
+    await settle()
+    const release = page.querySelector('[aria-labelledby="release-title"]')
+    const comparison = release.querySelector('[data-testid="release-comparisons"]').textContent
+    expect(comparison).toContain('GitHub در برابر Web پاسخ‌دهندهنامشخص')
+    expect(release.textContent).toContain('نامشخص')
+  })
+})
