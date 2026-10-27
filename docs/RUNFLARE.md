@@ -170,3 +170,36 @@ Comparisons express equality/difference only, not ancestry or ahead/behind count
 No deployment, environment update, log write, merge or release action is triggered.
 The exercise group links the existing personal library; it does not grant global
 content editing privileges that the application has no server-side model for.
+
+## Admin live version comparisons (Web, API, GitHub)
+
+The admin-only release center now displays **three separately observed build identities**:
+GitHub `main` from the already protected, bounded server-side reader; the responding
+API's `ALILAB_BUILD_COMMIT`; and the Web server's static `/release-build.json`,
+created at frontend build time from `APP_BUILD`. It also displays the opened browser
+bundle's compiled `__APP_COMMIT__`, which may be stale due to service-worker cache.
+The manifest contains only a nullable full commit SHA and a package build version;
+no credentials or production configuration are emitted. Web nginx serves the manifest
+with `Cache-Control: no-store` and a strict not-found response, while the PWA service
+worker bypasses it. The admin additionally requests a nonce URL so *older* workers
+cannot return an earlier cached observation.
+
+Comparisons are read-only and require two valid full SHA values. `same` means
+identical identity; `different` does not establish ancestry; missing or invalid
+identities remain `unknown`. A response from the Web/Api is evidence of which code
+is currently responding through the configured origin, **not** a platform-verified
+Runflare status, rollout timestamp or image digest. The existing independent
+`RELEASE_EVIDENCE_FILE` remains optional and is displayed under a separate,
+clearly labeled operator-observation disclosure; observations older than 24 hours
+are flagged rather than silently treated as fresh platform data.
+
+Verify after deploying *both* services:
+
+1. Open the admin page, choose `سیستم و تنظیمات`, and refresh the release center.
+2. Check that the GitHub, responding API and served Web commits are the intended
+   identical full SHA. A stale browser bundle can differ until reloaded.
+3. If the served Web identity is unknown, check `/release-build.json` on the
+   public Web origin and whether an older Web image is still serving requests.
+4. Inspect Runflare deployment history and image identity separately; matching
+   commits do not prove that the platform has completed a particular deployment.
+
