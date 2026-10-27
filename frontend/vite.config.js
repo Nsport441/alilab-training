@@ -57,9 +57,20 @@ const swStamp = {
 const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
 const appVersion = `${pkgVersion}+alilab.1d.security${process.env.APP_BUILD ? '.' + process.env.APP_BUILD : ''}`
 
+// The served Web build identity is distinct from the browser's possibly cached app
+// bundle and from Runflare's platform deployment status. No credentials included.
+const webCommit = /^[a-f0-9]{40}$/i.test(process.env.APP_BUILD || '') ? process.env.APP_BUILD.toLowerCase() : null
+const servedWebBuild = {
+  name: 'alilab-served-web-identity',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({ type: 'asset', fileName: 'release-build.json', source: JSON.stringify({ commit: webCommit, version: appVersion }) + '\\n' })
+  }
+}
+
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(appVersion), __APP_COMMIT__: JSON.stringify(/^[a-f0-9]{40}$/i.test(process.env.APP_BUILD || "") ? process.env.APP_BUILD.toLowerCase() : null) },
-  plugins: [react(), umami, swStamp],
+  define: { __APP_VERSION__: JSON.stringify(appVersion), __APP_COMMIT__: JSON.stringify(webCommit) },
+  plugins: [react(), umami, servedWebBuild, swStamp],
   base: './',
   server: {
     // The Coach's core (payload, validator, prompts, HTTP adapters) lives in ../api/coach/core
