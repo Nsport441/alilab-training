@@ -57,7 +57,8 @@ LABEL maintainer="AliLab" \
 COPY web/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
 COPY --from=source /export/corresponding-source.tar.gz /usr/share/nginx/html/
-# No public exercise media is mounted in Phase 1A.
+# Non-commercial openGym exercise media, when present in frontend/public, is bundled by Vite.
+# It is never pulled from third-party CDNs or mounted from an unverified volume.
 
 # Set Default ENVs for nginx
 ENV NGINX_PORT=80

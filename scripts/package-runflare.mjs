@@ -1,6 +1,6 @@
 // Export committed sources only. Never read local .env, runtime data or credentials.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, openSync, closeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -13,7 +13,14 @@ const manifest = { commit: sha, services: {} };
 for (const service of ['api', 'web']) {
   const stage = mkdtempSync(join(tmpdir(), `runflare-${service}-`));
   const archive = join(stage, 'source.tar');
-  writeFileSync(archive, git('archive', '--format=tar', sha, ...(service === 'api' ? ['api/'] : [])));
+  // The web source contains binary media: stream Git's tar output to disk instead of
+  // buffering the entire archive in execFileSync (64 MB limit caused ENOBUFS).
+  const tarFd = openSync(archive, 'w');
+  try {
+    execFileSync('git', ['archive', '--format=tar', sha, ...(service === 'api' ? ['api/'] : [])], {
+      stdio: ['ignore', tarFd, 'inherit']
+    });
+  } finally { closeSync(tarFd); }
   const source = join(stage, 'source');
   mkdirSync(source);
   execFileSync('tar', ['-xf', archive, '-C', source]);

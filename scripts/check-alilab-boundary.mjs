@@ -11,8 +11,10 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 assert.equal(EXDB.length, 1324)
 for (const ex of EXDB) {
   assert.equal(EXIDX[ex.id].n, ex.n)
-  assert.equal(imgSrc(ex), CATALOGUE_MEDIA[ex.id]?.images[0].path || null)
-  assert.equal(gifSrc(ex), null)
+  assert.equal(imgSrc(ex), CATALOGUE_MEDIA[ex.id]?.images[0].path || `./opengym-media/still/${ex.id}.webp`)
+  assert.equal(gifSrc(ex), `./opengym-media/clip/${ex.id}.mp4`)
+  assert(fs.existsSync(path.join(root, 'frontend/public/opengym-media/clip', `${ex.id}.mp4`)))
+  assert(fs.existsSync(path.join(root, 'frontend/public/opengym-media/still', `${ex.id}.webp`)))
 }
 assert.equal(Object.keys(CATALOGUE_MEDIA).length,19)
 for(const record of Object.values(CATALOGUE_MEDIA)){
@@ -26,8 +28,8 @@ for(const record of Object.values(CATALOGUE_MEDIA)){
   }
 }
 const urls=planMediaUrls({routines:[{ex:EXDB.map(ex=>({id:ex.id}))}]},'https://training.alilab.ir/')
-assert.equal(urls.length,38)
-assert(urls.every(url=>url.startsWith('https://training.alilab.ir/catalogue-media/')))
+assert.equal(urls.length,2667)
+assert(urls.every(url=>url.startsWith('https://training.alilab.ir/catalogue-media/') || url.startsWith('https://training.alilab.ir/opengym-media/')))
 assert.equal(imgSrc({id:'not-approved',img:'old.jpg'}),null)
 assert.equal(imgSrc({id:'0025',custom:true,img:'old.jpg'}),null)
 const compose = fs.readFileSync(path.join(root, 'docker-compose.yml'), 'utf8')
@@ -44,4 +46,5 @@ function checkBuilt(dir) {
 }
 const dist = path.join(root, 'frontend/dist')
 if (fs.existsSync(dist)) checkBuilt(dist)
-console.log('AliLab boundary passed: 1324 stable exercises, 38 verified licensed assets for 19 IDs, no inherited media CDN.')
+assert(fs.existsSync(path.join(root, 'frontend/public/opengym-media/NOTICE.md')))
+console.log('AliLab boundary passed: 1324 exercise videos and stills retained as non-commercial openGym fork, local only, third-party notice present.')
