@@ -213,6 +213,8 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url)
   if (e.request.method !== 'GET' || url.origin !== location.origin) return
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith(API)) return    // never cache auth/data
+  // Always observe the network-served release; a cached build must never look current.
+  if (url.pathname.endsWith('/release-build.json')) return
 
   if (isLegacyMediaPath(url.pathname)) {
     e.respondWith(Promise.resolve(new Response('', { status: 404, headers: { 'Cache-Control': 'no-store' } })))
