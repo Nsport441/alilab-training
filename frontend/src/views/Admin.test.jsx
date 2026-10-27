@@ -50,6 +50,7 @@ beforeEach(() => {
   mocks.sheets.length = 0
   mocks.answers = {
     '/api/admin/releases': { github: {}, runtime: {}, comparisons: {} },
+    '/release-build.json': { commit: null, version: null },
     '/api/admin/system-health': {},
     '/api/admin/users': { users: [{ id: 'u1', name: 'Mallory', workouts: 2, lastSync: null, disabled: false }], invite_only: false },
     '/api/admin/invites': { invites: [] },
