@@ -83,8 +83,9 @@ afterEach(() => {
 })
 
 const mount = () => act(() => root.render(<Settings />))
-const resetRow = () => [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes('Reset everything'))
+const resetRow = () => [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes('Reset my account training data'))
 const openDialog = () => {
+  act(() => { [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes('Advanced data settings')).click() })
   act(() => { resetRow().click() })
   expect(mocks.confirmSheet).toHaveBeenCalledTimes(1)
   return mocks.confirmSheet.mock.calls[0][0]
@@ -92,12 +93,12 @@ const openDialog = () => {
 const serverForgetCalls = () => mocks.api.mock.calls.filter(([path]) => path === '/api/coach/forget')
 
 describe('Settings — reset everything', () => {
-  it('guest: says the wipe is local, resets to the defaults, never calls the Coach', () => {
+  it('guest: says the wipe is local, resets to the defaults, never calls the Coach', async () => {
     mount()
     const dialog = openDialog()
-    expect(dialog.title).toBe('Reset everything?')
+    expect(dialog.title).toBe('Reset my account training data?')
     expect(dialog.message).toBe('Deletes your plan, workouts, body weight, photos and videos on this device. This cannot be undone.')
-    act(() => { dialog.onConfirm() })
+    await act(async () => { await dialog.onConfirm() })
     // the store's reset: the empty copy, stamped (useStore resetEverything)
     expect(mocks.resetEverything).toHaveBeenCalledTimes(1)
     expect(serverForgetCalls()).toHaveLength(0)
@@ -105,17 +106,17 @@ describe('Settings — reset everything', () => {
     expect(mocks.toast).toHaveBeenCalledWith('All data reset')
   })
 
-  it('signed in: says the wipe reaches the server and every device, and forgets the Coach on the server too', () => {
+  it('signed in: says the wipe reaches the server and every device, and forgets the Coach on the server too', async () => {
     mocks.user = { uid: 'u1', name: 'Ana' }
     mount()
     const dialog = openDialog()
     expect(dialog.message).toBe('Deletes your plan, workouts, body weight, photos and videos from your profile on this server and on every signed-in device. This cannot be undone.')
-    act(() => { dialog.onConfirm() })
+    await act(async () => { await dialog.onConfirm() })
     expect(serverForgetCalls()).toHaveLength(1)
     expect(serverForgetCalls()[0][1]).toEqual({ method: 'POST', body: '{}' })
     expect(mocks.forgetCoach).not.toHaveBeenCalled()   // no device Coach here
     expect(mocks.resetEverything).toHaveBeenCalledTimes(1)
-    expect(mocks.toast).toHaveBeenCalledWith('All data reset')
+    expect(mocks.toast).toHaveBeenCalledWith('Training data reset on this device. Server sync may still be pending.')
   })
 
   it('signed in: a failing Coach call does not block the reset', async () => {
@@ -126,27 +127,27 @@ describe('Settings — reset everything', () => {
     await act(async () => { dialog.onConfirm(); await Promise.resolve() })
     expect(serverForgetCalls()).toHaveLength(1)
     expect(mocks.resetEverything).toHaveBeenCalledTimes(1)
-    expect(mocks.toast).toHaveBeenCalledWith('All data reset')
+    expect(mocks.toast).toHaveBeenCalledWith('Training data reset on this device. Server sync may still be pending.')
   })
 
   // A paired phone running the Coach with its own key has Coach data in both homes.
-  it('paired phone with its own key: clears the Coach on the server and on the device', () => {
+  it('paired phone with its own key: clears the Coach on the server and on the device', async () => {
     mocks.user = { uid: 'u1', name: 'Ana' }
     mocks.coachLocal = { mode: 'byok', provider: 'anthropic' }
     mount()
     const dialog = openDialog()
-    act(() => { dialog.onConfirm() })
+    await act(async () => { await dialog.onConfirm() })
     expect(serverForgetCalls()).toHaveLength(1)
     expect(mocks.forgetCoach).toHaveBeenCalledTimes(1)
     expect(mocks.resetEverything).toHaveBeenCalledTimes(1)
-    expect(mocks.toast).toHaveBeenCalledWith('All data reset')
+    expect(mocks.toast).toHaveBeenCalledWith('Training data reset on this device. Server sync may still be pending.')
   })
 
-  it('own key, no server: clears the device Coach without touching the server', () => {
+  it('own key, no server: clears the device Coach without touching the server', async () => {
     mocks.coachLocal = { mode: 'byok', provider: 'anthropic' }
     mount()
     const dialog = openDialog()
-    act(() => { dialog.onConfirm() })
+    await act(async () => { await dialog.onConfirm() })
     expect(serverForgetCalls()).toHaveLength(0)
     expect(mocks.forgetCoach).toHaveBeenCalledTimes(1)
     expect(mocks.resetEverything).toHaveBeenCalledTimes(1)

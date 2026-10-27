@@ -42,6 +42,7 @@ export async function setLang(l, showEn, enOnly) {
   const base = baseLang(l)
   let dict = {}, instr = null, exerciseNames = null
   try { dict = base === 'en' ? {} : (await localePacks['../locales/' + base + '.js']()).default } catch (e) { dict = {} }
+  if (base === 'fa') dict = { ...dict, ...(await import('../locales/common/account-data.js')).default }
   try { instr = base === 'en' || !INSTR_LANGS.includes(base) ? null : (await instrPacks['../instr/' + base + '.js']()).default } catch (e) { instr = null }
   try {
     exerciseNames = base === 'en' || !EXERCISE_NAME_LANGS.includes(base)

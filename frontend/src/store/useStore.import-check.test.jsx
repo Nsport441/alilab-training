@@ -37,9 +37,9 @@ describe('importing a backup over a profile that moved on', () => {
   it('nothing to say when the backup has everything, when signed out, or when the server cannot be asked', async () => {
     signedIn(clone(DEF), 6)
     api.mockResolvedValueOnce({ state: clone(BACKUP), rev: 7 })
-    expect(await useStore.getState().importConflict(BACKUP)).toBeNull()
+    expect(await useStore.getState().importConflict(BACKUP)).toMatchObject({ workouts: 0, rev: 7 })
     api.mockRejectedValueOnce(new TypeError('Failed to fetch'))
-    expect(await useStore.getState().importConflict(BACKUP)).toBeNull()
+    await expect(useStore.getState().importConflict(BACKUP)).rejects.toThrow('Failed to fetch')
     useStore.setState({ user: null })
     expect(await useStore.getState().importConflict(BACKUP)).toBeNull()
   })
@@ -70,13 +70,31 @@ describe('importing a backup over a profile that moved on', () => {
     expect(ids(puts().at(-1).state.workouts)).toEqual(['w1', 'w2', 'elsewhere', 'unsent'])
   })
 
+  it('preserves a workout added after the restore confirmation snapshot', async () => {
+    signedIn(clone(BACKUP), 6)
+    const later = { ...clone(SERVER), workouts: [...SERVER.workouts, workout('new')] }
+    useStore.getState().importBackup(BACKUP, { snapshot: { uid: 'u1', rev: 7 } })
+    api.mockRejectedValueOnce(Object.assign(new Error('conflict'), { status: 409, data: { state: later, rev: 8 } }))
+    api.mockResolvedValueOnce({ ok: true, rev: 9 })
+    await useStore.getState().pushState()
+    expect(puts()[0].baseRev).toBe(7)
+    expect(puts().at(-1).baseRev).toBe(8)
+    expect(ids(puts().at(-1).state.workouts)).toContain('new')
+  })
+
+  it('refuses a snapshot from a different account', () => {
+    signedIn(clone(BACKUP), 6)
+    expect(() => useStore.getState().importBackup(BACKUP, { snapshot: { uid: 'u2', rev: 7 } })).toThrow()
+    expect(useStore.getState().S).toEqual(BACKUP)
+  })
+
   it('"Replace anyway" is the replace it always was', async () => {
     signedIn({ ...clone(DEF), _ts: 200, workouts: [workout('w1')] }, 6)
     api.mockResolvedValueOnce({ ok: true, rev: 8 })
-    useStore.getState().importBackup(BACKUP)
+    useStore.getState().importBackup(BACKUP, { snapshot: { uid: 'u1', rev: 7 } })
     await useStore.getState().pushState()
     const put = puts().at(-1)
-    expect(put.baseRev).toBeUndefined()
+    expect(put.baseRev).toBe(7)
     expect(ids(put.state.workouts)).toEqual(['w1', 'w2'])
   })
 })

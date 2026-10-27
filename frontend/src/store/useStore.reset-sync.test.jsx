@@ -39,12 +39,33 @@ describe('Reset everything', () => {
     await useStore.getState().resetEverything()
     await useStore.getState().pushState()
     const [put] = puts()
-    expect(put.baseRev).toBeUndefined()
+    expect(put.baseRev).toBe(3)
     expect(put.state.workouts).toEqual([])
     expect(put.state.resetAt).toBeGreaterThanOrEqual(before)
     expect(put.state.resetIds.workouts).toEqual(['w1', 'w2', 'w-elsewhere'])
     expect(put.state.resetIds.routines).toEqual(['r1'])
     expect(put.state.resetIds.bodyweight).toEqual(['2026-09-01|10'])
+  })
+
+  it('preserves preferences and keeps a workout written after the server was checked', async () => {
+    signedIn({ ...clone(PROFILE), lang: 'fa', theme: 'light', gymCards: [{ id: 'card', value: '123' }], equipProfiles: [{ id: 'gym' }] }, 3)
+    api.mockResolvedValueOnce({ state: clone(PROFILE), rev: 3 })
+    await useStore.getState().resetEverything()
+    const remote = { ...clone(PROFILE), workouts: [...PROFILE.workouts, workout('new', 90)], _rev: 4 }
+    api.mockRejectedValueOnce(conflict(remote, 4))
+    api.mockResolvedValueOnce({ ok: true, rev: 5 })
+    await useStore.getState().pushState()
+    expect(puts().at(-1).baseRev).toBe(4)
+    expect(ids(puts().at(-1).state.workouts)).toEqual(['new'])
+    expect(useStore.getState().S).toMatchObject({ lang: 'fa', theme: 'light', gymCards: [{ id: 'card', value: '123' }], equipProfiles: [{ id: 'gym' }] })
+  })
+
+  it('does not change local data if the server cannot be checked', async () => {
+    signedIn(clone(PROFILE), 3)
+    api.mockRejectedValueOnce(new Error('offline'))
+    await expect(useStore.getState().resetEverything()).rejects.toThrow('offline')
+    expect(useStore.getState().S.workouts).toEqual(PROFILE.workouts)
+    expect(puts()).toHaveLength(0)
   })
 
   it('a device that has not seen it and pushes a change from before keeps the reset, not the old profile', async () => {
@@ -83,7 +104,7 @@ describe('a backup restored after a reset', () => {
     signedIn({ ...clone(DEF), _ts: T1, resetAt: T1, resetIds: resetIdsOf(PROFILE) }, 4)
     const backup = { ...clone(PROFILE), _ts: 50 }   // an old backup: no stamp
     api.mockResolvedValueOnce({ ok: true, rev: 5 })
-    useStore.getState().importBackup(backup)
+    useStore.getState().importBackup(backup, { snapshot: { uid: 'u1', rev: 4 } })
     await useStore.getState().pushState()
     const put = puts().at(-1)
     expect(ids(put.state.workouts)).toEqual(['w1', 'w2'])
