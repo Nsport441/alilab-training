@@ -1,0 +1,24 @@
+name: Verify Runflare api branch
+on:
+  push:
+    branches: [runflare/api]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build root Dockerfile
+        run: docker build -t runflare-test .
+      - name: Verify source revision
+        run: test "$(docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' runflare-test)" = "3a178b34444aa2a05f868d5f65f3e949bb229c5b"
+      - name: Smoke test
+        run: |
+          docker run -d --name app -p 8080:3000 -e DATA_DIR=/tmp/test-data -e ORIGIN=http://localhost:8080 -e PASSWORD_ONLY=1 -e COACH_DISABLED=1 -e MEDIA_UPLOADS=0 runflare-test
+          curl --retry 30 --retry-all-errors --retry-connrefused --retry-delay 2 -fsS http://localhost:8080/api/health
+      - name: Logs
+        if: failure()
+        run: docker logs app || true
