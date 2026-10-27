@@ -153,3 +153,19 @@ test('a pull shows as the last sync, in the list and the drill-down', async t =>
   row = (await h.get('/api/admin/users')).body.users.find(u => u.id === VICTIM);
   assert.ok(row.lastSync > Date.now());
 });
+
+test('operations endpoints require an enabled administrator and disable caching', async t => {
+  const h = await startServer(t);
+  for (const endpoint of ['/api/admin/releases', '/api/admin/system-health']) {
+    for (const headers of [{}, { Cookie: `gymsid=${mintSession(VICTIM)}` }]) {
+      const r = await fetch(h.api + endpoint, { headers });
+      assert.ok([401, 403].includes(r.status));
+    }
+    const r = await fetch(h.api + endpoint, { headers: asAdmin });
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('cache-control'), 'no-store');
+    const body = await r.json();
+    if (endpoint.endsWith('system-health')) assert.equal(body.api, 'responding');
+    else assert.equal(body.deployed, null);
+  }
+});

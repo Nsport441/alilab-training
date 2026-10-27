@@ -58,7 +58,7 @@ const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta
 const appVersion = `${pkgVersion}+alilab.1d.security${process.env.APP_BUILD ? '.' + process.env.APP_BUILD : ''}`
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(appVersion) },
+  define: { __APP_VERSION__: JSON.stringify(appVersion), __APP_COMMIT__: JSON.stringify(/^[a-f0-9]{40}$/i.test(process.env.APP_BUILD || "") ? process.env.APP_BUILD.toLowerCase() : null) },
   plugins: [react(), umami, swStamp],
   base: './',
   server: {

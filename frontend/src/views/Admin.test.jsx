@@ -49,6 +49,8 @@ beforeEach(() => {
   document.body.innerHTML = ''
   mocks.sheets.length = 0
   mocks.answers = {
+    '/api/admin/releases': { github: {}, runtime: {}, comparisons: {} },
+    '/api/admin/system-health': {},
     '/api/admin/users': { users: [{ id: 'u1', name: 'Mallory', workouts: 2, lastSync: null, disabled: false }], invite_only: false },
     '/api/admin/invites': { invites: [] },
     '/api/admin/audit': { rows: [] },
@@ -121,4 +123,18 @@ describe('Admin when the users cannot be loaded', () => {
     expect(text(page)).toContain('The last update failed')
     expect([...page.querySelectorAll('.item')].some(el => el.textContent.includes('Mallory'))).toBe(true)
   })
+})
+
+
+it('keeps exactly five RTL management groups and unknown deployment evidence', async () => {
+  const page = render(<Admin />)
+  await settle()
+  expect(page.querySelector('[dir="rtl"]').getAttribute('lang')).toBe('fa')
+  expect([...page.querySelectorAll('.adm-group > summary')].map(el => el.textContent)).toEqual([
+    'داشبورد', 'کاربران و مربیان', 'تمرینات و محتوا', 'گزارش‌ها و پایش', 'سیستم و تنظیمات'
+  ])
+  const release = page.querySelector('[aria-labelledby="release-title"]')
+  expect(release.textContent).toContain('نامشخص')
+  expect(release.textContent).toContain('شواهد معتبر استقرار Runflare ارائه نشده است')
+  expect(page.querySelectorAll('#release-title')).toHaveLength(1)
 })

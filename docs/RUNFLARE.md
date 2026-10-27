@@ -121,3 +121,49 @@ two services are not an atomic rollout. CI uses disposable containers and data o
   compatibility and an approved recovery plan are established.
 - This PR makes no production deployment, environment, database, disk, backup,
   OAuth or Auto Pull change and must not be merged automatically.
+
+## Release and system monitoring
+
+`GET /api/admin/releases` and `GET /api/admin/system-health` require the existing
+server-side administrator session. Both are read-only and return no-store responses.
+The existing audit log remains under its original server-side guard and retention;
+no second log or extra role is introduced. Its Admin filter shows administrator actions.
+Health only checks API response, process uptime, audit enablement and read access to
+db.json; it does not claim disk writes, backups or platform health are working.
+
+The release reader checks the fixed Nsport441/alilab-training main GitHub endpoint,
+with a five-second timeout and a one-minute cache (including failures). Optional
+RELEASE_GITHUB_TOKEN is server-only; if needed use a fine-grained token scoped to
+this repository with Contents: read. No token is required for a public repository.
+Failure or malformed data produces unknown, never the last successful commit.
+API package version and ALILAB_BUILD_COMMIT identify the responding process build;
+API Dockerfile bakes VCS_REF into that variable. Web package version and APP_BUILD
+identify the browser bundle (which can be older due to browser/service-worker cache).
+Build labels, dates and package versions are not proof of Runflare deployment.
+
+There is no verified Runflare API integration in this repository. Platform facts
+remain unknown unless an operator supplies an independently verified observation
+using RELEASE_EVIDENCE_FILE, an absolute path to a read-only mounted JSON file
+outside user-writable storage. Never mount it under /data or permit the application
+or Coach user to write it. This is an operator attestation, not a live platform poll.
+Record the platform observation URL and time; stale observations remain explicitly
+dated. A sample schema (replace every placeholder with observed facts; omit unknowns):
+
+```json
+{
+  "provider": "runflare",
+  "source": "https://runflare.com/actual-deployment-observation",
+  "observedAt": "2026-10-27T08:00:00Z",
+  "api": { "commit": "FULL_40_HEX_SHA", "image": "sha256:64_HEX_DIGEST", "version": "v3", "status": "running", "deployedAt": "2026-10-27T07:00:00Z" },
+  "web": {}
+}
+```
+
+Only full commit SHAs, immutable sha256 image identities, allowed statuses
+(running/failed/pending/stopped) and valid timestamps are accepted. Unknown fields
+are discarded. Do not add secrets or personal data to the observation URL. Source
+and observedAt are required; the UI labels this evidence as an operator record.
+Comparisons express equality/difference only, not ancestry or ahead/behind counts.
+No deployment, environment update, log write, merge or release action is triggered.
+The exercise group links the existing personal library; it does not grant global
+content editing privileges that the application has no server-side model for.

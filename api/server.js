@@ -1,6 +1,8 @@
 /* opengym-api — passkey (WebAuthn) auth + per-user state storage for openGym
    No framework, JSON-file storage, signed session cookies.               */
 import http from 'node:http';
+import { createReleaseReader } from './admin-release.js';
+const readAdminRelease = createReleaseReader();
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -2182,6 +2184,18 @@ const routes = {
 
   /* ---------- admin dashboard ---------- */
   // One row per user, cheap enough for a personal instance (reads each state file once).
+  'GET /api/admin/releases': async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    json(res, 200, await readAdminRelease(), { 'Cache-Control': 'no-store' });
+  },
+  'GET /api/admin/system-health': async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    let storageReadable = false;
+    try { fs.accessSync(path.join(DATA, 'db.json'), fs.constants.R_OK); storageReadable = true; } catch {}
+    json(res, 200, { checkedAt: new Date().toISOString(), api: 'responding', storageReadable,
+      uptimeSeconds: Math.floor(process.uptime()), auditEnabled: AUDIT_ON,
+      runflare: 'unknown', storageWritable: 'unknown' }, { 'Cache-Control': 'no-store' });
+  },
   'GET /api/admin/users': async (req, res) => {
     if (!requireAdmin(req, res)) return;
     const users = db.users.map(u => {

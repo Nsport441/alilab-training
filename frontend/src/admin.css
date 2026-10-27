@@ -160,3 +160,10 @@
 [dir="rtl"] .adm-select { padding-inline-start: 38px; padding-inline-end: 12px;
   background-position: 20px 50%, 14px 50%; }
 [dir="rtl"] .adm-kv input[type="number"] { direction: ltr; text-align: center; }
+
+.adm-group { margin-block: 14px; }
+.adm-group > summary { cursor: pointer; font-weight: 700; padding: 14px; border-radius: 12px; background: var(--bg-2, var(--sep)); margin-block-end: 10px; }
+.adm-facts { line-height: 1.8; }
+.adm-facts dt { color: var(--label-3); font-size: .85rem; }
+.adm-facts dd { margin-inline: 0; margin-block-end: 10px; overflow-wrap: anywhere; }
+.adm-facts bdi { unicode-bidi: isolate; }

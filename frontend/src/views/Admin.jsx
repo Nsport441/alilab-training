@@ -11,8 +11,9 @@ import { confirmSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { Button } from '../components/ui.jsx'
 import AdminCoach from './AdminCoach.jsx'
+import { ReleaseCenter, SystemHealth } from './AdminOperations.jsx'
 import '../admin.css'
-import { adminText, adminDirection } from '../alilab/admin-i18n.js'
+import { adminText } from '../alilab/admin-i18n.js'
 
 // Admin-only operator dashboard (owner passkey + admin flag; guarded again server-side).
 // Admin strings are localized separately from the end-user interface.
@@ -235,7 +236,7 @@ export default function Admin() {
   const activeCount = (users || []).filter(u => u.lastSync && Date.now() - u.lastSync < 7 * 86400000).length
   const disabledCount = (users || []).filter(u => u.disabled).length
 
-  return <div className="narrow" dir={adminDirection()}>
+  return <div className="narrow" dir="rtl" lang="fa">
     <div className="hdr">
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={adminText("Back")}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>{adminText("Admin")}</h1>
@@ -254,6 +255,7 @@ export default function Admin() {
       </div>
     </div>}
 
+    <details className="adm-group" open><summary>داشبورد</summary>
     <div className="tiles" style={{ marginBottom: 12 }}>
       <div className="tile"><div className="l">{adminText("Users")}</div><div className="v">{users ? users.length : '—'}</div></div>
       <div className="tile"><div className="l">{adminText("Training now")}</div><div className="v" style={{ color: liveUsers.length ? 'var(--acc)' : undefined }}>{users ? liveUsers.length : '—'}</div></div>
@@ -271,10 +273,9 @@ export default function Admin() {
       </div>)}
     </div>}
 
-    {/* The Coach setup. Renders nothing at all unless the instance offers the Coach, so an admin
-        page on a box that never enabled it is byte-for-byte the page it was before. */}
+    </details>
+    <details className="adm-group" open><summary>کاربران و مربیان</summary>
     <AdminCoach />
-
 
     <div className="card">
       <h2 style={{ margin: 0 }}>{adminText("Users")}</h2>
@@ -290,6 +291,20 @@ export default function Admin() {
       </div>
     </div>
 
-    <div style={{ marginTop: 14 }}><AuditCard tick={tick} /></div>
+    </details>
+    <details className="adm-group"><summary>تمرینات و محتوا</summary>
+      <div className="card"><h2>کتابخانه تمرینات</h2>
+        <p className="adm-lead">مشاهده و مدیریت تمرینات شخصی با امکانات فعلی کتابخانه.</p>
+        <Button onClick={() => nav('/library')}>باز کردن کتابخانه</Button>
+      </div>
+    </details>
+    <details className="adm-group" open><summary>گزارش‌ها و پایش</summary>
+      <SystemHealth tick={tick} />
+      <div style={{ marginTop: 14 }}><AuditCard tick={tick} /></div>
+    </details>
+    <details className="adm-group" open><summary>سیستم و تنظیمات</summary>
+      <ReleaseCenter tick={tick} />
+      <Button onClick={() => nav('/settings')}>تنظیمات حساب و برنامه</Button>
+    </details>
   </div>
 }
