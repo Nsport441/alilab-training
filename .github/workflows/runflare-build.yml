@@ -78,6 +78,9 @@ jobs:
           docker run -d --name web --network runflare-test -p 8080:80 "alilab-training-web:$SHA"
           curl --retry 30 --retry-connrefused --retry-all-errors --retry-delay 2 -fsS http://localhost:8080/api/health
           curl -fsS http://localhost:8080/ >/dev/null
+          curl -fsS -D /tmp/web-release-headers http://localhost:8080/release-build.json -o /tmp/web-release.json
+          node -e 'const fs=require("node:fs");const d=JSON.parse(fs.readFileSync("/tmp/web-release.json"));if (d.commit!==process.argv[1]) process.exit(1)' "$SHA"
+          grep -qi '^Cache-Control: no-store' /tmp/web-release-headers
           curl -fsS http://localhost:8080/corresponding-source.tar.gz -o /tmp/source.tar.gz
           tar -xOf /tmp/source.tar.gz ./deployment-source.json | grep "$SHA"
           docker image inspect "alilab-training-api:$SHA" "alilab-training-web:$SHA" \

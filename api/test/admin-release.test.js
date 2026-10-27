@@ -13,6 +13,8 @@ test('GitHub failures never become a deployed version and requests are cached', 
   assert.equal(results[0].github.commit, null);
   assert.equal(results[0].deployed, null);
   assert.equal(results[0].comparisons.githubApi, 'unknown');
+  assert.equal(results[0].comparisons.githubRuntimeApi, 'unknown');
+  assert.ok(Number.isFinite(Date.parse(results[0].runtime.checkedAt)));
   await read(); assert.equal(calls, 1);
 });
 test('strict identities and source provenance, independent deployment fields', async t => {
@@ -33,4 +35,18 @@ test('strict identities and source provenance, independent deployment fields', a
   assert.equal(JSON.stringify(r).includes('secret'), false);
   fs.writeFileSync(file, '{}'); assert.equal(deploymentEvidence(file), null);
   assert.equal(compare(null, a), 'unknown');
+});
+
+test('GitHub main is compared with the responding API identity even without Runflare evidence', async () => {
+  const a = 'a'.repeat(40), b = 'b'.repeat(40);
+  const fetcher = async () => ({ ok: true, json: async () => ({ sha: a }) });
+  const matched = await createReleaseReader({ env: { ALILAB_BUILD_COMMIT: a }, fetcher })();
+  assert.equal(matched.deployed, null);
+  assert.equal(matched.comparisons.githubRuntimeApi, 'same');
+  assert.equal(matched.comparisons.githubApi, 'unknown');
+  const old = await createReleaseReader({ env: { ALILAB_BUILD_COMMIT: b }, fetcher })();
+  assert.equal(old.comparisons.githubRuntimeApi, 'different');
+  const invalid = await createReleaseReader({ env: { ALILAB_BUILD_COMMIT: 'main' }, fetcher })();
+  assert.equal(invalid.runtime.commit, null);
+  assert.equal(invalid.comparisons.githubRuntimeApi, 'unknown');
 });

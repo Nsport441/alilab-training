@@ -2050,7 +2050,8 @@ paths:
       summary: 'Admin: inspect release evidence'
       description: >-
         Read-only, no-store. Fixed GitHub main observation, responding API build,
-        independently sourced Runflare operator evidence and equality comparisons.
+        responding API build identity with observation time, independently sourced
+        Runflare operator evidence and equality comparisons.
         Unavailable identities are null and comparisons unknown. Build metadata
         does not establish deployment success. No provider credentials are returned.
       responses:
@@ -2062,9 +2063,9 @@ paths:
                 type: object
                 properties:
                   github: { type: object, description: 'Commit, checkedAt and available/unknown status.' }
-                  runtime: { type: object, description: 'API package version and nullable full build commit.' }
+                  runtime: { type: object, description: 'Responding API package version, nullable full build commit, and checkedAt.' }
                   deployed: { type: [object, 'null'], description: 'Operator evidence with source, observedAt and api/web observations.' }
-                  comparisons: { type: object, description: 'githubApi, githubWeb, apiWeb, runtimeApi are same/different/unknown.' }
+                  comparisons: { type: object, description: 'githubRuntimeApi, githubApi, githubWeb, apiWeb, runtimeApi are same/different/unknown.' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 

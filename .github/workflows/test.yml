@@ -31,6 +31,10 @@ jobs:
         working-directory: frontend
         env:
           APP_BUILD: ${{ github.sha }}
+      - run: node scripts/check-release-build.mjs
+        working-directory: frontend
+        env:
+          APP_BUILD: ${{ github.sha }}
       - run: node scripts/check-locales.mjs
         working-directory: frontend
       - run: node scripts/check-alilab-boundary.mjs
@@ -100,6 +104,9 @@ jobs:
         run: |
           curl -fsS http://localhost:8080/ >/dev/null
           curl -fsS http://localhost:8080/api/health
+          curl -fsS -D /tmp/web-release-headers http://localhost:8080/release-build.json -o /tmp/web-release.json
+          node -e 'const fs=require("node:fs");const d=JSON.parse(fs.readFileSync("/tmp/web-release.json"));if (d.commit!==process.env.GITHUB_SHA) process.exit(1)'
+          grep -qi '^Cache-Control: no-store' /tmp/web-release-headers
           curl -fsS http://localhost:8080/corresponding-source.tar.gz -o /tmp/source.tar.gz
           tar tzf /tmp/source.tar.gz | grep './LICENSE'
           tar tzf /tmp/source.tar.gz | grep './UPSTREAM.json'
