@@ -64,7 +64,7 @@ const servedWebBuild = {
   name: 'alilab-served-web-identity',
   apply: 'build',
   generateBundle() {
-    this.emitFile({ type: 'asset', fileName: 'release-build.json', source: JSON.stringify({ commit: webCommit, version: appVersion }) + '\\n' })
+    this.emitFile({ type: 'asset', fileName: 'release-build.json', source: JSON.stringify({ commit: webCommit, version: appVersion }) })
   }
 }
 
