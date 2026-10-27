@@ -2,18 +2,60 @@ name: Runflare build artifacts (no deploy)
 on:
   pull_request:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["AliLab Phase 1A checks"]
+    types: [completed]
+    branches: [main]
 permissions:
   contents: read
+  actions: read
+
+concurrency:
+  group: runflare-pair-${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
 jobs:
   build:
+    if: >-
+      ${{
+        github.event_name == 'pull_request' ||
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == github.repository)
+      }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Confirm successful main CI for manual release candidates
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os, json, sys, urllib.request
+          repo, sha, token = os.environ['GITHUB_REPOSITORY'], os.environ['RELEASE_SHA'], os.environ['GH_TOKEN']
+          headers = {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json'}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=15) as resp:
+                  return json.load(resp)
+          main = get('https://api.github.com/repos/' + repo + '/branches/main')
+          if main['commit']['sha'] != sha: sys.exit('Manual candidate must use current main SHA')
+          data = get('https://api.github.com/repos/' + repo + '/actions/workflows/test.yml/runs?head_sha=' + sha + '&event=push&per_page=100')
+          if not any(r['head_sha'] == sha and r['head_branch'] == 'main' and r['event'] == 'push' and r['conclusion'] == 'success' for r in data.get('workflow_runs', [])):
+              sys.exit('No successful full main CI for selected source SHA')
+          print('Main CI confirmed for', sha)
+          PY
       - name: Package committed service contexts
         run: node scripts/package-runflare.mjs HEAD
       - name: Build and smoke-test the exact upload contexts
@@ -42,6 +84,32 @@ jobs:
             --format '{{json .}}' > artifacts/runflare/images.jsonl
           docker save "alilab-training-api:$SHA" "alilab-training-web:$SHA" | gzip > artifacts/runflare/images.tar.gz
           (cd artifacts/runflare && sha256sum *.zip images.tar.gz images.jsonl sources.json > SHA256SUMS)
+      - name: Record paired candidate provenance and verify identities
+        shell: bash
+        env:
+          SOURCE_EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          export RELEASE_SHA="$(git rev-parse HEAD)"
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const sha = process.env.RELEASE_SHA;
+          const sources = JSON.parse(fs.readFileSync('artifacts/runflare/sources.json'));
+          if (sources.commit !== sha) throw Error('Source manifest SHA mismatch');
+          const images = fs.readFileSync('artifacts/runflare/images.jsonl', 'utf8').trim().split('\n').map(JSON.parse);
+          if (images.length !== 2) throw Error('Expected two tested images');
+          for (const service of ['api','web']) {
+            if (!fs.existsSync('artifacts/runflare/' + service + '-' + sha + '.zip')) throw Error('Missing ' + service + ' ZIP');
+            const matches = images.filter(i => i.Config?.Labels?.['org.opencontainers.image.title'] === 'alilab-training-' + service);
+            if (matches.length !== 1 || matches[0].Config?.Labels?.['org.opencontainers.image.revision'] !== sha) throw Error('Image source mismatch: ' + service);
+          }
+          const candidate = {commit:sha,services:['api','web'],ciPassed:process.env.SOURCE_EVENT!=='pull_request',
+            trigger:process.env.SOURCE_EVENT,runUrl:[process.env.GITHUB_SERVER_URL,process.env.GITHUB_REPOSITORY,'actions','runs',process.env.GITHUB_RUN_ID].join('/'),
+            runAttempt:Number(process.env.GITHUB_RUN_ATTEMPT),runflareDeployment:'not_started',operatorApproval:'not_recorded'};
+          fs.writeFileSync('artifacts/runflare/candidate.json',JSON.stringify(candidate,null,2)+'\n');
+          JS
+          (cd artifacts/runflare && sha256sum *.zip images.tar.gz images.jsonl sources.json candidate.json > SHA256SUMS)
+          (cd artifacts/runflare && sha256sum -c SHA256SUMS)
       - name: Container diagnostics
         if: failure()
         run: |
@@ -49,6 +117,6 @@ jobs:
           docker logs web || true
       - uses: actions/upload-artifact@v4
         with:
-          name: runflare-${{ github.event.pull_request.head.sha || github.sha }}
+          name: runflare-${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
           path: artifacts/runflare/
           retention-days: 14

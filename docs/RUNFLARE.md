@@ -1,5 +1,8 @@
 # Runflare: two explicit build contexts, no automatic deployment
 
+**Coordinated release preparation:** [single-SHA API/Web release workflow](COORDINATED_RELEASE.md). This builds and validates a paired candidate after green main CI; it does **not** deploy to Runflare.
+
+
 Baseline investigated: `e6f26efd7457513b0e6e4e3ffd584af57e05ea4e` (main).
 Reported state: API v3 running; v4/v5 failed with `Dockerfile does not exist`.
 These production facts came from the operator; no production access or changes were made.
