@@ -28,7 +28,7 @@ const MEDIA_GUESS_BYTES = 64 * 1024
 // Trimming lists the whole cache, so it runs after every MEDIA_TRIM_EVERY new entries rather
 // than after each one, and once when a new worker activates.
 const MEDIA_TRIM_EVERY = 20
-const isMediaPath = p => p.includes('/catalogue-media/')
+const isMediaPath = p => p.includes('/catalogue-media/') || p.includes('/opengym-media/clip/') || p.includes('/opengym-media/still/')
 const isLegacyMediaPath = p => !isMediaPath(p) && (p.includes('/img/') || p.includes('/gif/'))
 
 // What the shell needs to boot without a network: index.html plus every script/style/icon it

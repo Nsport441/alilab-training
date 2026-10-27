@@ -52,7 +52,9 @@ function BuiltinMedia({ ex, id, compact, minimizable }) {
     <div className={'exmedia' + (compact ? ' compact' : '') + (mini ? ' mini' : '') + (failed === 'all' ? ' broken' : '')} id={id} onClick={onTap}>
       {failed === 'all'
         ? <div className="exmedia-x"><Icon name="dumbbell" /></div>
-        : <img decoding="async" draggable={false} src={showGif ? animation : (frames[frame % frames.length] || still || animation)} alt={exerciseNameFor(ex)} onError={onError} />}
+        : showGif && /\.mp4(?:$|[?#])/i.test(animation)
+          ? <video src={animation} autoPlay muted playsInline loop preload="metadata" poster={still || undefined} aria-label={exerciseNameFor(ex)} onError={onError} />
+          : <img decoding="async" draggable={false} src={showGif ? animation : (frames[frame % frames.length] || still || animation)} alt={exerciseNameFor(ex)} onError={onError} />}
       {minimizable && (
         <button className="giftoggle" onClick={toggleSize}>
           <Icon name={mini ? 'expand' : 'minimize'} />{mini ? t('Expand') : t('Minimize')}
@@ -64,8 +66,11 @@ function BuiltinMedia({ ex, id, compact, minimizable }) {
         </span>
       )}
     </div>
-    {frames.length > 1 && !mini && !failed && <button type="button" className="catalogue-next" onClick={onTap}>{alilabText('Next image')} · {frame % frames.length + 1}/{frames.length}</button>}
-    {registered && <figcaption className="catalogue-credit"><a href={registered.sourceUrl} target="_blank" rel="noopener noreferrer">{alilabText('Image source')}: {registered.images[0].author} / wger</a> · <a href={registered.images[0].licenseUrl} target="_blank" rel="noopener noreferrer">{registered.images[0].license}</a></figcaption>}
+    {frames.length > 1 && !mini && !failed && !showGif && <button type="button" className="catalogue-next" onClick={() => setFrame(n => (n + 1) % frames.length)}>{alilabText('Next image')} · {frame % frames.length + 1}/{frames.length}</button>}
+    {(registered || animation) && <figcaption className="catalogue-credit">
+      {registered && <><a href={registered.sourceUrl} target="_blank" rel="noopener noreferrer">{alilabText('Image source')}: {registered.images[0].author} / wger</a> · <a href={registered.images[0].licenseUrl} target="_blank" rel="noopener noreferrer">{registered.images[0].license}</a> · </>}
+      {animation && <><a href="https://gymvisual.com/" target="_blank" rel="noopener noreferrer">© Gym visual · openGym animation</a> · <a href="./opengym-media/NOTICE.md" target="_blank" rel="noopener noreferrer">Media licence</a></>}
+    </figcaption>}
     </figure>
   )
 }
