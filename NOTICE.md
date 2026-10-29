@@ -18,6 +18,22 @@ The original code and AliLab-authored Persian labels remain AGPL-3.0-or-later.
 
 # Third-party notices
 
+## AliLab catalogue refresh (2026-10-29)
+
+The imported text catalogue is pinned to DuarteSantos8/openGym commit
+`b6cfe2bbd3f099523ffbf2677438864e9a09a06f`. The complete upstream notice and AGPL
+are retained in `catalogue/UPSTREAM-NOTICE.md` and `catalogue/UPSTREAM-LICENSE`.
+The original ExerciseDB text retains its MIT attribution; newer text, descriptions and
+muscle corrections are AGPL. Persian translations and short guides already in AliLab
+are retained; upstream supplies no Persian pack. Missing translations fall back to English.
+
+The 5,632 independent exercises retain unmodified 180px WebP/MP4 media only under
+the upstream non-commercial openGym fork exception. Copyright remains with Gym visual;
+these files are not AGPL. Keep `frontend/public/opengym-media/NOTICE.md` and the full
+upstream notice with distributions. Commercial use requires a separate appropriate licence.
+Do not hotlink, extract into independent products, transform, or feed media to AI systems.
+No higher-resolution or app-package-only media is imported.
+
 openGym — Copyright (C) 2026 Duarte Santos.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 

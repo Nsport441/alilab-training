@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { EXDB, BODYPARTS, allExercises, equipmentOf, searchExercises } from '../lib/exercises.js'
+import { EXDB, BODYPARTS, CATEGORIES, allExercises, equipmentOf, searchExercises } from '../lib/exercises.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
 import { activeProfile, exAvailable } from '../lib/equipment.js'
 import { bestWeightFor } from '../lib/history.js'
@@ -20,11 +20,12 @@ export default function Library() {
   const [q, setQ] = useState('')
   const [bp, setBp] = useState('')
   const [eq, setEq] = useState('')
+  const [category, setCategory] = useState('')
   const [showAll, setShowAll] = useState(false)   // ignore the active equipment profile for this session
   const [shown, setShown] = useState(40)
   const bpStrip = useRef(null), eqStrip = useRef(null)
   const profile = activeProfile(S)
-  const base = searchExercises(allExercises(S).filter(e => !bp || e.bp === bp), q)
+  const base = searchExercises(allExercises(S).filter(e => (!bp || e.bp === bp) && (!category || e.cat === category)), q)
   const eqFiltered = (profile && !showAll) ? base.filter(e => exAvailable(S, e)) : base
   const eqOpts = equipmentOf(eqFiltered)
   // Drop the equipment filter if the search narrowed it away, so you never hit a dead end.
@@ -35,7 +36,7 @@ export default function Library() {
   useRevealActiveChip(eqStrip, eqOn)
   // A live count at the end of the search field while a search or filter narrows the list
   // (idea and first version: GitLab !31) — how many are left, before scrolling to find out.
-  const narrowed = !!(q.trim() || bp || eqOn)
+  const narrowed = !!(q.trim() || bp || eqOn || category)
 
   return <>
     <div className="hdr"><div><h1>{t('Exercises')}</h1><div className="sub">{t('{0} exercises with animations', EXDB.length)}</div></div>
@@ -62,6 +63,10 @@ export default function Library() {
       <button className={'chip nocap' + (!eqOn ? ' on' : '')} onClick={() => { setEq(''); setShown(40) }}>{t('Any equipment')}</button>
       {eqOpts.map(x => <button key={x} className={'chip' + (eqOn === x ? ' on' : '')} onClick={() => { setEq(x); setShown(40) }}>{t(x)}</button>)}
     </div>}
+    <div className="chips" style={{ marginBottom: 12 }}>
+      <button className={'chip nocap' + (!category ? ' on' : '')} onClick={() => { setCategory(''); setShown(40) }}>{t('All categories')}</button>
+      {CATEGORIES.map(c => <button key={c} className={'chip' + (category === c ? ' on' : '')} onClick={() => { setCategory(c); setShown(40) }}>{t(c)}</button>)}
+    </div>
     <div className="list">
       <div className="item" {...tappable(() => customExSheet(null, ex => exerciseDetailSheet(ex), q.trim()))}>
         <div className="thumb thumb-x"><Icon name="sparkles" /></div>

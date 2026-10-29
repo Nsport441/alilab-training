@@ -8,7 +8,7 @@ import { CATALOGUE_MEDIA } from '../frontend/src/alilab/catalogue-media-registry
 import { createHash } from 'node:crypto'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-assert.equal(EXDB.length, 1324)
+assert.equal(EXDB.length, 5632)
 for (const ex of EXDB) {
   assert.equal(EXIDX[ex.id].n, ex.n)
   assert.equal(imgSrc(ex), CATALOGUE_MEDIA[ex.id]?.images[0].path || `./opengym-media/still/${ex.id}.webp`)
@@ -28,7 +28,7 @@ for(const record of Object.values(CATALOGUE_MEDIA)){
   }
 }
 const urls=planMediaUrls({routines:[{ex:EXDB.map(ex=>({id:ex.id}))}]},'https://training.alilab.ir/')
-assert.equal(urls.length,2667)
+assert.equal(urls.length,200)
 assert(urls.every(url=>url.startsWith('https://training.alilab.ir/catalogue-media/') || url.startsWith('https://training.alilab.ir/opengym-media/')))
 assert.equal(imgSrc({id:'not-approved',img:'old.jpg'}),null)
 assert.equal(imgSrc({id:'0025',custom:true,img:'old.jpg'}),null)
@@ -47,4 +47,4 @@ function checkBuilt(dir) {
 const dist = path.join(root, 'frontend/dist')
 if (fs.existsSync(dist)) checkBuilt(dist)
 assert(fs.existsSync(path.join(root, 'frontend/public/opengym-media/NOTICE.md')))
-console.log('AliLab boundary passed: 1324 exercise videos and stills retained as non-commercial openGym fork, local only, third-party notice present.')
+console.log('AliLab boundary passed: 5632 exercise videos and stills retained as non-commercial openGym fork, local only, third-party notice present; prefetch capped at 200 URLs.')

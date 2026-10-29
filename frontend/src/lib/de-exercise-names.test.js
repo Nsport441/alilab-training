@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, test } from 'vitest'
 import { readFileSync } from 'node:fs'
 import de from '../exercise-names/de.js'
-import { EXDB } from './exercises-data.js'
+import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
+const EXDB = legacy
 import { AWAITING_REVIEW, checkName, stagedExercises } from '../../../scripts/de-name-rules.mjs'
 import {
   EXERCISE_NAME_LANGS, _setLangState, derivePack, exerciseNameFor, exerciseNameSearchText

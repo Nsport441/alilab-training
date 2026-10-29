@@ -38,6 +38,8 @@ jobs:
       - run: node scripts/check-locales.mjs
         working-directory: frontend
       - run: node scripts/check-alilab-boundary.mjs
+      - run: node scripts/build-alilab-catalogue.mjs --check
+      - run: node --test scripts/test/catalogue-import.test.mjs
       - run: npm audit --audit-level=low
         working-directory: frontend
 

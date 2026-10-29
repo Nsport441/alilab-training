@@ -78,6 +78,14 @@ jobs:
           docker run -d --name web --network runflare-test -p 8080:80 "alilab-training-web:$SHA"
           curl --retry 30 --retry-connrefused --retry-all-errors --retry-delay 2 -fsS http://localhost:8080/api/health
           curl -fsS http://localhost:8080/ >/dev/null
+          # Exercise media must be served as binaries, including newly supported five-digit IDs.
+          MEDIA_ID=$(node --input-type=module -e "import {EXDB} from './frontend/src/lib/exercises-data.js'; console.log(EXDB.find(e=>e.id.length===5).id)")
+          curl -fsS -D /tmp/clip-headers "http://localhost:8080/opengym-media/clip/$MEDIA_ID.mp4" -o /tmp/clip.mp4
+          curl -fsS -D /tmp/still-headers "http://localhost:8080/opengym-media/still/$MEDIA_ID.webp" -o /tmp/still.webp
+          grep -qi '^Content-Type: video/mp4' /tmp/clip-headers
+          grep -qi '^Content-Type: image/webp' /tmp/still-headers
+          cmp /tmp/clip.mp4 "frontend/public/opengym-media/clip/$MEDIA_ID.mp4"
+          cmp /tmp/still.webp "frontend/public/opengym-media/still/$MEDIA_ID.webp"
           curl -fsS -D /tmp/web-release-headers http://localhost:8080/release-build.json -o /tmp/web-release.json
           node -e 'const fs=require("node:fs");const d=JSON.parse(fs.readFileSync("/tmp/web-release.json"));if (d.commit!==process.argv[1]) process.exit(1)' "$SHA"
           grep -qi '^Cache-Control: no-store' /tmp/web-release-headers

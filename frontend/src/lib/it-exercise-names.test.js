@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, test } from 'vitest'
 import { readFileSync } from 'node:fs'
 import itNames from '../exercise-names/it.js'
-import { EXDB } from './exercises-data.js'
+import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
+const EXDB = legacy
 import {
   EXERCISE_NAME_LANGS, _setLangState, exerciseNameFor, exerciseNameSearchText
 } from './i18n-core.js'
@@ -10,7 +11,7 @@ describe('Italian exercise names', () => {
   const source = JSON.parse(readFileSync(new URL('../../../scripts/exercise-name-sources/it.json', import.meta.url), 'utf8'))
   afterEach(() => _setLangState('en', {}, null, null))
 
-  test('matches the curated source and covers the complete built-in catalogue', () => {
+  test('matches the curated source and covers the original curated catalogue', () => {
     expect(Object.keys(itNames)).toHaveLength(EXDB.length)
     expect(itNames).toEqual(source)
     expect(EXERCISE_NAME_LANGS).toContain('it')

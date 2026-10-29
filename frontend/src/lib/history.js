@@ -1,7 +1,7 @@
 // Pure helpers over the state object S (ported 1:1 from the vanilla app).
 import { todayISO, isoOf, weekKey, weekStartOf, fmtNum } from './format.js'
 import { fmtSpeed } from './speed.js'
-import { isCardio, isBodyweightEq, isAssisted, betterWeight } from './exercises.js'
+import { EXIDX, isCardio, isBodyweightEq, isAssisted, betterWeight } from './exercises.js'
 import { phaseForSet, modeForSet, modeForEntry, isWarmupRow, normalizeMode, completedVolumeOf, hasCompletedWork, nextDropWeight, splitBurstReps, makeSideSet, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL, dropsOf, clustersOf } from './workout-model.js'
 const objectOf = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 // Completed-state-independent work rows whose authoritative mode matches the requested mode.
@@ -159,7 +159,8 @@ export function setLabel(id, s, cfg, speedUnit) {
 }
 // Default config for a freshly added exercise.
 export function defaultConfig(id, mode) {
-  const m = mode || modeOf({ id })
+  // Only seed newly added entries. modeOf deliberately keeps legacy saved configs unchanged.
+  const m = mode || (EXIDX[id]?.hd ? 'time' : modeOf({ id }))
   if (m === 'cardio') return { sets: 1, min: 20, speed: 8 }
   // Written only when it is true, so a barbell config is byte-for-byte what it was before
   // the flag existed and a plan file gains nothing it does not need.

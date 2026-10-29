@@ -1,7 +1,8 @@
-import { EXDB } from './exercises-data.js'
+import { EXDB, EXALIAS } from './exercises-data.js'
 import { USER_EXERCISE_MUSCLE_OVERRIDES, exerciseMuscleMetadataFor } from './exercise-muscle-batch-1.js'
 import { t, getVersion, exerciseNameSearchText } from './i18n-core.js'
 import { catalogueMediaSrc } from '../alilab/catalogue-media.js'
+import { LEGACY_CARDIO_IDS, LEGACY_IDS } from './legacy-cardio.js'
 
 export { EXDB }
 
@@ -46,7 +47,10 @@ export const smOf = ex => {
 
 export const EXIDX = {}
 CATALOGUE.forEach(e => { EXIDX[e.id] = e })
+// Resolve alternate drawings on import without ever rewriting a saved workout ID.
+Object.entries(EXALIAS).forEach(([id, canonical]) => { EXIDX[id] = EXIDX[canonical] })
 export const BODYPARTS = [...new Set(CATALOGUE.map(e => e.bp))].sort()
+export const CATEGORIES = [...new Set(CATALOGUE.map(e => e.cat).filter(Boolean))].sort()
 
 // Equipment options present in a given list of exercises, most common first (issue #6).
 // Deriving them from the *already filtered* list keeps the chip row short and means
@@ -64,7 +68,7 @@ export function registerCustom(list) {
   customIds.forEach(id => {
     delete EXIDX[id]
     const builtIn = CATALOGUE.find(ex => ex.id === id)
-    if (builtIn) EXIDX[id] = builtIn
+    if (builtIn || EXALIAS[id]) EXIDX[id] = builtIn || EXIDX[EXALIAS[id]]
   })
   customIds = (list || []).map(e => e.id)
   ;(list || []).forEach(e => { EXIDX[e.id] = e })
@@ -101,7 +105,7 @@ export function searchScore(exercise, query) {
   const fields = [['n', 100], ['tg', 40], ['eq', 40], ['sm', 30], ['muscleGroups', 30], ['primaries', 30], ['secondaries', 30], ['desc', 10], ['cues', 10]]
   // Token-level matching: every query word must match somewhere (any order), so
   // "press bench" finds "Bench Press". The score sums each token's best hit.
-  const tokens = needle.split(/[^a-z0-9]+/).filter(Boolean)
+  const tokens = needle.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
   if (!tokens.length) return 0
   let total = 0
   for (const token of tokens) {
@@ -132,7 +136,12 @@ export const imgSrc = ex => catalogueMediaSrc(ex, 'img')
 export const gifSrc = ex => catalogueMediaSrc(ex, 'gif')
 
 // Cardio exercises log time + speed instead of weight × reps.
-export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
+export const isCardio = idOrEx => {
+  const ex = typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx
+  if (!ex) return false
+  if (!ex.custom && LEGACY_IDS.has(ex.id)) return LEGACY_CARDIO_IDS.has(ex.id)
+  return ex.bp === 'cardio' || (!ex.custom && ex.cat === 'cardio')
+}
 
 // Exercises the dataset already knows carry no external load (issue #32) — a quarter of the
 // catalogue. This seeds the `bw` flag on a fresh config so a push-up never asks for a weight
@@ -231,6 +240,7 @@ function corpusOf(e) {
     e?.tg || '', t(e?.tg || ''),
     e?.eq || '', t(e?.eq || ''),
     e?.bp || '', t(e?.bp || ''),
+    e?.cat || '', t(e?.cat || ''),
     ...sm, ...sm.map(m => t(m)),
     e?.desc || ''
   ].join(' '))

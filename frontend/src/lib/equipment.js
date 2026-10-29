@@ -6,6 +6,7 @@ import { EXDB } from './exercises-data.js'
 export const ALL_EQUIPMENT = (() => {
   const c = {}
   EXDB.forEach(e => { if (e.eq) c[e.eq] = (c[e.eq] || 0) + 1 })
+  EXDB.forEach(e => (e.nd || []).forEach(kit => { c[kit] = (c[kit] || 0) + 1 }))
   return Object.keys(c).sort((a, b) => c[b] - c[a] || (a < b ? -1 : 1))
 })()
 
@@ -25,6 +26,7 @@ export function activeProfile(S) {
 export function exAvailable(S, ex) {
   const p = activeProfile(S)
   if (!p) return true
+  if ((ex.nd || []).some(kit => !(p.equipment || []).includes(kit))) return false
   if (!ex.eq || ex.eq === ALWAYS_AVAILABLE) return true
   return (p.equipment || []).includes(ex.eq)
 }

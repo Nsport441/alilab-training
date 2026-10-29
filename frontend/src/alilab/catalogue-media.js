@@ -7,7 +7,7 @@ import { CATALOGUE_MEDIA } from './catalogue-media-registry.js'
 
 export const CATALOGUE_MEDIA_POLICY = 'opengym-noncommercial-fork-180px'
 const BUILTIN_IDS = new Set(EXDB.map(ex => ex.id))
-const localId = ex => ex && !ex.custom && BUILTIN_IDS.has(ex.id) && /^\d{4}$/.test(ex.id) ? ex.id : null
+const localId = ex => ex && !ex.custom && BUILTIN_IDS.has(ex.id) && /^\d{4,5}$/.test(ex.id) ? ex.id : null
 export const catalogueMediaFor = ex => localId(ex) ? CATALOGUE_MEDIA[ex.id] || null : null
 export const catalogueMediaSources = ex => {
   const id = localId(ex)

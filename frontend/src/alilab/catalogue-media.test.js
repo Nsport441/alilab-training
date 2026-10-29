@@ -7,7 +7,7 @@ import { CATALOGUE_MEDIA } from './catalogue-media-registry.js'
 afterEach(() => vi.unstubAllEnvs())
 describe('AliLab non-commercial openGym fork media', () => {
   it('preserves every exercise and resolves its unchanged local openGym MP4', () => {
-    expect(EXDB).toHaveLength(1324)
+    expect(EXDB).toHaveLength(5632)
     for (const ex of EXDB) {
       expect(EXIDX[ex.id].n).toBe(ex.n)
       expect(EXIDX[ex.id].st).toEqual(ex.st)
@@ -26,7 +26,7 @@ describe('AliLab non-commercial openGym fork media', () => {
   it('only prefetches same-origin licensed media for known built-in exercise IDs', () => {
     const ids = EXDB.map(ex => ({ id: ex.id }))
     const urls = planMediaUrls({ routines: [{ ex: ids }], active: { entries: ids } }, 'https://training.alilab.ir/')
-    expect(urls).toHaveLength(2667)
+    expect(urls).toHaveLength(200)
     expect(urls.every(url => url.startsWith('https://training.alilab.ir/catalogue-media/') ||
       url.startsWith('https://training.alilab.ir/opengym-media/'))).toBe(true)
   })

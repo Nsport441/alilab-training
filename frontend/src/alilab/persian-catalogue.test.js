@@ -2,12 +2,13 @@
 import { afterEach, expect,it } from 'vitest'
 import { EXDB,matchExercise } from '../lib/exercises.js'
 import { _setLangState,exerciseNameFor,instrFor,hasLocalizedInstructions } from '../lib/i18n-core.js'
+import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
 import fa from '../locales/fa.js'
 afterEach(()=>_setLangState('en'))
 it('covers stable IDs, retains bilingual search and leaves custom names intact',()=>{
-  expect(Object.keys(names).sort()).toEqual(EXDB.map(ex=>ex.id).sort())
+  expect(Object.keys(names).sort()).toEqual(legacy.map(ex=>ex.id).sort())
   for(const n of Object.values(names)){expect(n).toMatch(/[\u0600-\u06ff]/);expect(n.length).toBeGreaterThan(2)}
   _setLangState('fa',fa,guides,names)
   const bench=EXDB.find(ex=>ex.id==='0025')
