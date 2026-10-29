@@ -1,5 +1,12 @@
 // Spanish UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "entrenador en suspensión",
+  "landmine": "landmine",
+  "weight plate": "disco de peso",
+  "massage ball": "pelota de masaje",
+  "sandbag": "saco de arena",
+  "macebell": "maza de entrenamiento",
+
   'Confirm': 'Confirmar',
   'Cancel': 'Cancelar',
   'Press back again to exit': 'Pulsa atrás otra vez para salir',

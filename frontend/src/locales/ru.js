@@ -1,5 +1,12 @@
 // Russian UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "подвесные петли",
+  "landmine": "лэндмайн",
+  "weight plate": "весовой диск",
+  "massage ball": "массажный мяч",
+  "sandbag": "мешок с песком",
+  "macebell": "тренировочная булава",
+
   'Confirm': 'Подтвердить',
   'Cancel': 'Отмена',
   'Press back again to exit': 'Нажмите «Назад» ещё раз, чтобы выйти',

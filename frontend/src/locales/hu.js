@@ -1,5 +1,12 @@
 // Hungarian UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "felfüggesztéses edzőheveder",
+  "landmine": "landmine",
+  "weight plate": "súlytárcsa",
+  "massage ball": "masszázslabda",
+  "sandbag": "homokzsák",
+  "macebell": "edzőbuzogány",
+
   // --- generic ---
   'Confirm': 'Megerősítés',
   'Cancel': 'Mégse',

@@ -10,6 +10,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const read=p=>JSON.parse(fs.readFileSync(path.join(root,'catalogue',p),'utf8'))
 const legacy=read('legacy.json'), source=read('upstream.json'), manifest=read('media-manifest.json'), provenance=read('provenance.json')
 const byId=new Map(EXDB.map(e=>[e.id,e]))
+const legacyById=new Map(legacy.map(e=>[e.id,e]))
 
 test('counts independent records, not files or alternate drawings',()=>{
   assert.equal(source.length,6554); assert.equal(EXDB.length,5632)
@@ -35,11 +36,12 @@ test('preserves every transferable English detail, taxonomy, muscle map and vari
     const actual=byId.get(e.id)
     assert.equal(actual.n,e.name); assert.deepEqual(actual.st,e.instructions)
     assert.equal(actual.desc,e.description); assert.equal(actual.cat,e.category)
-    assert.equal(actual.eq,e.equipment); assert.equal(actual.tg,e.target)
-    assert.deepEqual(actual.sm,e.secondaryMuscles)
+    const old=legacyById.get(e.id)
+    assert.equal(actual.eq,old?.eq ?? e.equipment); assert.equal(actual.tg,old?.tg ?? e.target)
+    assert.deepEqual(actual.sm,old?.sm ?? e.secondaryMuscles)
     assert.deepEqual(actual.nd,e.needs); assert.equal(actual.hd,e.hold?1:undefined)
     assert.equal(actual.fv,e.femaleVariant); assert.equal(actual.mv,e.maleVariant)
-    assert.deepEqual(actual.muscleWeights,e.muscleMap?.weights)
+    assert.deepEqual(actual.muscleWeights,old?undefined:e.muscleMap?.weights)
   }
 })
 test('new records introduce no duplicate name/taxonomy identity',()=>{

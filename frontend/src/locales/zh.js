@@ -1,5 +1,12 @@
 // Simplified Chinese UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "悬挂训练带",
+  "landmine": "地雷架",
+  "weight plate": "杠铃片",
+  "massage ball": "按摩球",
+  "sandbag": "沙袋",
+  "macebell": "训练锤",
+
   'Confirm': '确认',
   'Cancel': '取消',
   'Press back again to exit': '再按一次返回退出',

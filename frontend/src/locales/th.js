@@ -1,5 +1,12 @@
 // Thai UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "สายฝึกแบบแขวน",
+  "landmine": "แลนด์ไมน์",
+  "weight plate": "แผ่นน้ำหนัก",
+  "massage ball": "ลูกบอลนวด",
+  "sandbag": "ถุงทราย",
+  "macebell": "กระบองเมซเบล",
+
   // --- generic ---
   'Confirm': 'ยืนยัน',
   'Cancel': 'ยกเลิก',

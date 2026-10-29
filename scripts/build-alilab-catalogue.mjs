@@ -41,6 +41,13 @@ const rows = canonical.sort((a,b) => {
     if (m.secondaries) row.secondaries=m.secondaries
     if (m.weights) row.muscleWeights=m.weights
   }
+  if (legacyOrder.has(e.id)) {
+    // Historical raw metadata is a public compatibility contract. AliLab's approved muscle
+    // overlays remain authoritative; upstream corrections are retained in the source snapshot.
+    const old=legacy[legacyOrder.get(e.id)]
+    for (const key of ['bp','eq','tg','mg','sm']) row[key]=old[key]
+    for (const key of ['primaries','secondaries','muscleWeights']) delete row[key]
+  }
   return row
 })
 const json = v => `JSON.parse(${JSON.stringify(JSON.stringify(v))})`

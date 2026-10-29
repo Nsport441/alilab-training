@@ -26,7 +26,7 @@ export function activeProfile(S) {
 export function exAvailable(S, ex) {
   const p = activeProfile(S)
   if (!p) return true
-  if ((ex.nd || []).some(kit => !(p.equipment || []).includes(kit))) return false
+  if ((Array.isArray(ex.nd) ? ex.nd : []).some(kit => !(p.equipment || []).includes(kit))) return false
   if (!ex.eq || ex.eq === ALWAYS_AVAILABLE) return true
   return (p.equipment || []).includes(ex.eq)
 }

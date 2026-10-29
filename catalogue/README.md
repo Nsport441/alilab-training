@@ -22,6 +22,10 @@ No network access is needed to regenerate or test the imported data.
 The importer transfers English names, descriptions, instructions, target and secondary muscles,
 muscle-map weights, equipment, category, hold/needs flags and female/male references.
 AliLab's approved muscle overlays remain in place. New entries follow the original catalogue
+in stable name order. For the original 1,324 entries, raw body-part/equipment/muscle fields
+are also kept as the compatibility baseline: upstream's changed corrections are retained
+losslessly in the source snapshot, without replacing AliLab's approved historical model.
+New exercises receive the full upstream muscle model. New entries follow the original catalogue
 in stable name order, preserving the familiar first page. Category chips intersect search,
 body-part and equipment filters. Explicit auxiliary equipment requirements are respected.
 Holds default to timed sets only on fresh addition. Existing explicit modes and pre-mode
@@ -86,3 +90,10 @@ Local Docker is unavailable in this environment. Keep the PR a **draft** until C
 build, reviewed Persian additions and real desktop/mobile/PWA tests have been completed.
 There is no automatic merge or deployment. Do not publish Web/API until the exact candidate
 commit, successful tests, backups and operator approval have been verified.
+
+The first GitHub Runflare build/smoke test passed for `52f62505`. Full CI exposed eight
+catalogue compatibility/count/search assertions; these were repaired and all 99 affected
+regression tests passed locally. An existing Hono adapter advisory (GHSA-rmxm-3fg6-px4f)
+also failed both API/MCP audits. Their lockfiles update only `@hono/node-server` to 2.1.3;
+both targeted lockfile audits pass. No audit check is disabled. Final CI must verify the
+latest commit again, including the regenerated API catalogue.

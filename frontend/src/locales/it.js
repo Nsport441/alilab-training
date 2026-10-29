@@ -1,5 +1,12 @@
 // Italian UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "cinghie per allenamento in sospensione",
+  "landmine": "landmine",
+  "weight plate": "disco pesi",
+  "massage ball": "palla da massaggio",
+  "sandbag": "sacco di sabbia",
+  "macebell": "mazza da allenamento",
+
   'Confirm': 'Conferma',
   'Cancel': 'Annulla',
   'Press back again to exit': 'Premi di nuovo indietro per uscire',
