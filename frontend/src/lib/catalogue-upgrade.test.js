@@ -7,6 +7,7 @@ import { defaultConfig, modeOf } from './history.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from './i18n-core.js'
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
+import additions from '../alilab/persian-batch-01.json' with { type: 'json' }
 import fa from '../locales/fa.js'
 import { planMediaUrls, MAX_PREFETCH_URLS } from './media-prefetch.js'
 afterEach(()=>{_setLangState('en');registerCustom([])})
@@ -37,6 +38,12 @@ it('preserves reviewed Persian content and explicitly falls back to complete Eng
   const added=EXDB.filter(ex=>!old.has(ex.id))
   expect(added).toHaveLength(4308)
   for(const ex of added) {
+    if (additions[ex.id]) {
+      expect(exerciseNameFor(ex)).toContain(additions[ex.id].name)
+      expect(instrFor(ex)).toEqual(additions[ex.id].instructions)
+      expect(hasLocalizedInstructions(ex)).toBe(true)
+      continue
+    }
     expect(exerciseNameFor(ex)).toBe(ex.n)
     expect(instrFor(ex)).toBe(ex.st)
     expect(hasLocalizedInstructions(ex)).toBe(false)

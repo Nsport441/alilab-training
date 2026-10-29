@@ -34,6 +34,11 @@ No database migration, state rewrite, ID renumbering, profile deletion or backup
 
 ## Translation status — release limitation
 
+An initial batch of eight new IDs is translated in `frontend/src/alilab/persian-batch-01.json`;
+the assistant compared these translations with their English sources. They have not received
+independent native-speaker or exercise-specialist review. Another 4,300 new entries still
+fall back to English.
+
 Upstream has **no Persian pack**. Existing 1,324 Persian names and 280 Persian short guides
 remain untouched. All 4,308 new entries have complete upstream English instructions and
 descriptions, but **reviewed Persian names and guides for them are still missing**.

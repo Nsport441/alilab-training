@@ -3,12 +3,13 @@ import { afterEach, expect,it } from 'vitest'
 import { EXDB,matchExercise } from '../lib/exercises.js'
 import { _setLangState,exerciseNameFor,instrFor,hasLocalizedInstructions } from '../lib/i18n-core.js'
 import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
+import additions from './persian-batch-01.json' with { type: 'json' }
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
 import fa from '../locales/fa.js'
 afterEach(()=>_setLangState('en'))
 it('covers stable IDs, retains bilingual search and leaves custom names intact',()=>{
-  expect(Object.keys(names).sort()).toEqual(legacy.map(ex=>ex.id).sort())
+  expect(Object.keys(names).sort()).toEqual([...legacy.map(ex=>ex.id),...Object.keys(additions)].sort())
   for(const n of Object.values(names)){expect(n).toMatch(/[\u0600-\u06ff]/);expect(n.length).toBeGreaterThan(2)}
   _setLangState('fa',fa,guides,names)
   const bench=EXDB.find(ex=>ex.id==='0025')
@@ -20,11 +21,20 @@ it('covers stable IDs, retains bilingual search and leaves custom names intact',
   expect(instrFor({id:'0025',custom:true,st:['راهنمای خودم']})).toEqual(['راهنمای خودم'])
 })
 it('labels actual per-exercise fallback and preserves the English original',()=>{
-  expect(Object.keys(guides)).toHaveLength(280)
+  expect(Object.keys(guides)).toHaveLength(280 + Object.keys(additions).length)
   _setLangState('fa',fa,guides,names)
   const translated=EXDB.find(ex=>guides[ex.id]),fallback=EXDB.find(ex=>!guides[ex.id])
   expect(hasLocalizedInstructions(translated)).toBe(true)
   expect(instrFor(translated)).toBe(guides[translated.id])
   expect(hasLocalizedInstructions(fallback)).toBe(false)
   expect(instrFor(fallback)).toBe(fallback.st)
+})
+it('keeps every new translated instruction aligned with its English source',()=>{
+  for(const [id,entry] of Object.entries(additions)) {
+    const ex=EXDB.find(e=>e.id===id)
+    expect(ex, id).toBeDefined()
+    expect(entry.name).toMatch(/[\u0600-\u06ff]/)
+    expect(entry.instructions).toHaveLength(ex.st.length)
+    expect(entry.instructions.every(step=>/[\u0600-\u06ff]/.test(step))).toBe(true)
+  }
 })
