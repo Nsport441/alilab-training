@@ -30,11 +30,13 @@ it('labels actual per-exercise fallback and preserves the English original',()=>
   expect(instrFor(fallback)).toBe(fallback.st)
 })
 it('keeps every new translated instruction aligned with its English source',()=>{
+  const numbers = text => [...text.replace(/[۰-۹]/g, c => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).matchAll(/\d+/g)].map(m=>m[0])
   for(const [id,entry] of Object.entries(additions)) {
     const ex=EXDB.find(e=>e.id===id)
     expect(ex, id).toBeDefined()
     expect(entry.name).toMatch(/[\u0600-\u06ff]/)
     expect(entry.instructions).toHaveLength(ex.st.length)
     expect(entry.instructions.every(step=>/[\u0600-\u06ff]/.test(step))).toBe(true)
+    entry.instructions.forEach((step, i) => expect(numbers(step), `${id} step ${i+1}`).toEqual(numbers(ex.st[i])))
   }
 })
