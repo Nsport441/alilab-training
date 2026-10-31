@@ -91,10 +91,11 @@ active-session-first prefetch. Existing history/import/backup/sync/service-worke
 
 The PR Runflare workflow must build and smoke-test the exact committed Web and API upload
 contexts, verify version identity and HTTP media types, and emit paired candidate manifests.
-Local Docker is unavailable in this environment. Keep the PR a **draft** until CI, Runflare
-build, reviewed Persian additions and real desktop/mobile/PWA tests have been completed.
-There is no automatic merge or deployment. Do not publish Web/API until the exact candidate
-commit, successful tests, backups and operator approval have been verified.
+Local Docker is unavailable in this environment. The owner has authorized a partial release
+of the 33 translations; 4,275 new exercises still use English and independent translation
+review and real desktop/mobile/PWA tests remain outstanding. Do not describe the translation
+as complete. There is no automatic merge or deployment. Publish only a candidate with successful
+CI and Runflare build, verified version identity and preserved backups.
 
 The first GitHub Runflare build/smoke test passed for `52f62505`. Full CI exposed eight
 catalogue compatibility/count/search assertions; these were repaired and all 99 affected
@@ -102,3 +103,6 @@ regression tests passed locally. An existing Hono adapter advisory (GHSA-rmxm-3f
 also failed both API/MCP audits. Their lockfiles update only `@hono/node-server` to 2.1.3;
 both targeted lockfile audits pass. No audit check is disabled. Final CI must verify the
 latest commit again, including the regenerated API catalogue.
+
+The scoped rimraf-to-glob override addresses the subsequently disclosed glob/minimatch
+advisories. Frontend CI checks both glob APIs and Android sync along with the full suite.
