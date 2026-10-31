@@ -31,6 +31,12 @@ jobs:
         working-directory: frontend
         env:
           APP_BUILD: ${{ github.sha }}
+      - name: Verify synchronous and asynchronous glob APIs
+        working-directory: frontend
+        run: node -e "const g=require('glob'); if (!g.globSync('package*.json').length) process.exit(1); g.glob('package*.json').then(v=>{if(!v.length) process.exit(1)})"
+      - name: Verify Android sync with the patched glob dependency
+        run: npx cap sync android
+        working-directory: frontend
       - run: node scripts/check-release-build.mjs
         working-directory: frontend
         env:
