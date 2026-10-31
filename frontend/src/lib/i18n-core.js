@@ -5,6 +5,7 @@
 
 import { productText } from './product.js'
 import { CALENDAR_LABELS } from '../locales/common/calendar.js'
+import { CATALOGUE_LABELS } from '../locales/common/catalogue.js'
 
 export const LANGS = {
   en: 'English', fa: 'فارسی', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
@@ -72,7 +73,7 @@ export const getVersion = () => version
 
 // Translate a source string; {0},{1}… are replaced with args (also on the English fallback).
 export function t(s, ...args) {
-  let v = productText(dict[s] || CALENDAR_LABELS[baseLang(lang)]?.[s] || s)
+  let v = productText(dict[s] || CATALOGUE_LABELS[baseLang(lang)]?.[s] || CALENDAR_LABELS[baseLang(lang)]?.[s] || s)
   for (let i = 0; i < args.length; i++) v = v.replaceAll('{' + i + '}', args[i])
   return v
 }

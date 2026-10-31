@@ -31,6 +31,12 @@ jobs:
         working-directory: frontend
         env:
           APP_BUILD: ${{ github.sha }}
+      - name: Verify synchronous and asynchronous glob APIs
+        working-directory: frontend
+        run: node -e "const g=require('glob'); if (!g.globSync('package*.json').length) process.exit(1); g.glob('package*.json').then(v=>{if(!v.length) process.exit(1)})"
+      - name: Verify Android sync with the patched glob dependency
+        run: npx cap sync android
+        working-directory: frontend
       - run: node scripts/check-release-build.mjs
         working-directory: frontend
         env:
@@ -38,6 +44,8 @@ jobs:
       - run: node scripts/check-locales.mjs
         working-directory: frontend
       - run: node scripts/check-alilab-boundary.mjs
+      - run: node scripts/build-alilab-catalogue.mjs --check
+      - run: node --test scripts/test/catalogue-import.test.mjs
       - run: npm audit --audit-level=low
         working-directory: frontend
 

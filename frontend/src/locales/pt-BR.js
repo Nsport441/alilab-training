@@ -4,6 +4,13 @@
 import pt from './pt.js'
 
 export const PT_BR_OVERRIDES = {
+  "suspension trainer": "treinador de suspensão",
+  "landmine": "landmine",
+  "weight plate": "anilha",
+  "massage ball": "bola de massagem",
+  "sandbag": "saco de areia",
+  "macebell": "maça de treino",
+
   '{0} workouts and {1} weigh-ins were logged on this device while signed out. Add them to your profile, or keep the profile exactly as it is on the server.': '{0} treinos e {1} pesagens foram registrados neste dispositivo sem login. Adicione-os ao seu perfil ou mantenha o perfil exatamente como está no servidor.',
   '{0} workout and {1} weigh-in were logged on this device while signed out. Add them to your profile, or keep the profile exactly as it is on the server.': '{0} treino e {1} pesagem foram registrados neste dispositivo sem login. Adicione-os ao seu perfil ou mantenha o perfil exatamente como está no servidor.',
   '{0} workout and {1} weigh-ins were logged on this device while signed out. Add them to your profile, or keep the profile exactly as it is on the server.': '{0} treino e {1} pesagens foram registrados neste dispositivo sem login. Adicione-os ao seu perfil ou mantenha o perfil exatamente como está no servidor.',

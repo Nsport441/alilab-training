@@ -1,5 +1,12 @@
 // Persian interface pack. User-authored text and canonical exercise IDs are preserved.
 export default {
+  "suspension trainer": "بند تمرین تعلیقی",
+  "landmine": "لندماین",
+  "weight plate": "صفحه وزنه",
+  "massage ball": "توپ ماساژ",
+  "sandbag": "کیسه شن",
+  "macebell": "گرز ورزشی",
+
   "Confirm": "تأیید",
   "Cancel": "انصراف",
   "Press back again to exit": "برای خروج دوباره دکمهٔ بازگشت را بزنید",

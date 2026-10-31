@@ -26,6 +26,8 @@ import { catalogueMediaSources } from '../alilab/catalogue-media.js'
 export const MEDIA_CACHE = 'alilab-media-v1'
 // Long enough after boot or an edit that the app's own requests go first.
 export const PREFETCH_DELAY_MS = 8000
+// A mistakenly imported full-catalogue routine must not download 170 MB in the background.
+export const MAX_PREFETCH_URLS = 200
 const CONCURRENCY = 2
 // A server that refuses three in a row (a gated instance answering a guest with 401, a proxy
 // that is down) is not asked for the rest until the next run.
@@ -35,11 +37,12 @@ const MAX_FAILURES = 3
 export function planMediaUrls(S, base = globalThis.location?.href, index = EXIDX) {
   if (!base) return []
   const ids = new Set()
-  ;(S?.routines || []).forEach(r => (r?.ex || []).forEach(e => { if (e?.id) ids.add(e.id) }))
   ;(S?.active?.entries || []).forEach(en => { if (en?.id) ids.add(en.id) })
+  ;(S?.routines || []).forEach(r => (r?.ex || []).forEach(e => { if (e?.id) ids.add(e.id) }))
   const origin = new URL(base).origin
   const urls = new Set()
   for (const id of ids) {
+    if (urls.size >= MAX_PREFETCH_URLS) break
     const ex = index[id]
     // A custom exercise's photo or video is not a file of the shipped dataset: it lives in the
     // local media store and has its own prefetch (lib/media-sync.js). An unknown id has nothing.
@@ -52,7 +55,7 @@ export function planMediaUrls(S, base = globalThis.location?.href, index = EXIDX
       if (u.origin === origin) urls.add(u.href)
     }
   }
-  return [...urls]
+  return [...urls].slice(0, MAX_PREFETCH_URLS)
 }
 
 const STANDALONE = '(display-mode: standalone)'

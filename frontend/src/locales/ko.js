@@ -1,5 +1,12 @@
 // Korean UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "서스펜션 트레이너",
+  "landmine": "랜드마인",
+  "weight plate": "원판",
+  "massage ball": "마사지볼",
+  "sandbag": "샌드백",
+  "macebell": "메이스벨",
+
   'Confirm': '확인',
   'Cancel': '취소',
   'Press back again to exit': '뒤로를 한 번 더 누르면 종료됩니다',

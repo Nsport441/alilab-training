@@ -1,5 +1,12 @@
 // German UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "Schlingentrainer",
+  "landmine": "Landmine",
+  "weight plate": "Hantelscheibe",
+  "massage ball": "Massageball",
+  "sandbag": "Sandsack",
+  "macebell": "Macebell",
+
   // --- generic ---
   'Confirm': 'Bestätigen',
   'Cancel': 'Abbrechen',

@@ -1,5 +1,12 @@
 // Arabic UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "أحزمة التدريب المعلق",
+  "landmine": "لاندماين",
+  "weight plate": "قرص أوزان",
+  "massage ball": "كرة تدليك",
+  "sandbag": "كيس رمل",
+  "macebell": "صولجان رياضي",
+
   'Confirm': 'تأكيد',
   'Cancel': 'إلغاء',
   'Press back again to exit': 'اضغط زر الرجوع مرة أخرى للخروج',

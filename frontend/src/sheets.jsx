@@ -10,6 +10,7 @@ import { PLATE_SIZES, pairsOf, ownsPlates, withPlatePairs, withStandardPlates, w
 import { toScale, rirOf, EFFORT_PRESETS, effortColor } from './lib/effort.js'
 import { beep, vibrate } from './lib/sound.js'
 import { t, dateLocale, instrFor, hasLocalizedInstructions, exerciseNameFor, exerciseNameClass, getLang } from './lib/i18n.js'
+import fullPersianInstructions from './alilab/persian-batch-01.json' with { type: 'json' }
 import { alilabText } from './alilab/copy.js'
 import { nav } from './lib/nav.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from './lib/starter.js'
@@ -840,7 +841,7 @@ function ExerciseDetail({ ex, close }) {
         calculator would answer "your 1RM is 23 kg" about a number that gets smaller as you get
         stronger (issue #232). Cardio has none for the same kind of reason. */}
     {!isCardio(ex) && !isAssisted(ex) && <OneRM ex={ex} />}
-    {instrFor(ex).length > 0 &&<><h4 className="sec">{getLang() === 'fa' && hasLocalizedInstructions(ex) ? alilabText('Short AliLab guide') : t('How to')}{!hasLocalizedInstructions(ex) && <span className="dim" style={{ textTransform: 'none', letterSpacing: 0 }}> · {t('instructions in English')}</span>}</h4><ol className="steps-list">{instrFor(ex).map((s, i) => <li key={i}>{s}</li>)}</ol></>}
+    {instrFor(ex).length > 0 &&<><h4 className="sec">{getLang() === 'fa' && hasLocalizedInstructions(ex) && !Object.hasOwn(fullPersianInstructions, ex.id) ? alilabText('Short AliLab guide') : t('How to')}{!hasLocalizedInstructions(ex) && <span className="dim" style={{ textTransform: 'none', letterSpacing: 0 }}> · {t('instructions in English')}</span>}</h4><ol className="steps-list">{instrFor(ex).map((s, i) => <li key={i}>{s}</li>)}</ol></>}
     {getLang() === 'fa' && hasLocalizedInstructions(ex) && ex.st?.length > 0 && <details className="full-instructions"><summary>{alilabText('Full English instructions')}</summary><ol className="steps-list" lang="en" dir="ltr">{ex.st.map((step,i)=><li key={i}>{step}</li>)}</ol></details>}
   </>
 }

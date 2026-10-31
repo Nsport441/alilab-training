@@ -1,5 +1,12 @@
 // French UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "sangles de suspension",
+  "landmine": "landmine",
+  "weight plate": "disque de musculation",
+  "massage ball": "balle de massage",
+  "sandbag": "sac de sable",
+  "macebell": "masse de musculation",
+
   'Confirm': 'Confirmer',
   'Cancel': 'Annuler',
   'Press back again to exit': 'Appuyez de nouveau pour quitter',

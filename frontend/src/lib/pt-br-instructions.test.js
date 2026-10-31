@@ -1,19 +1,20 @@
 import { describe, expect, test } from 'vitest'
 import { readFileSync } from 'node:fs'
 import ptBR from '../instr/pt-BR.js'
-import { EXDB } from './exercises-data.js'
+import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
+const EXDB = legacy
 import { INSTR_LANGS } from './i18n-core.js'
 
 describe('Brazilian Portuguese exercise instructions', () => {
   const exercises = new Map(EXDB.map(exercise => [exercise.id, exercise]))
   const source = JSON.parse(readFileSync(new URL('../../../scripts/instruction-sources/pt-BR.json', import.meta.url), 'utf8'))
 
-  test('matches the curated source and covers the complete exercise corpus', () => {
+  test('matches the curated source and covers the original curated corpus', () => {
     expect(Object.keys(ptBR)).toHaveLength(EXDB.length)
     expect(ptBR).toEqual(source)
   })
 
-  test('only enables pt-BR instructions when the pack is complete', () => {
+  test('retains the complete original pt-BR instruction pack', () => {
     expect(INSTR_LANGS.includes('pt-BR')).toBe(Object.keys(ptBR).length === EXDB.length)
   })
 

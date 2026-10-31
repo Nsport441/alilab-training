@@ -1,5 +1,12 @@
 // Ukrainian UI strings. Keys are the English source strings (see lib/i18n.js).
 export default {
+  "suspension trainer": "підвісні петлі",
+  "landmine": "лендмайн",
+  "weight plate": "ваговий диск",
+  "massage ball": "масажний м’яч",
+  "sandbag": "мішок із піском",
+  "macebell": "тренувальна булава",
+
   'Confirm': 'Підтвердити',
   'Cancel': 'Скасувати',
   'Press back again to exit': 'Натисни «Назад» ще раз, щоб вийти',
