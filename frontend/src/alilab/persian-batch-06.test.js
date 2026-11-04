@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { createHash } from 'node:crypto'
 import { afterEach, expect, it } from 'vitest'
-import review from '../../../catalogue/persian-batch-06-review.json' with { type: 'json' }
+import batch06 from '../../../catalogue/persian-batch-06-review.json' with { type: 'json' }
+import batch07 from '../../../catalogue/persian-batch-07-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import { EXDB, matchExercise } from '../lib/exercises.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from '../lib/i18n-core.js'
@@ -12,13 +13,20 @@ import fa from '../locales/fa.js'
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 afterEach(() => _setLangState('en'))
 
-it('ships exactly 500 new independent IDs with evidence tied to their original text', () => {
+const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }]
+
+it('keeps earlier Persian IDs and adds each new independent ID only once', () => {
+  const ids = [...batch06.previously_localized_ids, ...batches.flatMap(({ review }) =>
+    review.records.map(row => row.id))]
+  expect(new Set(ids).size).toBe(ids.length)
+  expect(Object.keys(additions).sort()).toEqual(ids.sort())
+})
+
+it.each(batches)('binds all $count localized IDs to their original text', ({ review, count }) => {
   const ids = review.records.map(row => row.id)
-  expect(ids).toHaveLength(500)
-  expect(new Set(ids).size).toBe(500)
-  expect(ids.some(id => review.previously_localized_ids.includes(id))).toBe(false)
+  expect(ids).toHaveLength(count)
+  expect(new Set(ids).size).toBe(count)
   expect(ids.some(id => review.deferred_ids.includes(id))).toBe(false)
-  expect(Object.keys(additions).sort()).toEqual([...review.previously_localized_ids, ...ids].sort())
   let steps = 0
   for (const row of review.records) {
     const ex = EXDB.find(ex => ex.id === row.id)
@@ -32,7 +40,7 @@ it('ships exactly 500 new independent IDs with evidence tied to their original t
   expect(steps).toBe(review.instruction_count)
 })
 
-it('finds all 500 exercises in Persian and English and keeps original English guides on language change', () => {
+it.each(batches)('finds all $count exercises in either language and preserves the English guide', ({ review }) => {
   const originals = new Map(review.records.map(({ id }) => {
     const ex = EXDB.find(ex => ex.id === id)
     return [id, JSON.stringify(ex)]
