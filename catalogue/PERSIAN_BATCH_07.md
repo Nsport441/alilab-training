@@ -23,5 +23,5 @@ The manifest binds every translation to its original name and step text with
 SHA-256 hashes of compact UTF-8 JSON. Tests also verify instruction counts,
 numeric values, bilingual lookup, English fallback and previous batch integrity.
 
-The Persian overlay grows by 237,830 bytes as source JSON and
-31,055 bytes when gzip-compressed. These are source file measurements.
+The Persian overlay grows by 248,806 bytes as source JSON and
+31,473 bytes when gzip-compressed. These are source file measurements.
