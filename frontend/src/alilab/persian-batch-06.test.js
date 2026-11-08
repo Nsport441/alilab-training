@@ -4,6 +4,7 @@ import { afterEach, expect, it } from 'vitest'
 import batch06 from '../../../catalogue/persian-batch-06-review.json' with { type: 'json' }
 import batch07 from '../../../catalogue/persian-batch-07-review.json' with { type: 'json' }
 import batch08 from '../../../catalogue/persian-batch-08-review.json' with { type: 'json' }
+import batch09 from '../../../catalogue/persian-batch-09-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import { EXDB, matchExercise } from '../lib/exercises.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from '../lib/i18n-core.js'
@@ -14,11 +15,16 @@ import fa from '../locales/fa.js'
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 afterEach(() => _setLangState('en'))
 
-const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }]
+const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }]
 
 it('has no unchecked instruction steps in batch 08', () => {
   expect(batch08.unreviewed_count).toBe(0)
   for (const row of batch08.records) expect(row.unreviewed_steps).toEqual([])
+})
+
+it('has no unchecked instruction steps in batch 09', () => {
+  expect(batch09.unreviewed_count).toBe(0)
+  for (const row of batch09.records) expect(row.unreviewed_steps).toEqual([])
 })
 
 it('keeps earlier Persian IDs and adds each new independent ID only once', () => {
