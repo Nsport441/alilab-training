@@ -5,6 +5,7 @@ import batch06 from '../../../catalogue/persian-batch-06-review.json' with { typ
 import batch07 from '../../../catalogue/persian-batch-07-review.json' with { type: 'json' }
 import batch08 from '../../../catalogue/persian-batch-08-review.json' with { type: 'json' }
 import batch09 from '../../../catalogue/persian-batch-09-review.json' with { type: 'json' }
+import batch10 from '../../../catalogue/persian-batch-10-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import { EXDB, matchExercise } from '../lib/exercises.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from '../lib/i18n-core.js'
@@ -15,7 +16,20 @@ import fa from '../locales/fa.js'
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 afterEach(() => _setLangState('en'))
 
-const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }]
+const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }, { review: batch10, count: 390 }]
+
+it('preserves numerical instructions in batch 10', () => {
+  const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
+  for (const { id, unreviewed_steps } of batch10.records) {
+    const ex = EXDB.find(item => item.id === id)
+    expect(unreviewed_steps, id).toEqual([])
+    expect(numbers(additions[id].name), id).toEqual(numbers(ex.n))
+    for (let i = 0; i < ex.st.length; i++) {
+      expect(numbers(additions[id].instructions[i]), `${id}:${i + 1}`).toEqual(numbers(ex.st[i]))
+    }
+  }
+  expect(batch10.unreviewed_count).toBe(0)
+})
 
 it('has no unchecked instruction steps in batch 08', () => {
   expect(batch08.unreviewed_count).toBe(0)
