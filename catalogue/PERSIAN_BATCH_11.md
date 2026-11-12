@@ -11,6 +11,6 @@ and translated text with SHA-256 hashes. Automated checks cannot establish
 translation quality.
 
 Exercise IDs, user data, saved plans, media, licenses and service worker
-configuration are unchanged. Overlay growth: 263,875 bytes source and
-37,354 bytes compressed
+configuration are unchanged. Overlay growth: 263,971 bytes source and
+37,383 bytes compressed
 (source-file measurements). Based on commit f7f35f488afc98b3fe067ae4e7560bc96f9a627e.
