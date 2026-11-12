@@ -100,3 +100,13 @@ it('preserves numerical instructions in batch 11', () => {
     for (let i = 0; i < ex.st.length; i++) expect(numbers(additions[id].instructions[i]), `${id}:${i + 1}`).toEqual(numbers(ex.st[i]))
   }
 })
+
+it('keeps equipment setup and foot contact cues safe in batch 11', () => {
+  for (const id of ['4439', '3316', '2721']) {
+    expect(additions[id].instructions[0], id).not.toMatch(/روی (دمبل|هالتر|میله|جسم|شی)/)
+  }
+  for (const [id, index] of [['4045', 3], ['3350', 2]]) {
+    expect(additions[id].instructions[index], id).toContain('کف هر دو پا')
+    expect(additions[id].instructions[index], id).toContain('روی زمین')
+  }
+})
