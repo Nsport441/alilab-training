@@ -122,3 +122,9 @@ it('preserves numeric instructions in batch 12', () => {
     for (let i = 0; i < ex.st.length; i++) expect(numbers(additions[id].instructions[i]), `${id}:${i + 1}`).toEqual(numbers(ex.st[i]))
   }
 })
+
+it('preserves the reverse lunge step in batch 12', () => {
+  const cue = additions['7412'].instructions[1]
+  expect(cue).toContain('لانژ عقب')
+  expect(cue).not.toContain('جهش')
+})
