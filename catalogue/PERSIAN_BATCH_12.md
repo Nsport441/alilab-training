@@ -10,6 +10,6 @@ The manifest binds source and translation hashes. Automated tests check
 uniqueness, instruction counts, numerical values, bilingual search, English
 fallback and previous translations; they do not establish translation quality.
 Exercise identifiers, user data, saved plans, media, licenses and offline
-configuration are unchanged. Overlay growth: 258,419 source bytes and
-38,294 gzip bytes (source-file
+configuration are unchanged. Overlay growth: 258,441 source bytes and
+38,286 gzip bytes (source-file
 measurements). Based on commit 8df352a7c8ba29bf4d6a5080051a2cbb5f8c8071.
