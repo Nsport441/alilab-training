@@ -10,6 +10,7 @@ import batch11 from '../../../catalogue/persian-batch-11-review.json' with { typ
 import batch12 from '../../../catalogue/persian-batch-12-review.json' with { type: 'json' }
 import batch13 from '../../../catalogue/persian-batch-13-review.json' with { type: 'json' }
 import batch14 from '../../../catalogue/persian-batch-14-review.json' with { type: 'json' }
+import batch15 from '../../../catalogue/persian-batch-15-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import { EXDB, matchExercise } from '../lib/exercises.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from '../lib/i18n-core.js'
@@ -20,7 +21,7 @@ import fa from '../locales/fa.js'
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 afterEach(() => _setLangState('en'))
 
-const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }, { review: batch10, count: 390 }, { review: batch11, count: 400 }, { review: batch12, count: 400 }, { review: batch13, count: 400 }, { review: batch14, count: 300 }]
+const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }, { review: batch10, count: 390 }, { review: batch11, count: 400 }, { review: batch12, count: 400 }, { review: batch13, count: 400 }, { review: batch14, count: 300 }, { review: batch15, count: 300 }]
 
 it('preserves numerical instructions in batch 10', () => {
   const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
@@ -147,6 +148,18 @@ it('preserves numeric instructions in batch 14', () => {
   const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
   expect(batch14.unreviewed_count).toBe(0)
   for (const { id, unreviewed_steps } of batch14.records) {
+    const ex = EXDB.find(item => item.id === id)
+    expect(unreviewed_steps, id).toEqual([])
+    expect(numbers(additions[id].name), id).toEqual(numbers(ex.n))
+    for (let i = 0; i < ex.st.length; i++) expect(numbers(additions[id].instructions[i]), `${id}:${i + 1}`).toEqual(numbers(ex.st[i]))
+  }
+})
+
+
+it('preserves numeric instructions in batch 15', () => {
+  const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
+  expect(batch15.unreviewed_count).toBe(0)
+  for (const { id, unreviewed_steps } of batch15.records) {
     const ex = EXDB.find(item => item.id === id)
     expect(unreviewed_steps, id).toEqual([])
     expect(numbers(additions[id].name), id).toEqual(numbers(ex.n))
