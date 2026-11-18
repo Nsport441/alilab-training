@@ -42,6 +42,7 @@
   "overrides": {
     "rimraf": {
       "glob": "14.0.3"
-    }
+    },
+    "picomatch": "npm:@ryotsu/picomatch@4.0.7-a"
   }
 }
