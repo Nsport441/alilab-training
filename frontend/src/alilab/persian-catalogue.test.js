@@ -31,17 +31,17 @@ it('labels actual per-exercise fallback and preserves the English original',()=>
   expect(instrFor(fallback)).toBe(fallback.st)
 })
 it('keeps every new translated instruction aligned with its reviewed source',()=>{
+  const exercisesById = new Map(EXDB.map(ex => [ex.id, ex]))
   const numericCorrections = new Map(batch16.records.map(record => [record.id, record.numeric_media_overrides]))
   const numbers = text => [...text.replace(/[۰-۹]/g, c => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).matchAll(/\d+/g)].map(m=>m[0])
   for(const [id,entry] of Object.entries(additions)) {
-    const ex=EXDB.find(e=>e.id===id)
+    const ex = exercisesById.get(id)
     expect(ex, id).toBeDefined()
     expect(entry.name).toMatch(/[\u0600-\u06ff]/)
     expect(entry.instructions).toHaveLength(ex.st.length)
     expect(entry.instructions.every(step=>/[\u0600-\u06ff]/.test(step))).toBe(true)
-    entry.instructions.forEach((step, i) => {
-      const expected = numericCorrections.get(id)?.[i + 1] ?? numbers(ex.st[i])
-      expect(numbers(step), `${id} step ${i + 1}`).toEqual(expected)
-    })
+    const corrections = numericCorrections.get(id)
+    const expected = ex.st.map((step, i) => corrections?.[i + 1] ?? numbers(step))
+    expect(entry.instructions.map(numbers), id).toEqual(expected)
   }
 })
