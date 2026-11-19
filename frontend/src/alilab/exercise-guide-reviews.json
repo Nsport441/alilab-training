@@ -19,9 +19,19 @@
   },
   "4475": {
     "nameFa": "ماساژ ایلیوپسواس با توپ",
-    "summaryFa": "این رکورد به عضلهٔ خم‌کنندهٔ عمقی ران مربوط است. روش فشار با توپ در این وضعیت به بازبینی فیزیوتراپیست نیاز دارد.",
-    "summaryEn": "This entry targets the deep hip flexor. A physiotherapist still needs to review the ball pressure and position for this version.",
-    "source": "https://www.conwayregional.org/docs/default-source/campaigns/austin-cole---october-2025/hip-flexor-psoas-release-post-op-hep.pdf"
+    "summaryFa": "این مراحل از نسخهٔ خوابیدهٔ برنامهٔ توان‌بخشی Conway Regional تنظیم شده‌اند. تمرین را در صورت توصیهٔ فیزیوتراپیست انجام دهید.",
+    "summaryEn": "These steps follow the floor version in the Conway Regional rehabilitation handout. Use it if your physiotherapist has recommended it.",
+    "source": "https://www.conwayregional.org/docs/default-source/campaigns/austin-cole---october-2025/hip-flexor-psoas-release-post-op-hep.pdf",
+    "stepsFa": [
+      "دمر قرار بگیرید و ساعدها را روی زمین بگذارید.",
+      "توپ را روی محل تعیین‌شده توسط فیزیوتراپیست در جلوی لگن قرار دهید و از فشار روی استخوان یا مفصل پرهیز کنید.",
+      "با تکیه بر ساعدها، وزن را کنترل کنید و حرکت غلتاندن را آهسته انجام دهید. مدت و دفعات را از برنامهٔ فیزیوتراپی خود دنبال کنید."
+    ],
+    "stepsEn": [
+      "Lie face down with your forearms supported on the floor.",
+      "Place the ball at the spot your physiotherapist showed you at the front of the hip. Avoid pressure on bone or the joint.",
+      "Support your weight through your forearms and roll slowly. Follow the duration and frequency in your own rehabilitation plan."
+    ]
   },
   "4476": {
     "nameFa": "ماساژ پسواس در ناحیهٔ شکم با توپ",
@@ -85,8 +95,20 @@
   },
   "11652": {
     "nameFa": "حرکت لغزشی عصب سیاتیک در حالت نشسته",
-    "summaryFa": "این تمرین بخشی از فیزیوتراپی است. راهنمای بیمارستان، هماهنگی سر و زانو را متفاوت از متن اولیه توضیح می‌دهد. برای این نسخه به مرجع بیمارستان و نظر فیزیوتراپیست مراجعه کنید.",
-    "summaryEn": "This is a physiotherapy exercise. The hospital guide coordinates the head and knee differently from the catalogue text. Refer to the hospital guide and your physiotherapist.",
-    "source": "https://www.southtees.nhs.uk/resources/sciatic-nerve-slider/"
+    "summaryFa": "این راهنمای نشسته بر اساس برگهٔ فیزیوتراپی بیمارستان South Tees تنظیم شده است. تمرین را در صورت توصیهٔ فیزیوتراپیست انجام دهید.",
+    "summaryEn": "This seated version follows the South Tees Hospitals physiotherapy guide. Use it if your physiotherapist has recommended it.",
+    "source": "https://www.southtees.nhs.uk/resources/sciatic-nerve-slider/",
+    "stepsFa": [
+      "روی صندلی بنشینید و پا را در وضعیت شروع روی زمین بگذارید.",
+      "در یک حرکت آرام، زانو را صاف کنید، پنجه را از ساق دور کنید و هم‌زمان نگاهتان را بالا ببرید.",
+      "آهسته زانو را خم کنید و پا را روی زمین برگردانید. هم‌زمان چانه را به سمت سینه پایین بیاورید.",
+      "حرکت را در دامنهٔ بدون درد انجام دهید و تعداد تکرار را طبق توصیهٔ فیزیوتراپیست تنظیم کنید."
+    ],
+    "stepsEn": [
+      "Sit on a chair with your foot resting on the floor.",
+      "Gently extend the knee, point the toes away from the shin and lift your gaze at the same time.",
+      "Slowly bend the knee and return the foot to the floor as you bring your chin down towards your chest.",
+      "Keep the movement pain-free. Use the repetition count your physiotherapist has recommended."
+    ]
   }
 }

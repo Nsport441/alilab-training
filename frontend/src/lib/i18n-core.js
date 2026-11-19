@@ -81,11 +81,18 @@ export function t(s, ...args) {
 
 // Instructions for an exercise in the current language (English steps as fallback).
 export const instrFor = ex => {
-  if (exerciseGuideReview(ex)) return []
+  const review = exerciseGuideReview(ex)
+  if (review) return (lang === 'fa' ? review.stepsFa : review.stepsEn) ?? []
   return (!ex?.custom && instr && instr[ex?.id]) || ex?.st || []
 }
-export const hasLocalizedInstructions = ex =>
-  !exerciseGuideReview(ex) && (!!ex?.custom || lang === 'en' || !!(instr && instr[ex?.id]?.length))
+export const hasLocalizedInstructions = ex => {
+  const review = exerciseGuideReview(ex)
+  if (review) {
+    if (lang === 'fa') return Boolean(review.stepsFa?.length)
+    return lang === 'en' && Boolean(review.stepsEn?.length)
+  }
+  return !!ex?.custom || lang === 'en' || !!(instr && instr[ex?.id]?.length)
+}
 
 // Built-in catalogue names are bilingual when a translated name pack is active. A pack need not
 // be complete: German covers the equipment exercises and not the body-weight ones, and an

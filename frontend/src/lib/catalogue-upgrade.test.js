@@ -48,12 +48,12 @@ it('serves Persian guides, reference notes or English fallbacks for imported exe
     const review = exerciseGuideReview(ex)
     if (review) {
       expect(exerciseNameFor(ex)).toContain(review.nameFa)
-      expect(instrFor(ex)).toEqual([])
+      expect(instrFor(ex)).toEqual(review.stepsFa ?? [])
     } else {
       expect(exerciseNameFor(ex)).toBe(ex.n)
       expect(instrFor(ex)).toBe(ex.st)
     }
-    expect(hasLocalizedInstructions(ex)).toBe(false)
+    expect(hasLocalizedInstructions(ex)).toBe(Boolean(review?.stepsFa))
     expect(ex.st.length).toBeGreaterThan(0)
   }
   expect(searchExercises(CATALOGUE,'پرس سینه هالتر').some(ex=>ex.id==='0025')).toBe(true)
