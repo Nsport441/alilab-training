@@ -17,5 +17,7 @@ const copy = {
   'Image source':'منبع تصویر',
   'Short AliLab guide':'راهنمای کوتاه AliLab',
   'Full English instructions':'راهنمای کامل انگلیسی',
+  'Reference information':'اطلاعات مرجع',
+  'View source':'مشاهدهٔ منبع',
 }
 export const alilabText = key => getLang() === 'fa' ? copy[key] || key : key

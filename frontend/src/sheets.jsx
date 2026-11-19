@@ -12,6 +12,7 @@ import { beep, vibrate } from './lib/sound.js'
 import { t, dateLocale, instrFor, hasLocalizedInstructions, exerciseNameFor, exerciseNameClass, getLang } from './lib/i18n.js'
 import fullPersianInstructions from './alilab/persian-batch-01.json' with { type: 'json' }
 import { alilabText } from './alilab/copy.js'
+import { exerciseGuideReview } from './alilab/exercise-guide-reviews.js'
 import { nav } from './lib/nav.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from './lib/starter.js'
 import Media, { Thumb } from './components/Media.jsx'
@@ -802,6 +803,7 @@ function OneRM({ ex }) {
 
 function ExerciseDetail({ ex, close }) {
   const st = useStore(s => s.S)
+  const guideReview = exerciseGuideReview(ex)
   const last = lastEntryFor(st, ex.id)
   const best = bestWeightFor(st, ex.id)
   const fav = isFav(st, ex.id)
@@ -818,6 +820,11 @@ function ExerciseDetail({ ex, close }) {
         <Icon name={fav ? 'starFill' : 'star'} />
       </button>
     </div>
+    {guideReview && <div className="exnote">
+      <h4 className="sec">{alilabText('Reference information')}</h4>
+      <p>{getLang() === 'fa' ? guideReview.summaryFa : guideReview.summaryEn}</p>
+      <a href={guideReview.source} target="_blank" rel="noopener noreferrer">{alilabText('View source')}</a>
+    </div>}
     <Media ex={ex} />
     <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '10px 0' }}>
       <span className="tag acc">{t(ex.bp)}</span>
@@ -825,7 +832,7 @@ function ExerciseDetail({ ex, close }) {
       <span className="tag"><Icon name="dumbbell" />{t(ex.eq)}</span>
       {(ex.secondaries?.length ? ex.secondaries : smOf(ex)).slice(0, 3).map((s, i) => <span key={i} className="tag">{t(MUSCLE_NAME[s] || s)}</span>)}
     </div>
-    {ex.desc && <div className="exnote">{ex.desc}</div>}
+    {!guideReview && ex.desc && <div className="exnote">{ex.desc}</div>}
     {best > 0 && <div className="small row" style={{ marginBottom: 6, gap: 5 }}><Icon name="trophy" style={{ fontSize: 14, color: 'var(--yellow)' }} />{t('Best:')} <b className="accent" style={{ whiteSpace: 'nowrap' }}>{fmtNum(best)} {st.unit}</b>{last ? ` · ${t('last')} ${fmtDate(last.d)}: ${last.sets.map(s => setLabel(ex.id, s, last.target, speedUnitOf(st))).join(', ')}` : ''}</div>}
     <Button variant="primary" icon="plus" style={{ margin: '10px 0 4px' }} onClick={() => addToRoutineSheet(ex)}>{t('Add to my plan')}</Button>
     {last && <Button icon="history" style={{ marginTop: 4 }} onClick={() => exerciseHistorySheet(ex.id)}>{t('History')}</Button>}

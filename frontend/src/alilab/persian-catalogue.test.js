@@ -5,12 +5,14 @@ import { _setLangState,exerciseNameFor,instrFor,hasLocalizedInstructions } from 
 import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
 import batch16 from '../../../catalogue/persian-batch-16-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
+import reviews from './exercise-guide-reviews.json' with { type: 'json' }
+import { exerciseGuideReview } from './exercise-guide-reviews.js'
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
 import fa from '../locales/fa.js'
 afterEach(()=>_setLangState('en'))
 it('covers stable IDs, retains bilingual search and leaves custom names intact',()=>{
-  expect(Object.keys(names).sort()).toEqual([...legacy.map(ex=>ex.id),...Object.keys(additions)].sort())
+  expect(Object.keys(names).sort()).toEqual([...legacy.map(ex=>ex.id),...Object.keys(additions),...Object.keys(reviews)].sort())
   for(const n of Object.values(names)){expect(n).toMatch(/[\u0600-\u06ff]/);expect(n.length).toBeGreaterThan(2)}
   _setLangState('fa',fa,guides,names)
   const bench=EXDB.find(ex=>ex.id==='0025')
@@ -24,11 +26,39 @@ it('covers stable IDs, retains bilingual search and leaves custom names intact',
 it('labels actual per-exercise fallback and preserves the English original',()=>{
   expect(Object.keys(guides)).toHaveLength(280 + Object.keys(additions).length)
   _setLangState('fa',fa,guides,names)
-  const translated=EXDB.find(ex=>guides[ex.id]),fallback=EXDB.find(ex=>!guides[ex.id])
+  const translated=EXDB.find(ex=>guides[ex.id]),fallback=EXDB.find(ex=>!guides[ex.id] && !exerciseGuideReview(ex))
   expect(hasLocalizedInstructions(translated)).toBe(true)
   expect(instrFor(translated)).toBe(guides[translated.id])
   expect(hasLocalizedInstructions(fallback)).toBe(false)
   expect(instrFor(fallback)).toBe(fallback.st)
+})
+it('gives the 15 outstanding records bilingual references without exposing unverified steps', () => {
+  expect(Object.keys(reviews).sort()).toEqual(Object.keys(batch16.deferred_reasons).sort())
+  expect(Object.keys(reviews)).toHaveLength(15)
+  expect(Object.keys(additions)).toHaveLength(4293)
+  _setLangState('fa', fa, guides, names)
+  for (const [id, review] of Object.entries(reviews)) {
+    const exercise = EXDB.find(ex => ex.id === id)
+    expect(exercise.st.length, id).toBeGreaterThan(0)
+    expect(exerciseGuideReview(exercise), id).toBe(review)
+    expect(review.nameFa, id).toMatch(/[آ-ی]/)
+    expect(review.summaryFa, id).toMatch(/[آ-ی]/)
+    expect(review.summaryEn, id).toMatch(/[A-Za-z]/)
+    expect(new URL(review.source).protocol, id).toBe('https:')
+    expect(exerciseNameFor(exercise), id).toContain(review.nameFa)
+    expect(matchExercise(exercise, review.nameFa), id).toBe(true)
+    expect(matchExercise(exercise, exercise.n), id).toBe(true)
+    expect(instrFor(exercise), id).toEqual([])
+    expect(hasLocalizedInstructions(exercise), id).toBe(false)
+  }
+  _setLangState('en')
+  const clinical = EXDB.find(ex => ex.id === '11652')
+  expect(exerciseNameFor(clinical)).toBe(clinical.n)
+  expect(instrFor(clinical)).toEqual([])
+  expect(hasLocalizedInstructions(clinical)).toBe(false)
+  const custom = { ...clinical, custom: true, st: ['My own instructions'] }
+  expect(exerciseGuideReview(custom)).toBeNull()
+  expect(instrFor(custom)).toEqual(custom.st)
 })
 it('keeps every new translated instruction aligned with its reviewed source',()=>{
   const exercisesById = new Map(EXDB.map(ex => [ex.id, ex]))

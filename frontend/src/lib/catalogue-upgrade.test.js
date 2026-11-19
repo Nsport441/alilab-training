@@ -8,6 +8,7 @@ import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } fr
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
 import additions from '../alilab/persian-batch-01.json' with { type: 'json' }
+import { exerciseGuideReview } from '../alilab/exercise-guide-reviews.js'
 import fa from '../locales/fa.js'
 import { planMediaUrls, MAX_PREFETCH_URLS } from './media-prefetch.js'
 afterEach(()=>{_setLangState('en');registerCustom([])})
@@ -32,7 +33,7 @@ it('makes every category and equipment discoverable through the expanded catalog
   }
   expect(searchExercises(CATALOGUE,'123 back drill').some(ex=>ex.id==='5984')).toBe(true)
 })
-it('preserves reviewed Persian content and explicitly falls back to complete English on all new entries',()=>{
+it('serves Persian guides, reference notes or English fallbacks for imported exercises',()=>{
   _setLangState('fa',fa,guides,names)
   const old=new Set(legacy.map(ex=>ex.id))
   const added=EXDB.filter(ex=>!old.has(ex.id))
@@ -44,8 +45,14 @@ it('preserves reviewed Persian content and explicitly falls back to complete Eng
       expect(hasLocalizedInstructions(ex)).toBe(true)
       continue
     }
-    expect(exerciseNameFor(ex)).toBe(ex.n)
-    expect(instrFor(ex)).toBe(ex.st)
+    const review = exerciseGuideReview(ex)
+    if (review) {
+      expect(exerciseNameFor(ex)).toContain(review.nameFa)
+      expect(instrFor(ex)).toEqual([])
+    } else {
+      expect(exerciseNameFor(ex)).toBe(ex.n)
+      expect(instrFor(ex)).toBe(ex.st)
+    }
     expect(hasLocalizedInstructions(ex)).toBe(false)
     expect(ex.st.length).toBeGreaterThan(0)
   }
