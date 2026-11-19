@@ -103,10 +103,20 @@
     ]
   },
   "4482": {
-    "nameFa": "ماساژ ناحیهٔ زیر دنده‌ها با توپ",
-    "summaryFa": "منبع این رکورد را به دیافراگم نسبت می‌دهد. پژوهش مرتبط دربارهٔ درمان دستی است. محل و فشار توپ در این رکورد به بازبینی متخصص نیاز دارد.",
-    "summaryEn": "The source associates this entry with the diaphragm. The cited trial studies manual therapy. The ball placement and pressure in this entry need specialist review.",
-    "source": "https://pubmed.ncbi.nlm.nih.gov/26386894/"
+    "nameFa": "حرکت توپ کنار دنده‌های پایین همراه با تنفس آرام",
+    "summaryFa": "این راهنما از تمرین با توپ کنار بخش پایینی قفسهٔ سینه در جزوهٔ art of motion تنظیم شده است. فیزیوتراپیست ابتدا وضعیت بدن، محل تماس و فشار مناسب را مشخص کند.",
+    "summaryEn": "This guide adapts the lower-rib ball exercise from the art of motion manual. Have your physiotherapist determine the position, contact point and pressure first.",
+    "source": "https://www.art-of-motion.com/public/downloads/Publications/EN/art-of-motion_Pilates-Progress-and-Release_course-manual.pdf#page=51",
+    "stepsFa": [
+      "در وضعیتی که فیزیوتراپیست نشان داده است قرار بگیرید و توپ را در محل تعیین‌شده کنار دنده‌های پایین بگذارید.",
+      "با تکیه‌گاه مناسب فشار را در حد آموزش‌داده‌شده نگه دارید. توپ را آهسته و در دامنهٔ کوتاه کنار قفسهٔ سینه حرکت دهید.",
+      "در تمام حرکت آرام و یکنواخت نفس بکشید. اگر تماس دردناک شد، فشار را بردارید."
+    ],
+    "stepsEn": [
+      "Use the position shown by your physiotherapist. Set the ball at the contact point they identified beside the lower ribs.",
+      "Support yourself to keep pressure within the amount you were taught. Move the ball slowly across a small area beside the rib cage.",
+      "Breathe evenly throughout. Lift away from the ball if the contact becomes painful."
+    ]
   },
   "4599": {
     "nameFa": "ماساژ ایلیوپسواس با فوم‌رولر",
@@ -137,16 +147,40 @@
     "source": "https://www.cuh.nhs.uk/patient-information/neck-exercises-and-advice/#scalene-stretch"
   },
   "10559": {
-    "nameFa": "نشر کامل جلو با دمبل و مرحلهٔ گرفتن وزنه",
-    "summaryFa": "کاتالوگ سازنده این حرکت را با مرحلهٔ گرفتن دمبل ثبت کرده است. نحوهٔ گرفتن و کنترل وزنه در این نسخه به تأیید مربی نیاز دارد.",
-    "summaryEn": "The publisher lists this front raise with a catch. The grip change and load control for this version need coach review.",
-    "source": "https://gymvisual.com/16-animated-gifs?n=100&p=22"
+    "nameFa": "نشر کامل جلو با دمبل و مهار وزنه در بالا",
+    "summaryFa": "این راهنما اجرای کنترل‌شدهٔ دودستیِ توصیف‌شده در متن openGym را پوشش می‌دهد. دمبل در تمام حرکت در دو دست می‌ماند.",
+    "summaryEn": "This guide covers the controlled two-handed version described by openGym. Both hands keep hold of the dumbbell throughout.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/10559.json",
+    "stepsFa": [
+      "صاف بایستید و یک دمبل سبک را با هر دو دست جلوی ران‌ها نگه دارید.",
+      "دمبل را از جلوی بدن در مسیری روان بالا ببرید. با حفظ تعادل و بدون گود کردن کمر، وزنه را در دامنهٔ قابل‌کنترل به سمت بالای سر ببرید.",
+      "در بالای حرکت با هر دو دست دمبل را ثابت نگه دارید و عضلات مرکزی را منقبض کنید.",
+      "دمبل را در همان مسیر آهسته پایین بیاورید و به وضعیت شروع برگردید."
+    ],
+    "stepsEn": [
+      "Stand tall with both hands holding a light dumbbell in front of your thighs.",
+      "Raise it in a smooth arc in front of you. Move towards overhead only as far as you can keep your balance and avoid arching your back.",
+      "Steady the weight at the top with both hands and keep your trunk braced.",
+      "Lower the dumbbell slowly along the same path to the starting position."
+    ]
   },
   "10560": {
-    "nameFa": "پرس سینه با هالتر و مرحلهٔ گرفتن میله",
-    "summaryFa": "این رکورد مرحلهٔ گرفتن میله را در عنوان دارد. نوع گرفتن و چیدمان تجهیزات در این اجرای خاص به تأیید مربی نیاز دارند.",
-    "summaryEn": "The title identifies a barbell catch. The catch technique and equipment setup for this exact version need coach review.",
-    "source": "https://gymvisual.com/illustrations/23196-barbell-bench-press-catch-male.html"
+    "nameFa": "پرس سینه با هالتر و توقف کنترل‌شده بالای سینه",
+    "summaryFa": "این راهنما اجرای متنی openGym را پوشش می‌دهد. ورزشکار پایین آمدن میله را بالای سینه مهار می‌کند و در تمام حرکت آن را در دست نگه می‌دارد.",
+    "summaryEn": "This guide follows the written openGym version. The lifter checks the descent above the chest and keeps a closed grip throughout.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/10560.json",
+    "stepsFa": [
+      "روی نیمکت دراز بکشید. با کمک مراقب تمرین کنید یا بازوهای ایمنی رک را متناسب با دامنه تنظیم کنید. کف پاها را روی زمین بگذارید.",
+      "تیغه‌های کتف را جمع کنید، انگشتان و شست را دور میله بپیچید و هالتر را از رک به موقعیت بالای سینه بیاورید.",
+      "هالتر را کنترل‌شده پایین بیاورید و حرکت را درست بالای سینه متوقف کنید. همچنان میله را محکم نگه دارید.",
+      "میله را با کنترل پرس کنید. در پایان، آن را روی هر دو قلاب رک قرار دهید."
+    ],
+    "stepsEn": [
+      "Lie on the bench. Use a spotter or set the rack safeties for the range of motion. Plant your feet on the floor.",
+      "Draw your shoulder blades together, wrap your thumbs and fingers around the bar, and unrack it above your chest.",
+      "Lower the bar under control and stop just above your chest. Keep your hands closed around the bar.",
+      "Press it up steadily. When the set is over, seat the bar on both rack hooks."
+    ]
   },
   "10597": {
     "nameFa": "چرخش داخلی شانه با سیم‌کش، آرنج ۹۰ درجه و مهار حرکت",
