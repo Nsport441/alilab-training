@@ -3,6 +3,7 @@ import { afterEach, expect,it } from 'vitest'
 import { EXDB,matchExercise } from '../lib/exercises.js'
 import { _setLangState,exerciseNameFor,instrFor,hasLocalizedInstructions } from '../lib/i18n-core.js'
 import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
+import batch16 from '../../../catalogue/persian-batch-16-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
@@ -29,7 +30,8 @@ it('labels actual per-exercise fallback and preserves the English original',()=>
   expect(hasLocalizedInstructions(fallback)).toBe(false)
   expect(instrFor(fallback)).toBe(fallback.st)
 })
-it('keeps every new translated instruction aligned with its English source',()=>{
+it('keeps every new translated instruction aligned with its reviewed source',()=>{
+  const numericCorrections = new Map(batch16.records.map(record => [record.id, record.numeric_media_overrides]))
   const numbers = text => [...text.replace(/[۰-۹]/g, c => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).matchAll(/\d+/g)].map(m=>m[0])
   for(const [id,entry] of Object.entries(additions)) {
     const ex=EXDB.find(e=>e.id===id)
@@ -37,6 +39,9 @@ it('keeps every new translated instruction aligned with its English source',()=>
     expect(entry.name).toMatch(/[\u0600-\u06ff]/)
     expect(entry.instructions).toHaveLength(ex.st.length)
     expect(entry.instructions.every(step=>/[\u0600-\u06ff]/.test(step))).toBe(true)
-    entry.instructions.forEach((step, i) => expect(numbers(step), `${id} step ${i+1}`).toEqual(numbers(ex.st[i])))
+    entry.instructions.forEach((step, i) => {
+      const expected = numericCorrections.get(id)?.[i + 1] ?? numbers(ex.st[i])
+      expect(numbers(step), `${id} step ${i + 1}`).toEqual(expected)
+    })
   }
 })
