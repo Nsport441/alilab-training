@@ -19,6 +19,7 @@ const copy = {
   'Full English instructions':'راهنمای کامل انگلیسی',
   'Reference information':'اطلاعات مرجع',
   'Source-based exercise guide':'راهنمای اجرا بر اساس منبع',
+  'Competition rules':'مقررات آیتم مسابقه',
   'View source':'مشاهدهٔ منبع',
 }
 export const alilabText = key => getLang() === 'fa' ? copy[key] || key : key

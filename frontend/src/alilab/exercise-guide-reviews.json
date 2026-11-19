@@ -7,15 +7,36 @@
   },
   "3317": {
     "nameFa": "واژگون‌کردن خودرو در مسابقهٔ مردان آهنین",
-    "summaryFa": "این رکورد به آیتم واژگون‌کردن خودرو در مسابقات مردان آهنین اشاره دارد. خودرو، محوطه و شرایط اجرا را برگزارکنندهٔ مسابقه تعیین می‌کند.",
-    "summaryEn": "Car Flip is a strongman competition event. The event organiser determines the vehicle, venue and conditions.",
-    "source": "https://giants-live.com/news/5-weirdest-strongman-events/#car-flip"
+    "kind": "competition",
+    "summaryFa": "این راهنما مقررات آیتم واژگون‌کردن خودرو در مسابقهٔ Steel Steeds را خلاصه می‌کند. این آیتم برای شرکت‌کنندگان همان مسابقه و با خودروی آماده‌شده و تجهیزات توقف برگزار می‌شود.",
+    "summaryEn": "This guide summarises the Car Flip event at Steel Steeds. The event is run for its competitors with a prepared vehicle and rollback stops.",
+    "source": "https://ironpodium.com/browse/ev/steel-steeds-strongman",
+    "stepsFa": [
+      "خودروی مشخص‌شده برای ردهٔ مسابقه را با مسئول آیتم تطبیق دهید و به توضیح داور دربارهٔ میلهٔ دستگیره و تجهیزات توقف گوش کنید.",
+      "طبق قواعد Steel Steeds، شرکت‌کننده ۶۰ ثانیه فرصت دارد خودرو را با تجهیزات آمادهٔ مسابقه به پهلو برگرداند.",
+      "زمان‌گیری وقتی پایان می‌یابد که میلهٔ توقف به زمین برسد. زمان و نتیجه را داور ثبت می‌کند."
+    ],
+    "stepsEn": [
+      "Confirm the vehicle assigned to your class and attend the judge's briefing on the grip bar and rollback stops.",
+      "Steel Steeds gives entrants 60 seconds to turn the prepared vehicle onto its side.",
+      "Time ends when the roll-stop bar reaches the ground. The judge records the result."
+    ]
   },
   "4466": {
     "nameFa": "ماساژ گودی پشت زانو با توپ",
-    "summaryFa": "رکورد برای گودی پشت زانو ثبت شده است. محل تماس و حد فشار مستقیم توپ برای این نسخه به تأیید فیزیوتراپیست نیاز دارد.",
-    "summaryEn": "This entry concerns the hollow at the back of the knee. A physiotherapist still needs to verify the contact point and pressure for this ball technique.",
-    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8964357/"
+    "summaryFa": "مراحل بر اساس نسخهٔ فیزیوتراپی [P]rehab با توپ و حرکت آرام ساق تنظیم شده‌اند. محل تماس را ابتدا فیزیوتراپیست مشخص کند.",
+    "summaryEn": "This guide follows the [P]rehab variation using a ball and gentle lower-leg movement. Have your physiotherapist identify the contact point first.",
+    "source": "https://library.theprehabguys.com/vimeo-video/popliteus-mobilization/",
+    "stepsFa": [
+      "در وضعیتی که فیزیوتراپیست نشان داده است، با زانوی خم قرار بگیرید و توپ را فقط در محل مشخص‌شده پشت زانو بگذارید.",
+      "با تماس سبک، ساق را در دامنهٔ کوتاه به داخل و بیرون بچرخانید. فشار اضافه یا طولانی روی توپ وارد نکنید.",
+      "اگر درد تیرکشنده، گزگز یا بی‌حسی احساس کردید، فشار را فوراً بردارید و تمرین را متوقف کنید."
+    ],
+    "stepsEn": [
+      "Use the bent-knee position you were shown. Place the ball only at the contact point identified by your physiotherapist.",
+      "Maintain light contact and rotate the lower leg gently in and out through a small range. Avoid adding or sustaining pressure.",
+      "Remove the pressure and stop if you notice shooting pain, tingling or numbness."
+    ]
   },
   "4475": {
     "nameFa": "ماساژ ایلیوپسواس با توپ",
@@ -35,21 +56,51 @@
   },
   "4476": {
     "nameFa": "ماساژ پسواس در ناحیهٔ شکم با توپ",
-    "summaryFa": "محل دقیق تماس و حد فشار در ناحیهٔ شکم برای این نسخه مشخص نشده است. این دو جزئیات به بازبینی فیزیوتراپیست نیاز دارند.",
-    "summaryEn": "The exact abdominal contact point and pressure for this version need physiotherapist review.",
-    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10423682/"
+    "summaryFa": "این نسخهٔ دمر بر اساس راهنمای برایان شیف، فیزیوتراپیست، تنظیم شده است. برای محل تماس و مقدار فشار از دستور فیزیوتراپیست خود پیروی کنید.",
+    "summaryEn": "This face-down version follows physiotherapist Brian Schiff's guide. Use the contact point and pressure recommended by your own physiotherapist.",
+    "source": "https://fit-pro.com/article-2345-Functionally-Fit-Self-Psoas-Muscle-Release.html",
+    "stepsFa": [
+      "روی سطح صاف به شکم قرار بگیرید. توپ را فقط در نقطه‌ای از یک سمت شکم بگذارید که فیزیوتراپیست میان ناف و جلوی لگن مشخص کرده است.",
+      "با تکیه بر ساعدها وزن را کنترل کنید و بدن را اندکی و آهسته جابه‌جا کنید. فشار را در حد توصیه‌شده نگه دارید.",
+      "با بالا آوردن بدن فشار را آزاد کنید. اگر حرکت درد ایجاد کرد، همان جلسه آن را متوقف کنید."
+    ],
+    "stepsEn": [
+      "Lie face down on a level surface. Use the ball only at the point between the navel and the front of the hip that your physiotherapist marked.",
+      "Use your forearms to control how much weight reaches the ball. Shift slightly and slowly within the pressure range you were taught.",
+      "Lift away to remove the pressure. If the movement causes pain, stop for that session."
+    ]
   },
   "4477": {
     "nameFa": "ماساژ عضلهٔ ایلیاکوس در جلوی لگن با توپ",
-    "summaryFa": "تمرکز رکورد بر عضلهٔ ایلیاکوس در جلوی لگن است. محل تماس و فشار در وضعیت نشان‌داده‌شده به بازبینی فیزیوتراپیست نیاز دارند.",
-    "summaryEn": "This entry concerns the iliacus at the front of the hip. Its contact point and pressure need physiotherapist review.",
-    "source": "https://www.conwayregional.org/docs/default-source/campaigns/austin-cole---october-2025/hip-flexor-psoas-release-post-op-hep.pdf"
+    "summaryFa": "این راهنما همان وضعیت دمر و تماس در سمت داخلی برجستگی جلوی لگن را پوشش می‌دهد. محل تماس، نوع توپ و میزان فشار را فیزیوتراپیست تعیین کند.",
+    "summaryEn": "The guide covers the face-down position with contact just inside the front of the hip bone. Have your physiotherapist choose the contact point, ball and pressure.",
+    "source": "https://www.thewellstudios.co.nz/post/myofascial-release-as-a-warm-up-tool",
+    "stepsFa": [
+      "به شکم قرار بگیرید و بخشی از وزن را روی ساعدها نگه دارید. توپ را در محل نشان‌داده‌شده توسط فیزیوتراپیست، سمت داخل برجستگی جلوی لگن بگذارید.",
+      "با پشتیبانی ساعدها فشار را در حدی که به شما آموزش داده شده نگه دارید. آرام نفس بکشید.",
+      "در پایان وزن را از روی توپ بردارید. تعویض سمت و مدت تماس را مطابق برنامهٔ فیزیوتراپی انجام دهید."
+    ],
+    "stepsEn": [
+      "Lie face down and support part of your weight through your forearms. Place the ball at the point your physiotherapist showed you, just inside the front of the hip bone.",
+      "Use your forearms to maintain the amount of pressure you were taught. Keep breathing gently.",
+      "Lift away from the ball to finish. Follow your physiotherapy plan for contact time and switching sides."
+    ]
   },
   "4479": {
     "nameFa": "ماساژ عضلهٔ راست شکمی با توپ",
-    "summaryFa": "این رکورد دربارهٔ فشار توپ بر جلوی شکم است. مرجع بیمارستانی مربوط به ماساژ دستی برای یبوست است. کاربرد توپ و فشار وزن بدن برای این حرکت به بازبینی متخصص نیاز دارد.",
-    "summaryEn": "This entry concerns ball pressure on the front of the abdomen. The hospital reference covers hand massage for constipation. Ball pressure and body-weight loading need specialist review.",
-    "source": "https://leedscommunityhealthcare.nhs.uk/our-services-a-z/continence-urology-and-colorectal-cucs/bowel-problems-cucs/abdominal-massage-cucs/"
+    "summaryFa": "مراحل از بخش تمرین خانگیِ مرجع بالینی درمان دستی کف لگن تنظیم شده‌اند. محل تماس و نوع توپ را فیزیوتراپیست تعیین کند و تمرین را پس از آموزش او انجام دهید.",
+    "summaryEn": "These steps follow the home-program section of a clinical pelvic-floor manual therapy reference. Use them after your physiotherapist has shown you the contact point and selected the ball.",
+    "source": "https://clinicalgate.com/2015/05/22/practical-anatomy-examination-palpation-and-manual-therapy-release-techniques-for-the-pelvic-floor/",
+    "stepsFa": [
+      "به شکم قرار بگیرید و وزن بدن را روی ساعدها نگه دارید. توپ را در محل آموزش‌داده‌شده روی عضلهٔ جلوی شکم بگذارید.",
+      "با حفظ تکیهٔ ساعدها، تماس ملایمی با توپ برقرار کنید. آرام نفس بکشید و هنگام بازدم شکم را شل کنید.",
+      "طبق مرجع، روی یک نقطه بیشتر از ۱۰ ثانیه مکث نکنید. سپس کمی از آن نقطه فاصله بگیرید یا فشار را بردارید."
+    ],
+    "stepsEn": [
+      "Lie face down with your weight supported through your forearms. Position the ball at the point you were shown on the front abdominal muscle.",
+      "Use your forearms to keep the pressure light. Breathe gently and let the abdominal wall relax as you breathe out.",
+      "The reference limits contact at one point to 10 seconds. Then move slightly off the point or lift to release the pressure."
+    ]
   },
   "4482": {
     "nameFa": "ماساژ ناحیهٔ زیر دنده‌ها با توپ",
@@ -59,9 +110,19 @@
   },
   "4599": {
     "nameFa": "ماساژ ایلیوپسواس با فوم‌رولر",
-    "summaryFa": "این نسخه از فوم‌رولر در جلوی لگن استفاده می‌کند. محل تماس رولر و میزان فشار برای این اجرا باید به تأیید فیزیوتراپیست برسند.",
-    "summaryEn": "This version uses a foam roller at the front of the hip. A physiotherapist still needs to verify roller placement and pressure for this version.",
-    "source": "https://pubmed.ncbi.nlm.nih.gov/36775506/"
+    "summaryFa": "این راهنما بر اساس نسخهٔ دمرِ غلتاندن عضلات خم‌کنندهٔ ران با فوم‌رولر تنظیم شده است. محل تماس و مدت تمرین را طبق برنامهٔ فیزیوتراپی خود تعیین کنید.",
+    "summaryEn": "This guide follows prone hip-flexor rolling with a foam roller. Follow your physiotherapy plan for placement and duration.",
+    "source": "https://1-hp.org/blog/healthy-movement/gaming-exercises-foam-rolling-the-hip-flexor-and-thigh-psoas-and-rectus/",
+    "stepsFa": [
+      "دمر روی ساعدها قرار بگیرید و فوم‌رولر را زیر بخش عضلانی جلوی یک لگن، در محل توصیه‌شده، بگذارید.",
+      "با دست‌ها و پای مقابل بخشی از وزن را بگیرید و آهسته در دامنهٔ کوتاه روی جلوی لگن و بالای ران حرکت کنید.",
+      "فشار را کنترل کنید و رولر را روی استخوان لگن یا کشالهٔ ران قرار ندهید. برای مدت و تعویض سمت از برنامهٔ فیزیوتراپی پیروی کنید."
+    ],
+    "stepsEn": [
+      "Lie face down on your forearms with the roller under the muscular area at the front of one hip, at the point recommended to you.",
+      "Support some weight with your arms and the opposite leg. Roll slowly through a short range over the front of the hip and upper thigh.",
+      "Control the pressure and keep the roller off the hip bone and groin. Follow your physiotherapy plan for duration and switching sides."
+    ]
   },
   "6767": {
     "nameFa": "ماساژ عضلات اسکالن کنار گردن با توپ در حالت پهلوخوابیده",
