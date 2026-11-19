@@ -807,7 +807,7 @@ function ExerciseDetail({ ex, close }) {
   const steps = instrFor(ex)
   const localized = hasLocalizedInstructions(ex)
   const englishSteps = guideReview ? guideReview.stepsEn : ex.st
-  const guideTitle = guideReview ? alilabText('Physiotherapy reference guide')
+  const guideTitle = guideReview ? alilabText('Source-based exercise guide')
     : getLang() === 'fa' && localized && !Object.hasOwn(fullPersianInstructions, ex.id)
       ? alilabText('Short AliLab guide') : t('How to')
   const last = lastEntryFor(st, ex.id)

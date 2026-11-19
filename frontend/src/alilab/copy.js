@@ -18,7 +18,7 @@ const copy = {
   'Short AliLab guide':'راهنمای کوتاه AliLab',
   'Full English instructions':'راهنمای کامل انگلیسی',
   'Reference information':'اطلاعات مرجع',
-  'Physiotherapy reference guide':'راهنمای مرجع فیزیوتراپی',
+  'Source-based exercise guide':'راهنمای اجرا بر اساس منبع',
   'View source':'مشاهدهٔ منبع',
 }
 export const alilabText = key => getLang() === 'fa' ? copy[key] || key : key

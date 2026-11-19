@@ -36,7 +36,7 @@ it('gives the 15 outstanding records bilingual references without exposing unver
   expect(Object.keys(reviews).sort()).toEqual(Object.keys(batch16.deferred_reasons).sort())
   expect(Object.keys(reviews)).toHaveLength(15)
   expect(Object.keys(additions)).toHaveLength(4293)
-  expect(Object.keys(reviews).filter(id => reviews[id].stepsFa)).toEqual(['4475', '11652'])
+  expect(Object.keys(reviews).filter(id => reviews[id].stepsFa)).toEqual(['4475', '10597', '11652'])
   _setLangState('fa', fa, guides, names)
   for (const [id, review] of Object.entries(reviews)) {
     const exercise = EXDB.find(ex => ex.id === id)
@@ -54,6 +54,9 @@ it('gives the 15 outstanding records bilingual references without exposing unver
     expect(review.stepsFa?.length, id).toBe(review.stepsEn?.length)
   }
   _setLangState('en')
+  const rotation = EXDB.find(ex => ex.id === '10597')
+  expect(instrFor(rotation)[2]).toMatch(/Keep hold of the handle.*external rotation/)
+  expect(instrFor(rotation)[3]).toMatch(/Control and stop.*rotate/)
   const clinical = EXDB.find(ex => ex.id === '11652')
   expect(exerciseNameFor(clinical)).toBe(clinical.n)
   expect(instrFor(clinical)).toEqual(reviews['11652'].stepsEn)

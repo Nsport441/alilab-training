@@ -88,10 +88,26 @@
     "source": "https://gymvisual.com/illustrations/23196-barbell-bench-press-catch-male.html"
   },
   "10597": {
-    "nameFa": "چرخش داخلی شانه در زاویهٔ ۹۰ درجه با سیم‌کش، مرحلهٔ گرفتن",
-    "summaryFa": "این نسخه در کاتالوگ سازنده ثبت شده است. منظور از مرحلهٔ مهار در این حرکت و وضعیت دستگیره هنوز به تأیید مربی نیاز دارد.",
-    "summaryEn": "The publisher lists this 90-degree cable rotation. A coach still needs to verify what the catch means and how the handle is held.",
-    "source": "https://gymvisual.com/16-animated-gifs?id_category=16&n=100&p=12"
+    "nameFa": "چرخش داخلی شانه با سیم‌کش، آرنج ۹۰ درجه و مهار حرکت",
+    "summaryFa": "این راهنما بر اساس ترتیب مراحل openGym تنظیم شده است. در این اجرا دستگیره در دست می‌ماند و پیش از چرخش داخلی، حرکت ساعد تحت کشش کابل مهار می‌شود.",
+    "summaryEn": "This guide follows the sequence described by openGym. Keep hold of the handle and check the motion of the forearm against the cable before rotating inwards.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/10597.json",
+    "stepsFa": [
+      "قرقره را هم‌ارتفاع شانه تنظیم کنید و پهلو به دستگاه بایستید. دستگیره را بگیرید.",
+      "بازو را از کنار بدن تا ارتفاع شانه بالا بیاورید و آرنج را ۹۰ درجه خم کنید.",
+      "با حفظ گرفتن دستگیره، اجازه دهید کشش کابل ساعد را آرام به عقب ببرد تا شانه به بیرون بچرخد.",
+      "حرکت ساعد را با کنترل متوقف کنید، سپس از مفصل شانه ساعد را روان به جلو و پایین بچرخانید.",
+      "بازو را ثابت و هم‌ارتفاع شانه نگه دارید. تنه را نچرخانید.",
+      "حرکت را در دامنه‌ای که کنترل می‌کنید تکرار کنید و پس از پایان ست دست را عوض کنید."
+    ],
+    "stepsEn": [
+      "Set the pulley at shoulder height. Stand sideways to the machine and take hold of the handle.",
+      "Lift your upper arm to the side at shoulder height and bend your elbow to 90 degrees.",
+      "Keep hold of the handle as the cable draws your forearm gently back into external rotation.",
+      "Control and stop the forearm, then rotate it smoothly forwards and down from the shoulder.",
+      "Keep your upper arm steady at shoulder height and avoid turning your torso.",
+      "Repeat through the range you can control and switch arms after the set."
+    ]
   },
   "11652": {
     "nameFa": "حرکت لغزشی عصب سیاتیک در حالت نشسته",
