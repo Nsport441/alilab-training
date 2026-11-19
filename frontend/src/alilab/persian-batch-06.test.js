@@ -11,6 +11,8 @@ import batch12 from '../../../catalogue/persian-batch-12-review.json' with { typ
 import batch13 from '../../../catalogue/persian-batch-13-review.json' with { type: 'json' }
 import batch14 from '../../../catalogue/persian-batch-14-review.json' with { type: 'json' }
 import batch15 from '../../../catalogue/persian-batch-15-review.json' with { type: 'json' }
+import batch16 from '../../../catalogue/persian-batch-16-review.json' with { type: 'json' }
+import mediaManifest from '../../../catalogue/media-manifest.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
 import { EXDB, matchExercise } from '../lib/exercises.js'
 import { _setLangState, exerciseNameFor, instrFor, hasLocalizedInstructions } from '../lib/i18n-core.js'
@@ -21,7 +23,7 @@ import fa from '../locales/fa.js'
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 afterEach(() => _setLangState('en'))
 
-const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }, { review: batch10, count: 390 }, { review: batch11, count: 400 }, { review: batch12, count: 400 }, { review: batch13, count: 400 }, { review: batch14, count: 300 }, { review: batch15, count: 300 }]
+const batches = [{ review: batch06, count: 500 }, { review: batch07, count: 400 }, { review: batch08, count: 450 }, { review: batch09, count: 400 }, { review: batch10, count: 390 }, { review: batch11, count: 400 }, { review: batch12, count: 400 }, { review: batch13, count: 400 }, { review: batch14, count: 300 }, { review: batch15, count: 300 }, { review: batch16, count: 185 }]
 
 it('preserves numerical instructions in batch 10', () => {
   const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
@@ -167,3 +169,38 @@ it('preserves numeric instructions in batch 15', () => {
   }
 })
 
+
+it('accounts for the final 200 Persian catalogue candidates', () => {
+  const blocked = Object.keys(batch16.deferred_reasons)
+  const ids = [...batch16.records.map(record => record.id), ...blocked]
+  expect(ids).toHaveLength(200)
+  expect(new Set(ids).size).toBe(200)
+  expect(batch16.previously_localized_ids).toHaveLength(4108)
+  expect(EXDB).toHaveLength(5632)
+  for (const id of blocked) {
+    expect(batch16.deferred_ids).toContain(id)
+    expect(EXDB.some(ex => ex.id === id), id).toBe(true)
+    expect(additions[id], id).toBeUndefined()
+    expect(batch16.deferred_reasons[id], id).toMatch(/[آ-ی]/)
+  }
+})
+
+it('preserves the numeric cues and pins the evidence used to reconcile batch 16', () => {
+  const numbers = text => (text.replace(/[۰-۹٠-٩]/g, char => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(char) % 10)).match(/\d+/g) ?? [])
+  expect(batch16.unreviewed_count).toBe(0)
+  for (const record of batch16.records) {
+    const { id, evidence_media, numeric_media_overrides = {} } = record
+    const ex = EXDB.find(item => item.id === id)
+    expect(numbers(additions[id].name), id).toEqual(numbers(ex.n))
+    if (evidence_media) {
+      expect(evidence_media.key).toBe(`clip/${id}.mp4`)
+      expect(mediaManifest[evidence_media.key]?.sha256).toBe(evidence_media.sha256)
+    }
+    for (let i = 0; i < ex.st.length; i++) {
+      const step = i + 1
+      const override = numeric_media_overrides[step]
+      if (override) expect(evidence_media, `${id}:${step}`).toBeDefined()
+      expect(numbers(additions[id].instructions[i]), `${id}:${step}`).toEqual(override ?? numbers(ex.st[i]))
+    }
+  }
+})
