@@ -148,15 +148,35 @@
   },
   "6767": {
     "nameFa": "ماساژ عضلات اسکالن کنار گردن با توپ در حالت پهلوخوابیده",
-    "summaryFa": "مرجع بیمارستانی برای عضلات اسکالن تمرین کششی دارد. محل تماس و حد فشار مستقیم توپ کنار گردن در این نسخه به بازبینی فیزیوتراپیست نیاز دارند.",
-    "summaryEn": "The hospital reference describes a scalene stretch. The contact point and direct ball pressure at the side of the neck need physiotherapist review.",
-    "source": "https://www.cuh.nhs.uk/patient-information/neck-exercises-and-advice/#scalene-stretch"
+    "summaryFa": "این نسخهٔ پهلوخوابیده برای اجرا با حضور فیزیوتراپیست است. درمانگر پس از ارزیابی تعیین می‌کند که استفاده از توپ برای شما مناسب است یا خیر.",
+    "summaryEn": "Use this side-lying version with a physiotherapist present. They assess whether ball work at the side of the neck is appropriate for you.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/6767.json",
+    "stepsFa": [
+      "با راهنمایی فیزیوتراپیست به پهلو دراز بکشید. سر را روی تکیه‌گاهی که درمانگر تنظیم کرده بگذارید و شانه را شل کنید.",
+      "درمانگر توپ، محل تماس و شدت فشار را تعیین و کنترل می‌کند. تکیه‌گاه وزن سر را نگه می‌دارد. حرکت یا تغییر وضعیت گردن را فقط با هدایت درمانگر انجام دهید.",
+      "اگر درد، گزگز، بی‌حسی یا سرگیجه احساس کردید، فوراً به درمانگر بگویید تا حرکت را متوقف کند. مدت و دفعات را درمانگر تعیین می‌کند."
+    ],
+    "stepsEn": [
+      "Lie on your side as directed by your physiotherapist. Rest your head on the support they set up and relax your shoulder.",
+      "The physiotherapist chooses the ball and controls its contact point and pressure. Keep the weight of your head on the support. Move your neck only as directed by the physiotherapist.",
+      "Report any pain, tingling, numbness or dizziness immediately so the physiotherapist can stop the exercise. They determine the duration and repetitions."
+    ]
   },
   "6768": {
     "nameFa": "ماساژ عضلات اسکالن کنار گردن با توپ، نمای جانبی",
-    "summaryFa": "منبع این رکورد را نمای جانبی همان حرکت اسکالن معرفی می‌کند. محل تماس و حد فشار توپ کنار گردن به بازبینی فیزیوتراپیست نیاز دارند.",
-    "summaryEn": "The source describes this entry as a side view of the same scalene technique. The contact point and ball pressure need physiotherapist review.",
-    "source": "https://www.cuh.nhs.uk/patient-information/neck-exercises-and-advice/#scalene-stretch"
+    "summaryFa": "این رکورد نمای جانبی همان حرکت پهلوخوابیدهٔ اسکالن است. فیزیوتراپیست باید هنگام اجرا حاضر باشد و پس از ارزیابی، مناسب بودن استفاده از توپ را تعیین کند.",
+    "summaryEn": "This is a side view of the same side-lying scalene exercise. A physiotherapist must be present and assess whether ball work is appropriate for you.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/6768.json",
+    "stepsFa": [
+      "با راهنمایی فیزیوتراپیست به پهلو دراز بکشید. سر را روی تکیه‌گاهی که درمانگر تنظیم کرده بگذارید و شانه را شل کنید.",
+      "درمانگر توپ، محل تماس و شدت فشار را تعیین و کنترل می‌کند. تکیه‌گاه وزن سر را نگه می‌دارد. حرکت یا تغییر وضعیت گردن را فقط با هدایت درمانگر انجام دهید.",
+      "اگر درد، گزگز، بی‌حسی یا سرگیجه احساس کردید، فوراً به درمانگر بگویید تا حرکت را متوقف کند. مدت و دفعات را درمانگر تعیین می‌کند."
+    ],
+    "stepsEn": [
+      "Lie on your side as directed by your physiotherapist. Rest your head on the support they set up and relax your shoulder.",
+      "The physiotherapist chooses the ball and controls its contact point and pressure. Keep the weight of your head on the support. Move your neck only as directed by the physiotherapist.",
+      "Report any pain, tingling, numbness or dizziness immediately so the physiotherapist can stop the exercise. They determine the duration and repetitions."
+    ]
   },
   "10559": {
     "nameFa": "نشر کامل جلو با دمبل و مهار وزنه در بالا",

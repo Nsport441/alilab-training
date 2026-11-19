@@ -32,12 +32,13 @@ it('labels actual per-exercise fallback and preserves the English original',()=>
   expect(hasLocalizedInstructions(fallback)).toBe(false)
   expect(instrFor(fallback)).toBe(fallback.st)
 })
-it('gives the 15 outstanding records bilingual references without exposing unverified steps', () => {
+it('offers bilingual guides or competition rules for all 15 reviewed records', () => {
   expect(Object.keys(reviews).sort()).toEqual(Object.keys(batch16.deferred_reasons).sort())
   expect(Object.keys(reviews)).toHaveLength(15)
   expect(Object.keys(additions)).toHaveLength(4293)
   expect(Object.keys(reviews).filter(id => reviews[id].stepsFa)).toEqual([
-    '3188', '3317', '4466', '4475', '4476', '4477', '4479', '4482', '4599', '10559', '10560', '10597', '11652',
+    '3188', '3317', '4466', '4475', '4476', '4477', '4479', '4482', '4599', '6767', '6768',
+    '10559', '10560', '10597', '11652',
   ])
   expect(Object.keys(reviews).filter(id => reviews[id].kind === 'competition')).toEqual(['3317'])
   _setLangState('fa', fa, guides, names)
@@ -75,6 +76,11 @@ it('gives the 15 outstanding records bilingual references without exposing unver
   const pullover = EXDB.find(ex => ex.id === '3188')
   expect(instrFor(pullover)[0]).toMatch(/coach.*check how the band and load are secured/)
   expect(instrFor(pullover).at(-1)).toMatch(/starts swinging.*stop with the coach's help/)
+  const scalene = EXDB.find(ex => ex.id === '6767')
+  const scaleneSideView = EXDB.find(ex => ex.id === '6768')
+  expect(instrFor(scalene)).toEqual(instrFor(scaleneSideView))
+  expect(instrFor(scalene)[1]).toMatch(/physiotherapist.*controls its contact point and pressure/)
+  expect(instrFor(scalene)[1]).toContain('weight of your head on the support')
   const clinical = EXDB.find(ex => ex.id === '11652')
   expect(exerciseNameFor(clinical)).toBe(clinical.n)
   expect(instrFor(clinical)).toEqual(reviews['11652'].stepsEn)
@@ -82,6 +88,8 @@ it('gives the 15 outstanding records bilingual references without exposing unver
   expect(instrFor(clinical)[2]).toMatch(/bend the knee.*bring your chin down/)
   expect(hasLocalizedInstructions(clinical)).toBe(true)
   _setLangState('fa', fa, guides, names)
+  expect(instrFor(scalene)).toEqual(instrFor(scaleneSideView))
+  expect(instrFor(scalene)[1]).toContain('درمانگر توپ، محل تماس و شدت فشار را تعیین و کنترل می‌کند')
   expect(instrFor(clinical)[1]).toMatch(/زانو را صاف کنید.*نگاهتان را بالا ببرید/)
   expect(instrFor(clinical)[2]).toMatch(/زانو را خم کنید.*چانه را به سمت سینه پایین بیاورید/)
   _setLangState('de')
