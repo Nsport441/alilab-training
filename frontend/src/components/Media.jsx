@@ -6,12 +6,14 @@ import Icon from './Icon.jsx'
 import CustomMedia, { CustomThumb } from './CustomMedia.jsx'
 import { catalogueMediaFor, catalogueMediaSources } from '../alilab/catalogue-media.js'
 import { alilabText } from '../alilab/copy.js'
+import { exerciseGuideReview } from '../alilab/exercise-guide-reviews.js'
 
 // An exercise's picture, wherever one shows. A custom exercise goes to CustomMedia.jsx — its own
 // photo, GIF, video or link, from the local media store — and never through imgSrc/gifSrc, which
 // name files of the shipped dataset (a stray img/gif on a custom exercise, written by a fork, is
 // ignored). The split is by component, not by branch, so each side keeps its own hooks in order.
 export default function Media(p) {
+  if (exerciseGuideReview(p.ex)) return null
   return p.ex?.custom ? <CustomMedia {...p} /> : <BuiltinMedia key={p.ex?.id} {...p} />
 }
 
