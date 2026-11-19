@@ -37,7 +37,7 @@ it('gives the 15 outstanding records bilingual references without exposing unver
   expect(Object.keys(reviews)).toHaveLength(15)
   expect(Object.keys(additions)).toHaveLength(4293)
   expect(Object.keys(reviews).filter(id => reviews[id].stepsFa)).toEqual([
-    '3317', '4466', '4475', '4476', '4477', '4479', '4482', '4599', '10559', '10560', '10597', '11652',
+    '3188', '3317', '4466', '4475', '4476', '4477', '4479', '4482', '4599', '10559', '10560', '10597', '11652',
   ])
   expect(Object.keys(reviews).filter(id => reviews[id].kind === 'competition')).toEqual(['3317'])
   _setLangState('fa', fa, guides, names)
@@ -72,6 +72,9 @@ it('gives the 15 outstanding records bilingual references without exposing unver
   expect(instrFor(raise)[2]).toContain('Steady the weight at the top with both hands')
   const press = EXDB.find(ex => ex.id === '10560')
   expect(instrFor(press)[2]).toMatch(/stop just above your chest.*hands closed/)
+  const pullover = EXDB.find(ex => ex.id === '3188')
+  expect(instrFor(pullover)[0]).toMatch(/coach.*check how the band and load are secured/)
+  expect(instrFor(pullover).at(-1)).toMatch(/starts swinging.*stop with the coach's help/)
   const clinical = EXDB.find(ex => ex.id === '11652')
   expect(exerciseNameFor(clinical)).toBe(clinical.n)
   expect(instrFor(clinical)).toEqual(reviews['11652'].stepsEn)

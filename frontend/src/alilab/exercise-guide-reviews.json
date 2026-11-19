@@ -1,9 +1,21 @@
 {
   "3188": {
-    "nameFa": "پول‌اور دست‌صاف با دمبل و کش آویزان",
-    "summaryFa": "در این نسخه از کش همراه دمبل استفاده می‌شود. روش مهار کش و بار در منبع روشن نیست و به تأیید مربی نیاز دارد.",
-    "summaryEn": "This pullover uses a band with a dumbbell. A coach still needs to verify how the band and load are secured.",
-    "source": "https://gymvisual.com/animated-gifs/8778-dumbbell-straight-arm-pullover-with-hanging-band-technique.html"
+    "nameFa": "پول‌اور دست‌صاف با دمبل و وزنهٔ آویزان از کش",
+    "summaryFa": "این راهنما مسیر پول‌اور با وزنهٔ آویزان را مطابق متن openGym توضیح می‌دهد. حرکت را فقط با مربی و پس از بررسی اتصال کش و وزنه انجام دهید.",
+    "summaryEn": "This guide follows the suspended-load pullover described by openGym. Perform it only with a coach after they check the band and load attachment.",
+    "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/3188.json",
+    "stepsFa": [
+      "مربی یک بار سبک و تجهیزات مناسب برای آویختن وزنه را انتخاب کند. پیش از دراز کشیدن، مربی اتصال کش و وزنه به دمبل و فضای حرکت بار را بررسی کند.",
+      "روی نیمکت ثابت دراز بکشید. با کمک مربی، دمبل را با هر دو دست بالای سینه نگه دارید تا وزنهٔ آویزان آرام بگیرد.",
+      "با کمی خمیدگی ثابت در آرنج و بدون گود کردن کمر، دمبل را آهسته در قوسی به سمت پشت سر ببرید. فقط تا جایی ادامه دهید که بتوانید بار را کنترل کنید.",
+      "دمبل را آهسته از همان مسیر به بالای سینه برگردانید. اگر وزنه شروع به تاب‌خوردن کرد یا اتصال جابه‌جا شد، با کمک مربی حرکت را متوقف کنید."
+    ],
+    "stepsEn": [
+      "Have a coach choose a light load and equipment suited to suspending it. Before you lie down, have them check how the band and load are secured to the dumbbell and that the load has clearance.",
+      "Lie on a stable bench. With the coach's help, hold the dumbbell above your chest with both hands and let the hanging weight settle.",
+      "Keep a slight, fixed bend in your elbows and avoid arching your back. Slowly arc the dumbbell behind your head only as far as you can control the load.",
+      "Bring the dumbbell back above your chest along the same arc. If the load starts swinging or the attachment shifts, stop with the coach's help."
+    ]
   },
   "3317": {
     "nameFa": "واژگون‌کردن خودرو در مسابقهٔ مردان آهنین",
