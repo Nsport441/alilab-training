@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRoot } from 'react-dom/client'
 import { EXDB } from './lib/exercises.js'
 import { _setLangState } from './lib/i18n-core.js'
+import persianInstructions from './instr/fa.js'
 import { DEF, useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { exerciseDetailSheet, exercisePicker } from './sheets.jsx'
@@ -112,4 +113,15 @@ describe('physiotherapist-guided exercise details', () => {
     expect(en.querySelector('.exnote a').textContent).toBe('View original openGym entry')
     expect(en.querySelector('.steps-list').textContent).toContain('controls its contact point and pressure')
   })
+})
+
+it('displays a full Persian legacy guide and its matching English version', () => {
+  _setLangState('fa', {}, persianInstructions)
+  const exercise = EXDB.find(row => row.id === '0764')
+  exerciseDetailSheet(exercise)
+  const host = renderTop()
+  const steps = host.querySelector('.steps-list')
+  expect(steps.previousElementSibling.textContent).toBe('How to')
+  expect(steps.textContent).toMatch(/نیمکت تخت/)
+  expect(host.querySelector('.full-instructions .steps-list').textContent).toContain('underhand')
 })

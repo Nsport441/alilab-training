@@ -32,21 +32,32 @@ Holds default to timed sets only on fresh addition. Existing explicit modes and 
 cardio classifications remain unchanged, even where upstream taxonomy has changed.
 No database migration, state rewrite, ID renumbering, profile deletion or backup deletion occurs.
 
-## Translation status — release limitation
+## Persian catalogue coverage
 
-An initial batch of 33 new IDs is translated in `frontend/src/alilab/persian-batch-01.json`;
-the assistant compared these translations with their English sources. They have not received
-independent native-speaker or exercise-specialist review. Another 4,275 new entries still
-fall back to English.
+All 5,632 exercise records have a Persian name and Persian instructions or competition
+rules. The 1,324 legacy records include 280 short guides and 1,044 step-by-step translations
+in `frontend/src/instr/fa-legacy.json`. These translations use the English instructions by
+catalogue ID. The Persian pack keeps the English instructions available and loads with the
+Persian locale.
 
-Upstream has **no Persian pack**. Existing 1,324 Persian names and 280 Persian short guides
-remain untouched. All 4,308 new entries have complete upstream English instructions and
-descriptions, but **reviewed Persian names and guides for them are still missing**.
-The interface/category controls remain Persian and RTL; the existing per-exercise English
-instruction fallback is explicit. Do not claim full Persian translation coverage or release
-this as a finished fully translated upgrade. Existing other-language curated packs likewise
-retain their original corpus and per-exercise English fallback. Their regression tests are
-scoped to the original curated corpus; expanded-catalogue fallback has its own tests.
+For 55 of those IDs the Persian guides use corrected English steps from
+[openGym e4a68a94](https://github.com/DuarteSantos8/openGym/tree/e4a68a94c42a3c17cbd560d66ce2e46a7048ab99/catalogue/exercises).
+Thirteen guides use documented local corrections to resolve setup or movement conflicts.
+The corresponding English steps are in `frontend/src/alilab/legacy-english-instructions.json`.
+The archived source steps remain in the catalogue.
+
+- `0067` uses the one-hand snatch defined in the [USAWA rulebook](https://usawa.com/wp-content/uploads/2010/05/RULEBOOK-10th-Edition.pdf).
+- `0492` uses a feet-supported, hand-landing depth push-up from the [BC Lacrosse coaching manual](https://bclacrosse.com/Coaching%20Clinics/Coaching%20Clinic%20Manuals/Competition%20Introduction%20Box%20Manual%20-%20EN.pdf).
+- `0537` distinguishes the rack position, jerk and controlled return using the [StrongFirst jerk guide](https://www.strongfirst.com/go-ballistic-the-jerk-for-barbell-and-kettlebell/).
+- `0755`, `0769`, `1433` and `3281` follow the lock and stop setup from the [Life Fitness Smith machine manual](https://kb.cybexintl.com/Assembly_Manuals/Strength/AI_SSM_Signature_Smith_Machine_English.pdf).
+- `0776` is a pull through extension and shrug as shown by [Catalyst Athletics](https://www.youtube.com/watch?v=G1QygZ3Kd3w).
+- `0299`, `1374` and `1512` follow the movement described in their catalogue records.
+- `1701` places both hands together on one medicine ball as demonstrated by [ACE](https://www.acefitness.org/resources/everyone/exercise-library/40/medicine-ball-push-ups/).
+- `0045` includes a controlled descent and uses the bench-press spotting setup described in the [NSCA strength and conditioning manual](https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf).
+
+The 4,308 imported records use `frontend/src/alilab/persian-batch-01.json` and the final
+review entries documented in [Persian guide reviews](PERSIAN_FINAL_GUIDE_REVIEWS.md).
+Other-language packs use their curated corpus with a per-exercise English fallback.
 
 ## Media licence and budget
 
@@ -91,11 +102,12 @@ active-session-first prefetch. Existing history/import/backup/sync/service-worke
 
 The PR Runflare workflow must build and smoke-test the exact committed Web and API upload
 contexts, verify version identity and HTTP media types, and emit paired candidate manifests.
-Local Docker is unavailable in this environment. The owner has authorized a partial release
-of the 33 translations; 4,275 new exercises still use English and independent translation
-review and real desktop/mobile/PWA tests remain outstanding. Do not describe the translation
-as complete. There is no automatic merge or deployment. Publish only a candidate with successful
-CI and Runflare build, verified version identity and preserved backups.
+The 1,044 legacy guides were drafted with machine assistance and checked for coverage,
+step alignment, numerical cues, and selected technique terminology and source conflicts.
+An independent review of every translation and device-level desktop, mobile and offline
+tests remain separate verification tasks.
+There is no automatic merge or deployment. Publish only a candidate with successful CI
+and Runflare build, verified version identity and preserved backups.
 
 The first GitHub Runflare build/smoke test passed for `52f62505`. Full CI exposed eight
 catalogue compatibility/count/search assertions; these were repaired and all 99 affected

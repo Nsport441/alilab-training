@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, expect,it } from 'vitest'
 import { EXDB,matchExercise } from '../lib/exercises.js'
-import { _setLangState,exerciseNameFor,instrFor,hasLocalizedInstructions } from '../lib/i18n-core.js'
+import { _setLangState,exerciseNameFor,instrFor,englishInstructionsFor,hasLocalizedInstructions } from '../lib/i18n-core.js'
 import legacy from '../../../catalogue/legacy.json' with { type: 'json' }
 import batch16 from '../../../catalogue/persian-batch-16-review.json' with { type: 'json' }
 import additions from './persian-batch-01.json' with { type: 'json' }
@@ -9,6 +9,8 @@ import reviews from './exercise-guide-reviews.json' with { type: 'json' }
 import { exerciseGuideReview } from './exercise-guide-reviews.js'
 import names from '../exercise-names/fa.js'
 import guides from '../instr/fa.js'
+import legacyGuides from '../instr/fa-legacy.json' with { type: 'json' }
+import legacyEnglish from './legacy-english-instructions.json' with { type: 'json' }
 import fa from '../locales/fa.js'
 afterEach(()=>_setLangState('en'))
 it('covers stable IDs, retains bilingual search and leaves custom names intact',()=>{
@@ -24,13 +26,40 @@ it('covers stable IDs, retains bilingual search and leaves custom names intact',
   expect(instrFor({id:'0025',custom:true,st:['راهنمای خودم']})).toEqual(['راهنمای خودم'])
 })
 it('labels actual per-exercise fallback and preserves the English original',()=>{
-  expect(Object.keys(guides)).toHaveLength(280 + Object.keys(additions).length)
+  expect(Object.keys(guides)).toHaveLength(legacy.length + Object.keys(additions).length)
   _setLangState('fa',fa,guides,names)
-  const translated=EXDB.find(ex=>guides[ex.id]),fallback=EXDB.find(ex=>!guides[ex.id] && !exerciseGuideReview(ex))
+  const translated=EXDB.find(ex=>guides[ex.id])
+  const fallback={id:'untranslated-fixture',st:['Keep the original instructions.']}
   expect(hasLocalizedInstructions(translated)).toBe(true)
   expect(instrFor(translated)).toBe(guides[translated.id])
   expect(hasLocalizedInstructions(fallback)).toBe(false)
   expect(instrFor(fallback)).toBe(fallback.st)
+})
+it('maps the 1044 full Persian guides to their original legacy steps', () => {
+  const shortIds = legacy.map(row => row.id).filter(id => guides[id]?.[0]?.startsWith('راهنمای کوتاه «'))
+  expect(shortIds).toHaveLength(280)
+  expect(Object.keys(legacyGuides).sort()).toEqual(legacy.map(row => row.id).filter(id => !shortIds.includes(id)).sort())
+  expect(Object.keys(legacyEnglish)).toHaveLength(68)
+  expect(Object.keys(legacyEnglish).every(id => Object.hasOwn(legacyGuides,id))).toBe(true)
+  const source = new Map(EXDB.map(row => [row.id, row]))
+  const numbers = text => [...text.replace(/[۰-۹]/g, c => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).matchAll(/\d+/g)].map(match => match[0])
+  _setLangState('fa', fa, guides, names)
+  for (const [id, steps] of Object.entries(legacyGuides)) {
+    const exercise = source.get(id)
+    const english = englishInstructionsFor(exercise)
+    expect(steps, id).toHaveLength(english.length)
+    expect(steps.every(step => /[آ-ی]/.test(step)), id).toBe(true)
+    expect(steps.map(numbers), id).toEqual(english.map(numbers))
+    expect(hasLocalizedInstructions(exercise), id).toBe(true)
+    expect(instrFor(exercise), id).toEqual(steps)
+  }
+  _setLangState('en')
+  expect(instrFor(source.get('0001'))).toBe(source.get('0001').st)
+  expect(instrFor(source.get('0764'))[1]).toContain('underhand')
+  expect(source.get('0764').st[2]).toContain('overhand')
+  expect(instrFor(source.get('0067'))[1]).toContain('one hand')
+  expect(instrFor(source.get('0776'))[2]).toContain('shrug')
+  expect(instrFor({ id:'0764',custom:true,st:['My own instructions'] })).toEqual(['My own instructions'])
 })
 it('offers bilingual guides or competition rules for all 15 reviewed records', () => {
   expect(Object.keys(reviews).sort()).toEqual(Object.keys(batch16.deferred_reasons).sort())

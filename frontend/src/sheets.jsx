@@ -9,8 +9,7 @@ import { usesBar, defaultBarWeight, hasBarOverride, isNoBar } from './lib/bar.js
 import { PLATE_SIZES, pairsOf, ownsPlates, withPlatePairs, withStandardPlates, withLoadKind, loadKindFor, baseWeightFor, dropGrid } from './lib/plates.js'
 import { toScale, rirOf, EFFORT_PRESETS, effortColor } from './lib/effort.js'
 import { beep, vibrate } from './lib/sound.js'
-import { t, dateLocale, instrFor, hasLocalizedInstructions, exerciseNameFor, exerciseNameClass, getLang } from './lib/i18n.js'
-import fullPersianInstructions from './alilab/persian-batch-01.json' with { type: 'json' }
+import { t, dateLocale, instrFor, englishInstructionsFor, hasLocalizedInstructions, exerciseNameFor, exerciseNameClass, getLang } from './lib/i18n.js'
 import { alilabText } from './alilab/copy.js'
 import { exerciseGuideReview } from './alilab/exercise-guide-reviews.js'
 import { nav } from './lib/nav.js'
@@ -811,11 +810,11 @@ function ExerciseDetail({ ex, close }) {
   const guideReview = exerciseGuideReview(ex)
   const steps = instrFor(ex)
   const localized = hasLocalizedInstructions(ex)
-  const englishSteps = guideReview ? guideReview.stepsEn : ex.st
+  const englishSteps = englishInstructionsFor(ex)
   const needsPhysiotherapist = guideReview?.kind === 'physiotherapist-guided'
+  const shortPersianGuide = getLang() === 'fa' && localized && !ex.custom && steps[0]?.startsWith('راهنمای کوتاه «')
   const guideTitle = guideReview ? alilabText(REVIEW_GUIDE_TITLES[guideReview.kind] ?? 'Source-based exercise guide')
-    : getLang() === 'fa' && localized && !Object.hasOwn(fullPersianInstructions, ex.id)
-      ? alilabText('Short AliLab guide') : t('How to')
+    : shortPersianGuide ? alilabText('Short AliLab guide') : t('How to')
   const last = lastEntryFor(st, ex.id)
   const best = bestWeightFor(st, ex.id)
   const fav = isFav(st, ex.id)
