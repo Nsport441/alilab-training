@@ -61,6 +61,15 @@ it('maps the 1044 full Persian guides to their original legacy steps', () => {
   expect(instrFor(source.get('0776'))[2]).toContain('shrug')
   expect(instrFor({ id:'0764',custom:true,st:['My own instructions'] })).toEqual(['My own instructions'])
 })
+it('preserves the working foot and chest-down setup in Persian', () => {
+  _setLangState('fa', fa, guides, names)
+  const calfPress = instrFor(EXDB.find(ex => ex.id === '1392'))
+  expect(calfPress[1]).toMatch(/پنجهٔ یک پا.*پای دیگر را روی صفحه نگذارید/)
+  expect(calfPress[2]).toContain('ضامن‌های ایمنی')
+  for (const id of ['1317', '1628', '1667', '1675']) {
+    expect(instrFor(EXDB.find(ex => ex.id === id))[0], id).toMatch(/دمر.*نیمکت.*سینه/)
+  }
+})
 it('offers bilingual guides or competition rules for all 15 reviewed records', () => {
   expect(Object.keys(reviews).sort()).toEqual(Object.keys(batch16.deferred_reasons).sort())
   expect(Object.keys(reviews)).toHaveLength(15)
