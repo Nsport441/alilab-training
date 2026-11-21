@@ -148,8 +148,9 @@
   },
   "6767": {
     "nameFa": "ماساژ عضلات اسکالن کنار گردن با توپ در حالت پهلوخوابیده",
-    "summaryFa": "این نسخهٔ پهلوخوابیده برای اجرا با حضور فیزیوتراپیست است. درمانگر پس از ارزیابی تعیین می‌کند که استفاده از توپ برای شما مناسب است یا خیر.",
-    "summaryEn": "Use this side-lying version with a physiotherapist present. They assess whether ball work at the side of the neck is appropriate for you.",
+    "kind": "physiotherapist-guided",
+    "summaryFa": "این راهنما برای جلسهٔ حضوری با فیزیوتراپیست است. برای محل تماس و فشار توپ در اجرای مستقلِ نسخهٔ اصلی، شواهد بالینی کافی در دست نیست.",
+    "summaryEn": "This guide is for an in-person physiotherapy session. More clinical evidence is needed to establish ball placement and pressure for independent use of the original technique.",
     "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/6767.json",
     "stepsFa": [
       "با راهنمایی فیزیوتراپیست به پهلو دراز بکشید. سر را روی تکیه‌گاهی که درمانگر تنظیم کرده بگذارید و شانه را شل کنید.",
@@ -164,8 +165,9 @@
   },
   "6768": {
     "nameFa": "ماساژ عضلات اسکالن کنار گردن با توپ، نمای جانبی",
-    "summaryFa": "این رکورد نمای جانبی همان حرکت پهلوخوابیدهٔ اسکالن است. فیزیوتراپیست باید هنگام اجرا حاضر باشد و پس از ارزیابی، مناسب بودن استفاده از توپ را تعیین کند.",
-    "summaryEn": "This is a side view of the same side-lying scalene exercise. A physiotherapist must be present and assess whether ball work is appropriate for you.",
+    "kind": "physiotherapist-guided",
+    "summaryFa": "این نما همان حرکت پهلوخوابیدهٔ اسکالن را نشان می‌دهد. راهنما برای جلسهٔ حضوری با فیزیوتراپیست است. برای محل تماس و فشار توپ در اجرای مستقلِ نسخهٔ اصلی، شواهد بالینی کافی در دست نیست.",
+    "summaryEn": "This is a side view of the same side-lying scalene exercise. The guide is for an in-person physiotherapy session. More clinical evidence is needed to establish ball placement and pressure for independent use of the original technique.",
     "source": "https://github.com/DuarteSantos8/openGym/blob/b6cfe2bbd3f099523ffbf2677438864e9a09a06f/catalogue/exercises/6768.json",
     "stepsFa": [
       "با راهنمایی فیزیوتراپیست به پهلو دراز بکشید. سر را روی تکیه‌گاهی که درمانگر تنظیم کرده بگذارید و شانه را شل کنید.",

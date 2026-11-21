@@ -5,6 +5,7 @@ import React, { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRoot } from 'react-dom/client'
 import { EXDB } from './lib/exercises.js'
+import { _setLangState } from './lib/i18n-core.js'
 import { DEF, useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { exerciseDetailSheet, exercisePicker } from './sheets.jsx'
@@ -35,6 +36,7 @@ beforeEach(() => {
 
 afterEach(() => {
   act(() => { mounted.splice(0).forEach(root => root.unmount()) })
+  _setLangState('en')
 })
 
 describe('exercise detail star', () => {
@@ -92,5 +94,22 @@ describe('exercise picker', () => {
     expect(chip(host).textContent).toBe('Favourites (2)')
     act(() => chip(host).click())
     expect(names(host)).toEqual([EXDB[5].n, EXDB[9].n])
+  })
+})
+
+describe('physiotherapist-guided exercise details', () => {
+  it.each(['6767', '6768'])('labels the restriction for record %s in Persian and English', id => {
+    const exercise = EXDB.find(row => row.id === id)
+    _setLangState('fa')
+    exerciseDetailSheet(exercise)
+    const fa = renderTop()
+    expect(fa.querySelector('.exnote h4').textContent).toBe('فقط با حضور فیزیوتراپیست')
+    expect(fa.querySelector('.exnote a').textContent).toBe('مشاهدهٔ رکورد اصلی openGym')
+    expect(fa.querySelector('.exnote a').href).toMatch(new RegExp(`/exercises/${id}\\.json$`))
+    _setLangState('en')
+    const en = renderTop()
+    expect(en.querySelector('.exnote h4').textContent).toBe('In-person physiotherapy only')
+    expect(en.querySelector('.exnote a').textContent).toBe('View original openGym entry')
+    expect(en.querySelector('.steps-list').textContent).toContain('controls its contact point and pressure')
   })
 })
