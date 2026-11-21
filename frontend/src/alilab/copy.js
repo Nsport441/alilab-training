@@ -20,6 +20,9 @@ const copy = {
   'Reference information':'اطلاعات مرجع',
   'Source-based exercise guide':'راهنمای اجرا بر اساس منبع',
   'Competition rules':'مقررات آیتم مسابقه',
+  'In-person physiotherapy only':'فقط با حضور فیزیوتراپیست',
+  'Session instructions':'مراحل جلسه',
   'View source':'مشاهدهٔ منبع',
+  'View original openGym entry':'مشاهدهٔ رکورد اصلی openGym',
 }
 export const alilabText = key => getLang() === 'fa' ? copy[key] || key : key

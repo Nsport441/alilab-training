@@ -801,13 +801,19 @@ function OneRM({ ex }) {
   </>
 }
 
+const REVIEW_GUIDE_TITLES = {
+  competition: 'Competition rules',
+  'physiotherapist-guided': 'Session instructions',
+}
+
 function ExerciseDetail({ ex, close }) {
   const st = useStore(s => s.S)
   const guideReview = exerciseGuideReview(ex)
   const steps = instrFor(ex)
   const localized = hasLocalizedInstructions(ex)
   const englishSteps = guideReview ? guideReview.stepsEn : ex.st
-  const guideTitle = guideReview ? alilabText(guideReview.kind === 'competition' ? 'Competition rules' : 'Source-based exercise guide')
+  const needsPhysiotherapist = guideReview?.kind === 'physiotherapist-guided'
+  const guideTitle = guideReview ? alilabText(REVIEW_GUIDE_TITLES[guideReview.kind] ?? 'Source-based exercise guide')
     : getLang() === 'fa' && localized && !Object.hasOwn(fullPersianInstructions, ex.id)
       ? alilabText('Short AliLab guide') : t('How to')
   const last = lastEntryFor(st, ex.id)
@@ -827,9 +833,9 @@ function ExerciseDetail({ ex, close }) {
       </button>
     </div>
     {guideReview && <div className="exnote">
-      <h4 className="sec">{alilabText('Reference information')}</h4>
+      <h4 className="sec">{alilabText(needsPhysiotherapist ? 'In-person physiotherapy only' : 'Reference information')}</h4>
       <p>{getLang() === 'fa' ? guideReview.summaryFa : guideReview.summaryEn}</p>
-      <a href={guideReview.source} target="_blank" rel="noopener noreferrer">{alilabText('View source')}</a>
+      <a href={guideReview.source} target="_blank" rel="noopener noreferrer">{alilabText(needsPhysiotherapist ? 'View original openGym entry' : 'View source')}</a>
     </div>}
     <Media ex={ex} />
     <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '10px 0' }}>
