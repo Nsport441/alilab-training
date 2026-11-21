@@ -7,6 +7,7 @@ import { productText } from './product.js'
 import { CALENDAR_LABELS } from '../locales/common/calendar.js'
 import { CATALOGUE_LABELS } from '../locales/common/catalogue.js'
 import { exerciseGuideReview } from '../alilab/exercise-guide-reviews.js'
+import legacyEnglish from '../alilab/legacy-english-instructions.json' with { type: 'json' }
 
 export const LANGS = {
   en: 'English', fa: 'فارسی', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
@@ -79,11 +80,21 @@ export function t(s, ...args) {
   return v
 }
 
+const catalogueEnglishInstructions = ex => {
+  if (!ex?.custom && Object.hasOwn(legacyEnglish, ex?.id)) return legacyEnglish[ex.id]
+  return ex?.st ?? []
+}
+
+export const englishInstructionsFor = ex => {
+  const review = exerciseGuideReview(ex)
+  return review ? review.stepsEn ?? [] : catalogueEnglishInstructions(ex)
+}
+
 // Instructions for an exercise in the current language (English steps as fallback).
 export const instrFor = ex => {
   const review = exerciseGuideReview(ex)
   if (review) return (lang === 'fa' ? review.stepsFa : review.stepsEn) ?? []
-  return (!ex?.custom && instr && instr[ex?.id]) || ex?.st || []
+  return (!ex?.custom && instr && instr[ex?.id]) || catalogueEnglishInstructions(ex)
 }
 export const hasLocalizedInstructions = ex => {
   const review = exerciseGuideReview(ex)

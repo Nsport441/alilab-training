@@ -1,6 +1,6 @@
 // AliLab-authored short cues for selected variants. Full English steps are preserved.
 import fs from 'node:fs'
-import { EXDB } from '../frontend/src/lib/exercises-data.js'
+import legacy from '../catalogue/legacy.json' with { type: 'json' }
 import names from '../frontend/src/exercise-names/fa.js'
 const families = [
   [/\b(?:bench press|chest press)\b/, [
@@ -50,9 +50,15 @@ const families = [
   ]],
 ]
 const excluded=/stretch|jump|clean|snatch|jerk|thruster|burpee|twist|cuban|arnold|bradford|guillotine|behind neck|behind the neck|rotation|rotational|press to|balance|bosu|exercise ball|stability ball|alternate|alternating|cross|windmill|v sit/
-const candidates=EXDB.filter(ex=>!excluded.test(ex.n)&&families.some(([re])=>re.test(ex.n)))
+const candidates=legacy.filter(ex=>!excluded.test(ex.n)&&families.some(([re])=>re.test(ex.n)))
 const selected=candidates.sort((a,b)=>Number(a.id)-Number(b.id)).slice(0,280)
 if(selected.length!==280)throw new Error(`Expected 280 selected guides, got ${selected.length}`)
 const guides=Object.fromEntries(selected.map(ex=>[ex.id,[`راهنمای کوتاه «${names[ex.id]}»:`,...families.find(([re])=>re.test(ex.n))[1]]]))
-fs.writeFileSync(new URL('../frontend/src/instr/fa.js',import.meta.url),'// AliLab-authored short guides. Full upstream English instructions remain available.\nexport default '+JSON.stringify(guides)+'\n')
+const output = [
+  "import additions from '../alilab/persian-batch-01.json' with { type: 'json' }",
+  "import legacyGuides from './fa-legacy.json' with { type: 'json' }",
+  '// Full Persian translations and AliLab-authored short guides.',
+  'export default {...legacyGuides,...Object.fromEntries(Object.entries(additions).map(([id,v])=>[id,v.instructions])) ,'+JSON.stringify(guides).slice(1),
+]
+fs.writeFileSync(new URL('../frontend/src/instr/fa.js',import.meta.url), output.join('\n')+'\n')
 console.log(`${selected.length} short Persian guides`)
