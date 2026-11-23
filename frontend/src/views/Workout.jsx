@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useId, useRef, useState } from 'react'
 import SwipeCards from '../components/SwipeCards.jsx'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
@@ -31,11 +31,39 @@ import { canMoveActiveWorkoutUnit, moveActiveWorkoutUnit } from '../lib/active-w
 import { nextOpenSet, workoutKeyAction } from '../lib/workout-keys.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
 import { tappable } from '../lib/use-sheet-keyboard.js'
+import { alilabText } from '../alilab/copy.js'
 
 // How long after a key starts a hold the same key is not yet its "Done" (#133). A USB button
 // that bounces, or a double press, sends two presses a moment apart: the first starts the hold,
 // and the second logged it at one second.
 const HOLD_KEY_GRACE_MS = 1500
+
+function WorkoutPageHelp({ message, nextLabel, onNext, onFreestyle }) {
+  const [open, setOpen] = useState(false)
+  const panelId = useId()
+  const toggleRef = useRef(null)
+  const follow = action => {
+    setOpen(false)
+    toggleRef.current?.focus()
+    action?.()
+  }
+  return <div className="workout-page-help">
+    <Button ref={toggleRef} type="button" size="sm" variant="tinted" icon="info"
+      trailingIcon={open ? 'chevronUp' : 'chevronDown'} aria-expanded={open} aria-controls={panelId}
+      onClick={() => setOpen(!open)}>
+      {alilabText('Help for this page')}
+    </Button>
+    <div id={panelId} hidden={!open} className="workout-page-help-panel">
+      {open && <>
+        <p>{alilabText(message)}</p>
+        <div className="row">
+          <Button type="button" size="sm" variant="tinted" onClick={() => follow(onNext)}>{t(nextLabel)}</Button>
+          {onFreestyle && <Button type="button" size="sm" onClick={() => follow(onFreestyle)}>{t('Freestyle')}</Button>}
+        </div>
+      </>}
+    </div>
+  </div>
+}
 
 /* ---------- start chooser (no active workout) ---------- */
 function StartChooser() {
@@ -49,15 +77,44 @@ function StartChooser() {
   const todayOvr = S.dayPlan[today] !== undefined
   const idSet = new Set(todayIds)
   const others = S.routines.filter(r => !idSet.has(r.id))
+  const otherRoutinesHeading = useRef(null)
   const openAddExercise = id => addRoutineExercises(id, { fromWorkout: true })
+  const startToday = () => startFlow(todayIds)
+  const startFreestyle = () => startFlow([])
+  const buildPlan = () => nav('/plan')
   const addToToday = () => {
     if (todayRoutines.length === 1) openAddExercise(todayIds[0])
     else menuSheet({ title: t('Routines'), items: todayRoutines.map(r => ({
       icon: glyphOf(r.emoji), label: r.name, onClick: () => openAddExercise(r.id),
     })) })
   }
+  let help
+  if (todayExCount) {
+    help = {
+      message: 'Start today’s routine with the exercises already in your plan, or choose a freestyle workout.',
+      nextLabel: 'Start', onNext: startToday,
+    }
+  } else if (todayRoutines.length) {
+    help = {
+      message: 'Add the first exercise to today’s routine, or start a freestyle workout and choose exercises as you go.',
+      nextLabel: 'Add exercise', onNext: addToToday,
+    }
+  } else if (others.length) {
+    help = {
+      message: others.some(r => r.ex.length)
+        ? 'Choose a routine under Other routines, or start a freestyle workout.'
+        : 'Add the first exercise to a routine under Other routines, or start a freestyle workout.',
+      nextLabel: 'Other routines', onNext: () => otherRoutinesHeading.current?.focus(),
+    }
+  } else {
+    help = {
+      message: 'You can start a freestyle workout now or build a routine in Plan.',
+      nextLabel: 'Build a plan first', onNext: buildPlan,
+    }
+  }
   return <div className="narrow">
     <div className="hdr"><div><h1>{t('Start workout')}</h1><div className="sub">{t(DAYN[new Date().getDay()])} — {todayRoutines.length ? t('today is {0}', todayName) : t('rest day, but no one’s stopping you')}</div></div></div>
+    <WorkoutPageHelp {...help} onFreestyle={startFreestyle} />
     {todayRoutines.length > 0 && <div className="card" style={{ borderColor: 'var(--acc)' }}>
       <h2 className="accent">{t("Today's plan")}{todayOvr ? ' · ' + t('rescheduled') : ''}</h2>
       <div className="row between" style={{ marginBottom: 12 }}>
@@ -65,12 +122,12 @@ function StartChooser() {
         <span className="lrow-i" style={{ width: 38, height: 38, borderRadius: 9, fontSize: 22 }}><Icon name={glyphOf(todayRoutines[0].emoji)} /></span>
       </div>
       {todayExCount ? (
-        <Button variant="primary" icon="play" onClick={() => startFlow(todayIds)}>{t('Start {0}', todayName)}</Button>
+        <Button variant="primary" icon="play" onClick={startToday}>{t('Start {0}', todayName)}</Button>
       ) : (
         <Button variant="tinted" icon="plus" onClick={addToToday}>{t('Add exercise')}</Button>
       )}
     </div>}
-    {others.length > 0 && <><h4 className="sec">{t('Other routines')}</h4>
+    {others.length > 0 && <><h4 className="sec" tabIndex={-1} ref={otherRoutinesHeading}>{t('Other routines')}</h4>
       <div className="list">{others.map(r => {
         const canStart = r.ex.length > 0
         return <div key={r.id} className="item" {...tappable(() => canStart ? startFlow([r.id]) : openAddExercise(r.id))}>
@@ -80,8 +137,8 @@ function StartChooser() {
         </div>
       })}</div></>}
     <div style={{ height: 14 }} />
-    <Button variant={todayExCount ? 'plain' : 'primary'} icon="shuffle" onClick={() => startFlow([])}>{t('Freestyle workout (pick as you go)')}</Button>
-    {!S.routines.length && <><div style={{ height: 10 }} /><Button variant="tinted" onClick={() => nav('/plan')}>{t('Build a plan first')}</Button></>}
+    <Button variant={todayExCount ? 'plain' : 'primary'} icon="shuffle" onClick={startFreestyle}>{t('Freestyle workout (pick as you go)')}</Button>
+    {!S.routines.length && <><div style={{ height: 10 }} /><Button variant="tinted" onClick={buildPlan}>{t('Build a plan first')}</Button></>}
   </div>
 }
 
@@ -1263,6 +1320,50 @@ function ActiveWorkout() {
     }
   }, [])
 
+  const addExercise = () => exercisePicker((ex, quick) => {
+    // A freehand add inherits the current unit's routine (its `rid`) so it lands in that
+    // routine's block in a combined session and gets a real prescription; a routine-less
+    // freestyle session has no `rid` to inherit. It inherits the block's `noProg` too: an
+    // exercise added to a rehab or deload routine's block is kept out of progression like the
+    // rest of it, the way a swap or an edit there is — it takes the routine's own numbers and
+    // never becomes the baseline the regular sessions progress from. An exercise kept out by
+    // hand (its ⋯ menu) is that exercise's own choice for today and is not passed on; a session
+    // kept out as a whole (the header ⋮) takes the new one with it (joinSessionNoProg).
+    const curEntry = A.entries[A.cur]
+    const curRid = curEntry?.rid
+    const routine = curRid ? S.routines.find(r => r.id === curRid) : null
+    const freestyle = !routine
+    const noProg = !freestyle && builtOutOfProgression(curEntry, routine)
+    // Freestyle has no routine prescription to apply: show the last target in the config
+    // sheet and carry its completed rows forward. A planned session uses its configured
+    // target when progression is off, while progression-enabled sessions keep their path.
+    const seed = freestyle ? freestyleConfig(sessionHistory(S), { id: ex.id, ...defaultConfig(ex.id) }) : null
+    const commit = cfg => update(s => {
+      const full = { ...cfg, id: ex.id }
+      // A planned session builds the exercise the way its routine would (prescription, reps
+      // source, target); freestyle reproduces what you did last time.
+      // Read from before the session's day when it is logged into the past (sessionHistory).
+      const past = sessionHistory(s)
+      const built = freestyle
+        ? { target: { ...cfg }, plan: null, sets: applyIntensifierPlan(buildSets(past, full, {
+          step: modeOf(full) === 'reps' ? weightIncrement(full, s.unit) : defaultIncrement(ex.id, s.unit), preferLast: true,
+        }), full, dropGrid(s, full)) }
+        : buildPlannedEntry(past, full, routine, { noProg })
+      const insertAt = insertionIndexAfterCurrentUnit(supersetUnits(s.active.entries), s.active.cur, s.active.entries.length)
+      s.active.entries.splice(insertAt, 0, joinSessionNoProg(s.active, { id: ex.id, ...built, ...(curRid ? { rid: curRid } : {}), ...(noProg ? { noProg: true } : {}) }))
+      s.active.cur = insertAt
+      useUI.getState().shiftRestOwner(insertAt, 1)
+    })
+    // The "+" on a picker row reads as "add this now" — routed through the same detail
+    // sheet before, so it added nothing until you'd scrolled past it and found the real
+    // button. Quick-add commits with the same default (or, freestyle, last-session) config
+    // the sheet would have opened with; tapping the row still opens that sheet for anyone
+    // who wants to set sets/reps first.
+    if (quick) { commit(seed || defaultConfig(ex.id)); useUI.getState().toast(t('“{0}” added to {1}', exerciseNameText(ex), routine ? routine.name : t('Freestyle'))) }
+    // The confirm names what it changes: this workout, never the routine behind it.
+    else exConfigSheet(ex, null, commit, null, routine, seed, null, t('Add to this workout'))
+  })
+
   return <div className="narrow">
     {/* In list mode the whole session scrolls under the header, so the header (name, clock,
         set counter, discard/finish, progress) stays pinned — the one thing you want in view
@@ -1280,6 +1381,15 @@ function ActiveWorkout() {
     </div>
     {editing && <p className="muted small">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <div className="muted small" style={{ marginBottom: 8 }}>{t('Logging a past workout — no rest timers.')}</div>}
+    {!editing && !A.backfill && (
+      A.entries.length
+        ? <WorkoutPageHelp
+          message="Continue this workout to log your sets. When you’re done, choose Finish to save the session."
+          nextLabel="Continue workout" />
+        : <WorkoutPageHelp
+          message="Add your first exercise to start logging sets in this workout."
+          nextLabel="Add exercise" onNext={addExercise} />
+    )}
 
     {A.entries.length ? (listMode ? (
       <div className="workout-list" data-testid="workout-list" ref={listRef}>
@@ -1366,49 +1476,7 @@ function ActiveWorkout() {
     </div>}
     {!listMode && <div style={{ height: 10 }} />}
     {wc.exerciseButtons && listMode && A.entries.length > 0 && <div className="muted small" style={{ marginBottom: 6 }}>{t('Move, swap and remove below act on the exercise marked {0}.', t('Current'))}</div>}
-    <Button onClick={() => exercisePicker((ex, quick) => {
-      // A freehand add inherits the current unit's routine (its `rid`) so it lands in that
-      // routine's block in a combined session and gets a real prescription; a routine-less
-      // freestyle session has no `rid` to inherit. It inherits the block's `noProg` too: an
-      // exercise added to a rehab or deload routine's block is kept out of progression like the
-      // rest of it, the way a swap or an edit there is — it takes the routine's own numbers and
-      // never becomes the baseline the regular sessions progress from. An exercise kept out by
-      // hand (its ⋯ menu) is that exercise's own choice for today and is not passed on; a session
-      // kept out as a whole (the header ⋮) takes the new one with it (joinSessionNoProg).
-      const curEntry = A.entries[A.cur]
-      const curRid = curEntry?.rid
-      const routine = curRid ? S.routines.find(r => r.id === curRid) : null
-      const freestyle = !routine
-      const noProg = !freestyle && builtOutOfProgression(curEntry, routine)
-      // Freestyle has no routine prescription to apply: show the last target in the config
-      // sheet and carry its completed rows forward. A planned session uses its configured
-      // target when progression is off, while progression-enabled sessions keep their path.
-      const seed = freestyle ? freestyleConfig(sessionHistory(S), { id: ex.id, ...defaultConfig(ex.id) }) : null
-      const commit = cfg => update(s => {
-        const full = { ...cfg, id: ex.id }
-        // A planned session builds the exercise the way its routine would (prescription, reps
-        // source, target); freestyle reproduces what you did last time.
-        // Read from before the session's day when it is logged into the past (sessionHistory).
-        const past = sessionHistory(s)
-        const built = freestyle
-          ? { target: { ...cfg }, plan: null, sets: applyIntensifierPlan(buildSets(past, full, {
-            step: modeOf(full) === 'reps' ? weightIncrement(full, s.unit) : defaultIncrement(ex.id, s.unit), preferLast: true,
-          }), full, dropGrid(s, full)) }
-          : buildPlannedEntry(past, full, routine, { noProg })
-        const insertAt = insertionIndexAfterCurrentUnit(supersetUnits(s.active.entries), s.active.cur, s.active.entries.length)
-        s.active.entries.splice(insertAt, 0, joinSessionNoProg(s.active, { id: ex.id, ...built, ...(curRid ? { rid: curRid } : {}), ...(noProg ? { noProg: true } : {}) }))
-        s.active.cur = insertAt
-        useUI.getState().shiftRestOwner(insertAt, 1)
-      })
-      // The "+" on a picker row reads as "add this now" — routed through the same detail
-      // sheet before, so it added nothing until you'd scrolled past it and found the real
-      // button. Quick-add commits with the same default (or, freestyle, last-session) config
-      // the sheet would have opened with; tapping the row still opens that sheet for anyone
-      // who wants to set sets/reps first.
-      if (quick) { commit(seed || defaultConfig(ex.id)); useUI.getState().toast(t('“{0}” added to {1}', exerciseNameText(ex), routine ? routine.name : t('Freestyle'))) }
-      // The confirm names what it changes: this workout, never the routine behind it.
-      else exConfigSheet(ex, null, commit, null, routine, seed, null, t('Add to this workout'))
-    })} icon="plus">{t('Add exercise')}</Button>
+    <Button onClick={addExercise} icon="plus">{t('Add exercise')}</Button>
     {wc.exerciseButtons && A.entries.length > 0 && <>
       <div style={{ height: 6 }} />
       <div className="row">

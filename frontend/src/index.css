@@ -778,6 +778,11 @@ body.chips-dragging *{cursor:inherit}
 .ck.on svg{stroke:var(--on-acc)}
 
 /* ------------------------------------------------------------- workout --- */
+.workout-page-help{margin-block-end:12px}
+.workout-page-help > .btn,.workout-page-help-panel .btn{min-height:44px}
+.workout-page-help-panel{margin-block-start:8px;padding:12px;background:var(--surface);border-radius:var(--r-sm)}
+.workout-page-help-panel p{margin:0 0 6px;font-size:.9375rem;line-height:1.6;color:var(--label-2)}
+.workout-page-help-panel .row{flex-wrap:wrap;gap:6px}
 /* Workout header. In list mode it is pinned: pulled up over #app's top padding so it sits flush
    with the screen edge from the first pixel, and given the page's own ground plus a light blur so
    the rows scrolling underneath read as underneath. The connection indicator, when there is

@@ -245,6 +245,38 @@ afterEach(async () => {
   await unmount()
 })
 
+describe('Workout page help', () => {
+  async function openHelp() {
+    const toggle = container.querySelector('button[aria-controls]')
+    const panel = document.getElementById(toggle.getAttribute('aria-controls'))
+    expect(panel.hasAttribute('hidden')).toBe(true)
+    await act(async () => { toggle.dispatchEvent(new dom.Event('click', { bubbles: true })) })
+    expect(panel.hasAttribute('hidden')).toBe(false)
+    return panel
+  }
+
+  it('returns to the current live session while preserving logged sets', async () => {
+    await mount([exercise('plain-bench', [true, false])])
+    const before = structuredClone(mocks.S.active)
+    const panel = await openHelp()
+    expect(panel.textContent).toContain('Continue this workout to log your sets')
+    expect(panel.querySelector('button').textContent).toBe('Continue workout')
+    await act(async () => { panel.querySelector('button').dispatchEvent(new dom.Event('click', { bubbles: true })) })
+    expect(panel.hasAttribute('hidden')).toBe(true)
+    expect(mocks.S.active).toEqual(before)
+  })
+
+  it('opens the existing exercise picker from an empty live session', async () => {
+    await mount([])
+    const panel = await openHelp()
+    expect(panel.textContent).toContain('Add your first exercise')
+    await act(async () => { panel.querySelector('button').dispatchEvent(new dom.Event('click', { bubbles: true })) })
+    expect(mocks.exercisePicker).toHaveBeenCalledWith(expect.any(Function))
+    expect(mocks.S.active.entries).toHaveLength(0)
+    expect(panel.hasAttribute('hidden')).toBe(true)
+  })
+})
+
 describe('Workout set completion flow', () => {
   it('rests the exercise\'s warm-up rest between ramp sets, and its working rest after the last ramp set', async () => {
     await mount([exercise('ramped-squat', [false, false, false, false], {
