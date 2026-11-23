@@ -94,3 +94,63 @@ it('opens the picker for another empty routine on a rest day and starts ready ro
   act(() => otherEmpty.click())
   expect(startFlow).toHaveBeenLastCalledWith(['empty'])
 })
+
+function openHelp(label = 'Help for this page') {
+  const toggle = button(label)
+  const panel = document.getElementById(toggle.getAttribute('aria-controls'))
+  expect(toggle.getAttribute('aria-expanded')).toBe('false')
+  expect(panel.hidden).toBe(true)
+  act(() => toggle.click())
+  expect(toggle.getAttribute('aria-expanded')).toBe('true')
+  expect(panel.hidden).toBe(false)
+  return { toggle, panel }
+}
+
+it('offers the existing picker and freestyle from the Persian help for an empty plan', () => {
+  _setLangState('fa', fa)
+  mount({ routines: [empty], scheduled: ['empty'] })
+  const { toggle, panel } = openHelp('راهنمای همین صفحه')
+  expect(panel.querySelector('p').textContent).toContain('اولین حرکت را به برنامهٔ امروز اضافه کنید')
+  expect(addRoutineExercises).not.toHaveBeenCalled()
+  expect(startFlow).not.toHaveBeenCalled()
+  act(() => panel.querySelectorAll('button')[0].click())
+  expect(addRoutineExercises).toHaveBeenCalledExactlyOnceWith('empty', { fromWorkout: true })
+  expect(toggle.getAttribute('aria-expanded')).toBe('false')
+  expect(panel.hidden).toBe(true)
+  act(() => toggle.click())
+  act(() => button('تمرین آزاد').click())
+  expect(startFlow).toHaveBeenCalledExactlyOnceWith([])
+})
+
+it('starts the scheduled routine from the English help when it has exercises', () => {
+  mount({ routines: [ready], scheduled: ['ready'] })
+  const { panel } = openHelp()
+  expect(panel.textContent).toContain('Start today’s routine')
+  act(() => button('Start').click())
+  expect(startFlow).toHaveBeenCalledExactlyOnceWith(['ready'])
+})
+
+it('focuses the other routines on a rest day without picking a routine', () => {
+  mount({ routines: [empty, ready], scheduled: [] })
+  const { panel } = openHelp()
+  expect(panel.textContent).toContain('Choose a routine under Other routines')
+  act(() => button('Other routines').click())
+  expect(document.activeElement).toBe(host.querySelector('h4.sec'))
+  expect(panel.hidden).toBe(true)
+  expect(addRoutineExercises).not.toHaveBeenCalled()
+  expect(startFlow).not.toHaveBeenCalled()
+})
+
+it('explains how to make an empty unscheduled routine usable', () => {
+  mount({ routines: [empty], scheduled: [] })
+  const { panel } = openHelp()
+  expect(panel.textContent).toContain('Add the first exercise to a routine under Other routines')
+})
+
+it('links to planning from the help when no routines exist', () => {
+  mount({ routines: [], scheduled: [] })
+  const { panel } = openHelp()
+  expect(panel.textContent).toContain('build a routine in Plan')
+  act(() => panel.querySelector('button').click())
+  expect(navigate).toHaveBeenCalledExactlyOnceWith('/plan')
+})
