@@ -22,6 +22,8 @@ const copy = {
   'Competition rules':'مقررات آیتم مسابقه',
   'In-person physiotherapy only':'فقط با حضور فیزیوتراپیست',
   'Session instructions':'مراحل جلسه',
+  'Back to start workout':'بازگشت به شروع تمرین',
+  'This routine is no longer available.':'این برنامهٔ تمرینی دیگر در دسترس نیست.',
   'View source':'مشاهدهٔ منبع',
   'View original openGym entry':'مشاهدهٔ رکورد اصلی openGym',
 }

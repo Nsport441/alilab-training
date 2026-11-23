@@ -3,14 +3,14 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../store/useStore.js'
-import { startFlow } from '../sheets.jsx'
+import { addRoutineExercises, menuSheet, startFlow } from '../sheets.jsx'
 import { _setLangState } from '../lib/i18n-core.js'
 import fa from '../locales/fa.js'
 import Workout from './Workout.jsx'
 
 const navigate = vi.fn()
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }))
-vi.mock('../sheets.jsx', () => ({ startFlow: vi.fn() }))
+vi.mock('../sheets.jsx', () => ({ startFlow: vi.fn(), addRoutineExercises: vi.fn(), menuSheet: vi.fn() }))
 
 const empty = { id: 'empty', name: 'New routine', ex: [] }
 const ready = { id: 'ready', name: 'Push', ex: [{ id: '0025' }] }
@@ -20,6 +20,8 @@ beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   navigate.mockClear()
   startFlow.mockClear()
+  addRoutineExercises.mockClear()
+  menuSheet.mockClear()
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -42,13 +44,14 @@ function mount({ routines, scheduled }) {
 
 const button = label => [...host.querySelectorAll('button')].find(b => b.textContent.trim() === label)
 
-it('offers editing and a primary freestyle option for an empty scheduled routine in Persian', () => {
+it('offers direct exercise selection and a primary freestyle option for an empty routine in Persian', () => {
   _setLangState('fa', fa)
   mount({ routines: [empty], scheduled: ['empty'] })
   expect(host.querySelector('.card').textContent).toContain('هنوز حرکتی ندارید')
   expect(host.querySelector('.card button.primary')).toBeNull()
-  act(() => button('ویرایش').click())
-  expect(navigate).toHaveBeenCalledWith('/plan/r/empty')
+  act(() => button('افزودن حرکت').click())
+  expect(addRoutineExercises).toHaveBeenCalledWith('empty', { fromWorkout: true })
+  expect(navigate).not.toHaveBeenCalled()
   expect(startFlow).not.toHaveBeenCalled()
   const freestyle = button('تمرین آزاد؛ حرکت‌ها را حین تمرین انتخاب کنید')
   expect(freestyle.classList.contains('primary')).toBe(true)
@@ -56,10 +59,15 @@ it('offers editing and a primary freestyle option for an empty scheduled routine
   expect(startFlow).toHaveBeenCalledWith([])
 })
 
-it('opens Plan when all of several scheduled routines are empty', () => {
+it('asks which scheduled routine receives the exercise when several are empty', () => {
   mount({ routines: [empty, { ...empty, id: 'second', name: 'Second' }], scheduled: ['empty', 'second'] })
-  act(() => button('Plan').click())
-  expect(navigate).toHaveBeenCalledWith('/plan')
+  act(() => button('Add exercise').click())
+  const [{ items }] = menuSheet.mock.calls[0]
+  expect(items.map(item => item.label)).toEqual(['New routine', 'Second'])
+  expect(addRoutineExercises).not.toHaveBeenCalled()
+  act(() => items[1].onClick())
+  expect(addRoutineExercises).toHaveBeenCalledExactlyOnceWith('second', { fromWorkout: true })
+  expect(navigate).not.toHaveBeenCalled()
   expect(startFlow).not.toHaveBeenCalled()
 })
 

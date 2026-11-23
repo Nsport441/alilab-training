@@ -1103,7 +1103,7 @@ function usageMap(st) {
   st.workouts.forEach(w => w.entries.forEach(e => { u[e.id] = (u[e.id] || 0) + 1 }))
   return u
 }
-function ExercisePicker({ onPick, title, close }) {
+function ExercisePicker({ onPick, title, children }) {
   const st = useStore(s => s.S)
   const usage = usageMap(st)
   const [q, setQ] = useState('')
@@ -1137,6 +1137,7 @@ function ExercisePicker({ onPick, title, close }) {
     <div className="row between" style={{ marginBottom: 10 }}><h3>{title || t('Add exercise')}</h3>
       <Button size="sm" variant="ghost" onClick={() => setByMuscle(false)}>{t('All')}</Button>
     </div>
+    {children}
     <MuscleExplorer onPick={onPick} />
   </>
 
@@ -1144,6 +1145,7 @@ function ExercisePicker({ onPick, title, close }) {
     <div className="row between" style={{ marginBottom: 10 }}><h3>{title || t('Add exercise')}</h3>
       <Button size="sm" variant="tinted" icon="target" onClick={() => setByMuscle(true)}>{t('By muscle')}</Button>
     </div>
+    {children}
     {/* .picker-search is what index.css keys the keyboard-aware sheet layout on: the sheet
         lifts above the keys and the search stays put while the list scrolls under it. */}
     <div className="picker-search"><div className={'search' + (narrowed ? ' has-count' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
@@ -1194,7 +1196,40 @@ function ExercisePicker({ onPick, title, close }) {
   </>
 }
 // `title` names what the pick is for when it is not an add — the routine editor's Replace (#110).
-export const exercisePicker = (onPick, { title } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} close={close} />)
+export const exercisePicker = (onPick, { title } = {}) => ui().openSheet(() => <ExercisePicker onPick={onPick} title={title} />)
+
+function RoutineExercisePicker({ routineId, fromWorkout, close }) {
+  const [added, setAdded] = useState(false)
+  const unavailable = () => { close(); toast(alilabText('This routine is no longer available.')) }
+  const pick = (ex, quick) => {
+    const routine = S().routines.find(r => r.id === routineId)
+    if (!routine) { unavailable(); return }
+    const save = cfg => {
+      const current = S().routines.find(r => r.id === routineId)
+      if (!current) { unavailable(); return }
+      update(s => { s.routines.find(r => r.id === routineId).ex.push({ id: ex.id, ...cfg }) })
+      if (quick || fromWorkout) toast(t('“{0}” added to {1}', exerciseNameText(ex), current.name))
+      if (fromWorkout) {
+        setAdded(true)
+        useStore.getState().autoBackupNow()
+      }
+    }
+    if (quick) save(defaultConfig(ex.id))
+    else exConfigSheet(ex, null, save, null, routine)
+  }
+  return (
+    <ExercisePicker onPick={pick}>
+      {added && (
+        <Button variant="tinted" onClick={close} style={{ marginBottom: 10 }}>
+          {alilabText('Back to start workout')}
+        </Button>
+      )}
+    </ExercisePicker>
+  )
+}
+
+export const addRoutineExercises = (routineId, { fromWorkout = false } = {}) =>
+  ui().openSheet(close => <RoutineExercisePicker routineId={routineId} fromWorkout={fromWorkout} close={close} />)
 
 /** Start a safe swap for one exact active-workout occurrence. */
 export function swapActiveWorkoutExercise(index) {
