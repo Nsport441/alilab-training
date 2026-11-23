@@ -49,11 +49,11 @@ function StartChooser() {
   const todayOvr = S.dayPlan[today] !== undefined
   const idSet = new Set(todayIds)
   const others = S.routines.filter(r => !idSet.has(r.id))
+  const openAddExercise = id => addRoutineExercises(id, { fromWorkout: true })
   const addToToday = () => {
-    const open = id => addRoutineExercises(id, { fromWorkout: true })
-    if (todayRoutines.length === 1) open(todayIds[0])
+    if (todayRoutines.length === 1) openAddExercise(todayIds[0])
     else menuSheet({ title: t('Routines'), items: todayRoutines.map(r => ({
-      icon: glyphOf(r.emoji), label: r.name, onClick: () => open(r.id),
+      icon: glyphOf(r.emoji), label: r.name, onClick: () => openAddExercise(r.id),
     })) })
   }
   return <div className="narrow">
@@ -73,10 +73,10 @@ function StartChooser() {
     {others.length > 0 && <><h4 className="sec">{t('Other routines')}</h4>
       <div className="list">{others.map(r => {
         const canStart = r.ex.length > 0
-        return <div key={r.id} className="item" {...tappable(() => canStart ? startFlow([r.id]) : nav('/plan/r/' + r.id))}>
+        return <div key={r.id} className="item" {...tappable(() => canStart ? startFlow([r.id]) : openAddExercise(r.id))}>
           <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
           <div className="grow"><div className="tt">{r.name}</div><div className="ss">{canStart ? exCount(r.ex.length) : t('No exercises yet.')}</div></div>
-          <span className={'tag' + (canStart ? ' acc' : '')}>{t(canStart ? 'Start' : 'Edit')}</span>
+          <span className="tag acc">{t(canStart ? 'Start' : 'Add exercise')}</span>
         </div>
       })}</div></>}
     <div style={{ height: 14 }} />
