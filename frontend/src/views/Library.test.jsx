@@ -22,7 +22,7 @@ vi.mock('../store/useStore.js', () => {
   useStore.getState = mocks.snapshot
   return { useStore }
 })
-vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }))
+vi.mock('react-router-dom', () => ({ useLocation: () => ({ search: '' }), useNavigate: () => () => {} }))
 vi.mock('../sheets.jsx', () => ({ exerciseDetailSheet: vi.fn(), addToRoutineSheet: vi.fn(), customExSheet: vi.fn() }))
 
 const mounted = []

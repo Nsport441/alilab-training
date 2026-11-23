@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { EXDB, BODYPARTS, CATEGORIES, allExercises, equipmentOf, searchExercises } from '../lib/exercises.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
@@ -13,10 +13,11 @@ import Icon from '../components/Icon.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable, useRevealActiveChip } from '../lib/use-sheet-keyboard.js'
 import { isFav, sortFavouritesFirst } from '../lib/favourites.js'
-import { AppGuideButton } from './AppGuide.jsx'
+import { AddExerciseToPlanTip, AppGuideButton } from './AppGuide.jsx'
 
 export default function Library() {
   const nav = useNavigate()
+  const { search } = useLocation()
   const S = useStore(s => s.S)
   const [q, setQ] = useState('')
   const [bp, setBp] = useState('')
@@ -24,6 +25,8 @@ export default function Library() {
   const [category, setCategory] = useState('')
   const [showAll, setShowAll] = useState(false)   // ignore the active equipment profile for this session
   const [shown, setShown] = useState(40)
+  const [tipDismissed, setTipDismissed] = useState(false)
+  const showPlanTip = !tipDismissed && new URLSearchParams(search).get('guide') === 'add-to-plan'
   const bpStrip = useRef(null), eqStrip = useRef(null)
   const profile = activeProfile(S)
   const base = searchExercises(allExercises(S).filter(e => (!bp || e.bp === bp) && (!category || e.cat === category)), q)
@@ -43,6 +46,7 @@ export default function Library() {
     <div className="hdr"><div><h1>{t('Exercises')}</h1><div className="sub">{t('{0} exercises with animations', EXDB.length)}</div></div>
       <Button size="sm" variant="tinted" icon="target" onClick={() => nav('/muscles')}>{t('By muscle')}</Button>
     </div>
+    {showPlanTip && <AddExerciseToPlanTip onDismiss={() => setTipDismissed(true)} />}
     <div className="library-search-actions">
       <div className={'search' + (narrowed ? ' has-count' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
         <input className="input" placeholder={t('Search…')} value={q} onChange={e => { setQ(e.target.value); setShown(40) }} />

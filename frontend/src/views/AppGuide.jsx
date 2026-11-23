@@ -14,11 +14,28 @@ const destinations = [
   { id: 'settings', path: '/settings', icon: 'gear' },
 ]
 
+const shortcuts = [
+  { id: 'workout', path: '/workout', icon: 'dumbbell' },
+  { id: 'addExercise', path: '/library?guide=add-to-plan', icon: 'plus' },
+  { id: 'history', path: '/history', icon: 'history' },
+]
+
 const guide = {
   en: {
     title: 'App guide',
     shortTitle: 'Guide',
     language: 'Guide language',
+    shortcutsTitle: 'What would you like to do?',
+    shortcuts: {
+      workout: 'I want to work out',
+      addExercise: 'I want to add an exercise to my plan',
+      history: 'I want to see a past workout',
+    },
+    addToPlan: {
+      title: 'Add an exercise to your plan',
+      instruction: 'Search for an exercise, tap “Plan” beside it, then choose a routine or create a new one.',
+      close: 'Dismiss tip',
+    },
     quickStart: 'Your first workout',
     steps: [
       ['Plan', 'Create a routine or load the starter plan. Use the week schedule to assign it to a day.'],
@@ -45,6 +62,17 @@ const guide = {
     title: 'راهنمای برنامه',
     shortTitle: 'راهنما',
     language: 'زبان راهنما',
+    shortcutsTitle: 'می‌خواهید چه کاری انجام دهید؟',
+    shortcuts: {
+      workout: 'می‌خواهم تمرین کنم',
+      addExercise: 'می‌خواهم یک حرکت به برنامه‌ام اضافه کنم',
+      history: 'می‌خواهم تمرین قبلی‌ام را ببینم',
+    },
+    addToPlan: {
+      title: 'افزودن حرکت به برنامه',
+      instruction: 'حرکت را جست‌وجو کنید، «برنامه» کنار آن را بزنید و برنامهٔ مقصد را انتخاب کنید یا همان‌جا یک برنامهٔ جدید بسازید.',
+      close: 'بستن نکته',
+    },
     quickStart: 'اولین جلسهٔ تمرین',
     steps: [
       ['برنامه', 'یک برنامهٔ تمرینی بسازید یا «بارگذاری الگوی شروع» را بزنید. سپس در «زمان‌بندی هفتگی» آن را به یک روز اختصاص دهید.'],
@@ -77,6 +105,20 @@ export function AppGuideButton({ fromLibrary = false }) {
       onClick={() => navigate(fromLibrary ? '/guide?from=library' : '/guide')}>
       {copy.shortTitle}
     </Button>
+  )
+}
+
+export function AddExerciseToPlanTip({ onDismiss }) {
+  const lang = getLang() === 'fa' ? 'fa' : 'en'
+  const { title, instruction, close } = guide[lang].addToPlan
+  return (
+    <aside className="library-plan-tip" dir={lang === 'fa' ? 'rtl' : 'ltr'} lang={lang} aria-labelledby="library-plan-tip-title">
+      <div>
+        <h2 id="library-plan-tip-title">{title}</h2>
+        <p>{instruction}</p>
+      </div>
+      <button className="iconbtn" type="button" onClick={onDismiss} aria-label={close}><Icon name="xmark" /></button>
+    </aside>
   )
 }
 
@@ -116,6 +158,16 @@ export default function AppGuide() {
         </div>
       </div>
       <h1 ref={heading} tabIndex={-1}>{copy.title}</h1>
+      <nav className="app-guide-shortcuts" aria-labelledby="app-guide-shortcuts">
+        <h2 id="app-guide-shortcuts">{copy.shortcutsTitle}</h2>
+        {shortcuts.map(({ id, path, icon }) => (
+          <Link to={path} key={id}>
+            <Icon name={icon} />
+            <span>{copy.shortcuts[id]}</span>
+            <Icon name={rtl ? 'chevronLeft' : 'chevronRight'} className="app-guide-card-arrow" />
+          </Link>
+        ))}
+      </nav>
       {fromLibrary && (
         <section aria-labelledby="app-guide-library" className="app-guide-start">
           <h2 id="app-guide-library">{copy.sections.exercises[0]}</h2>
