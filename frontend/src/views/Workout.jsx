@@ -15,7 +15,7 @@ import { t, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
 import { api, beacon } from '../lib/api.js'
 import { insertionIndexAfterCurrentUnit, nextUnfinishedUnit, setProgressHighWater, supersetFlowStep, restAfterSet, restOnRecheck, restSecFor, warmupRestSecFor } from '../lib/supersetFlow.js'
 import Media from '../components/Media.jsx'
-import { startFlow, exercisePicker, exConfigSheet, exerciseDetailSheet, finishWorkout, exitWorkoutEdit, workoutCompleteSheet, confirmSheet, exerciseNoteSheet, sessionNoteSheet, renameWorkoutSheet, swapActiveWorkoutExercise, barWeightSheet, menuSheet, effortPickerSheet, exerciseHistorySheet, addRoutineToSessionSheet } from '../sheets.jsx'
+import { startFlow, exercisePicker, addRoutineExercises, exConfigSheet, exerciseDetailSheet, finishWorkout, exitWorkoutEdit, workoutCompleteSheet, confirmSheet, exerciseNoteSheet, sessionNoteSheet, renameWorkoutSheet, swapActiveWorkoutExercise, barWeightSheet, menuSheet, effortPickerSheet, exerciseHistorySheet, addRoutineToSessionSheet } from '../sheets.jsx'
 import { effortColor } from '../lib/effort.js'
 import Icon from '../components/Icon.jsx'
 import { Button, Check, NumberField } from '../components/ui.jsx'
@@ -49,6 +49,13 @@ function StartChooser() {
   const todayOvr = S.dayPlan[today] !== undefined
   const idSet = new Set(todayIds)
   const others = S.routines.filter(r => !idSet.has(r.id))
+  const addToToday = () => {
+    const open = id => addRoutineExercises(id, { fromWorkout: true })
+    if (todayRoutines.length === 1) open(todayIds[0])
+    else menuSheet({ title: t('Routines'), items: todayRoutines.map(r => ({
+      icon: glyphOf(r.emoji), label: r.name, onClick: () => open(r.id),
+    })) })
+  }
   return <div className="narrow">
     <div className="hdr"><div><h1>{t('Start workout')}</h1><div className="sub">{t(DAYN[new Date().getDay()])} — {todayRoutines.length ? t('today is {0}', todayName) : t('rest day, but no one’s stopping you')}</div></div></div>
     {todayRoutines.length > 0 && <div className="card" style={{ borderColor: 'var(--acc)' }}>
@@ -59,10 +66,8 @@ function StartChooser() {
       </div>
       {todayExCount ? (
         <Button variant="primary" icon="play" onClick={() => startFlow(todayIds)}>{t('Start {0}', todayName)}</Button>
-      ) : todayRoutines.length === 1 ? (
-        <Button variant="tinted" icon="pencil" onClick={() => nav('/plan/r/' + todayIds[0])}>{t('Edit')}</Button>
       ) : (
-        <Button variant="tinted" icon="calendar" onClick={() => nav('/plan')}>{t('Plan')}</Button>
+        <Button variant="tinted" icon="plus" onClick={addToToday}>{t('Add exercise')}</Button>
       )}
     </div>}
     {others.length > 0 && <><h4 className="sec">{t('Other routines')}</h4>
