@@ -29,6 +29,7 @@ function render(path) {
         <Route path="/library" element={<AppGuideButton fromLibrary />} />
         <Route path="/guide" element={<AppGuide />} />
         <Route path="/workout" element={<h1>Workout screen</h1>} />
+        <Route path="/history" element={<h1>History screen</h1>} />
       </Routes>
     </MemoryRouter>
   ))
@@ -41,11 +42,11 @@ it('opens the first-workout guide from Home and links to the existing app screen
   act(() => host.querySelector('button[aria-label="App guide"]').click())
   expect(main().getAttribute('lang')).toBe('en')
   expect(main().getAttribute('dir')).toBe('ltr')
-  expect(main().querySelector('h2').textContent).toBe('Your first workout')
+  expect(main().querySelector('#app-guide-start').textContent).toBe('Your first workout')
   expect(main().querySelectorAll('ol li')).toHaveLength(3)
   expect([...main().querySelectorAll('.app-guide-card')].map(link => link.getAttribute('href')))
     .toEqual(['/home', '/plan', '/workout', '/library', '/stats', '/history', '/settings'])
-  act(() => main().querySelector('a[href="/workout"]').click())
+  act(() => main().querySelector('.app-guide-card[href="/workout"]').click())
   expect(host.querySelector('h1').textContent).toBe('Workout screen')
 })
 
@@ -54,9 +55,15 @@ it('starts with the app language and switches only the guide language and direct
   render('/guide')
   expect(main().getAttribute('dir')).toBe('rtl')
   expect(main().querySelector('h1').textContent).toBe('راهنمای برنامه')
+  expect([...main().querySelectorAll('.app-guide-shortcuts a')].map(link => link.textContent)).toEqual([
+    'می‌خواهم تمرین کنم', 'می‌خواهم یک حرکت به برنامه‌ام اضافه کنم', 'می‌خواهم تمرین قبلی‌ام را ببینم',
+  ])
   act(() => host.querySelector('button[lang="en"]').click())
   expect(main().getAttribute('dir')).toBe('ltr')
   expect(main().querySelector('h1').textContent).toBe('App guide')
+  expect([...main().querySelectorAll('.app-guide-shortcuts a')].map(link => link.textContent)).toEqual([
+    'I want to work out', 'I want to add an exercise to my plan', 'I want to see a past workout',
+  ])
   expect(getLang()).toBe('fa')
   act(() => host.querySelector('button[lang="fa"]').click())
   expect(main().getAttribute('lang')).toBe('fa')
@@ -66,10 +73,24 @@ it('starts with the app language and switches only the guide language and direct
 it('puts library help first and offers a way back to Exercises', () => {
   render('/library')
   act(() => host.querySelector('button[aria-label="App guide"]').click())
-  expect(main().querySelector('h2').textContent).toBe('Exercises')
+  expect(main().querySelector('#app-guide-library').textContent).toBe('Exercises')
   expect(main().querySelector('section').textContent).toContain('Show all equipment')
   expect(main().querySelector('#app-guide-start').textContent).toBe('Your first workout')
   expect(main().querySelectorAll('.app-guide-card')).toHaveLength(6)
   act(() => main().querySelector('.app-guide-back').click())
   expect(host.querySelector('button[aria-label="App guide"]')).not.toBeNull()
+})
+
+it.each([
+  ['/workout', 'h1', 'Workout screen'],
+  ['/library?guide=add-to-plan', 'button', 'Guide'],
+  ['/history', 'h1', 'History screen'],
+])('opens %s from the new shortcuts above the existing guide', (path, selector, label) => {
+  render('/guide')
+  const nav = main().querySelector('.app-guide-shortcuts')
+  const firstWorkout = main().querySelector('#app-guide-start')
+  expect(nav.compareDocumentPosition(firstWorkout) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(nav.querySelectorAll('a')).toHaveLength(3)
+  act(() => nav.querySelector('a[href="' + path + '"]').click())
+  expect(host.querySelector(selector).textContent).toBe(label)
 })

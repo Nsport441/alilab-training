@@ -43,6 +43,24 @@ afterEach(() => { act(() => { mounted.splice(0).forEach(root => root.unmount()) 
 // The screens run the same search over the same catalogue, so the expected numbers come from it.
 const matches = q => searchExercises(EXDB, q).length
 
+it('shows the add-to-plan hint only from the guide link and keeps library filters on dismissal', () => {
+  const normal = mount(<MemoryRouter initialEntries={['/library']}><Library /></MemoryRouter>)
+  expect(normal.querySelector('.library-plan-tip')).toBeNull()
+  const guided = mount(<MemoryRouter initialEntries={['/library?guide=add-to-plan']}><Library /></MemoryRouter>)
+  const tip = guided.querySelector('.library-plan-tip')
+  expect(tip.textContent).toContain('tap “Plan” beside it')
+  act(() => {
+    type(guided.querySelector('.search input'), 'bench press')
+    chip(guided, 'chest').click()
+  })
+  const results = count(guided).textContent
+  act(() => tip.querySelector('button').click())
+  expect(guided.querySelector('.library-plan-tip')).toBeNull()
+  expect(guided.querySelector('.search input').value).toBe('bench press')
+  expect(chip(guided, 'chest').classList.contains('on')).toBe(true)
+  expect(count(guided).textContent).toBe(results)
+})
+
 describe('exercise search result count', () => {
   for (const [where, open] of [
     ['Library', () => mount(<MemoryRouter><Library /></MemoryRouter>)],

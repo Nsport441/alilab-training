@@ -250,6 +250,15 @@ button.conn:active{filter:brightness(1.12)}
 .app-guide-languages button[aria-pressed="true"]{background:var(--acc-soft);color:var(--acc);font-weight:650}
 .app-guide h1{margin:0 0 16px;font-size:clamp(1.75rem, 5vw, 2.125rem);line-height:1.12}
 .app-guide h2{margin:0 0 10px;font-size:1.125rem;line-height:1.35}
+.app-guide-shortcuts{display:grid;gap:7px;margin-bottom:24px}
+.app-guide-shortcuts h2{margin-bottom:3px}
+.app-guide-shortcuts a{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;min-height:48px;padding:10px 12px;border-radius:var(--r-sm);background:var(--acc-soft);color:var(--label);font-size:.9375rem;font-weight:650}
+.app-guide-shortcuts a:hover,.app-guide-shortcuts a:active{background:var(--surface-2)}
+.app-guide-shortcuts a>.icn:first-child{color:var(--acc);font-size:18px}
+.library-plan-tip{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:12px;border-inline-start:3px solid var(--acc);border-radius:var(--r-sm);background:var(--surface)}
+.library-plan-tip h2{font-size:1rem;margin:0 0 4px}
+.library-plan-tip p{margin:0;color:var(--label-2);font-size:.9375rem;line-height:1.55}
+.library-plan-tip .iconbtn{background:var(--surface-2)}
 .app-guide-start{padding:16px 18px;margin-bottom:24px;background:var(--surface);border-radius:var(--r-card);border-inline-start:3px solid var(--acc)}
 .app-guide-start :is(ol,ul){margin:0;padding-inline-start:1.375rem}
 .app-guide[lang="fa"] .app-guide-start ol{list-style-type:persian}
