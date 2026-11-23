@@ -237,6 +237,33 @@ button.conn:active{filter:brightness(1.12)}
 @media (max-width:420px){.hdr h1{font-size:30px}}
 .hdr .sub{color:var(--label-2);font-size:15px;letter-spacing:-.006em;margin-top:4px}
 
+.home-header-actions{display:flex;align-items:center;gap:8px;flex:none}
+.library-search-actions{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.library-search-actions .search{flex:1;min-width:0}
+.app-guide-button.btn{min-height:44px}
+
+.app-guide{line-height:1.55}
+.app-guide-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:4px 0 18px}
+.app-guide-back{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-weight:600}
+.app-guide-languages{display:flex;align-items:center;gap:4px;padding:3px;background:var(--surface);border-radius:var(--r-sm)}
+.app-guide-languages button{padding:7px 11px;min-height:38px;border-radius:calc(var(--r-sm) - 3px);color:var(--label-2);font-size:.875rem}
+.app-guide-languages button[aria-pressed="true"]{background:var(--acc-soft);color:var(--acc);font-weight:650}
+.app-guide h1{margin:0 0 16px;font-size:clamp(1.75rem, 5vw, 2.125rem);line-height:1.12}
+.app-guide h2{margin:0 0 10px;font-size:1.125rem;line-height:1.35}
+.app-guide-start{padding:16px 18px;margin-bottom:24px;background:var(--surface);border-radius:var(--r-card);border-inline-start:3px solid var(--acc)}
+.app-guide-start :is(ol,ul){margin:0;padding-inline-start:1.375rem}
+.app-guide[lang="fa"] .app-guide-start ol{list-style-type:persian}
+.app-guide-start li+li{margin-top:9px}
+.app-guide-start li::marker{color:var(--acc);font-weight:700}
+.app-guide-start strong{display:block}
+.app-guide-start li span,.app-guide p{color:var(--label-2);font-size:.9375rem;margin:0}
+.app-guide-grid{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(min(100%, 15.5rem),1fr))}
+.app-guide-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:14px;border-radius:var(--r-sm);background:var(--surface);color:var(--label);transition:background var(--fast)}
+.app-guide-card:hover,.app-guide-card:active{background:var(--surface-2)}
+.app-guide-card h3{font-size:1rem;line-height:1.35;margin:0 0 4px}
+.app-guide-card-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--acc-soft);color:var(--acc)}
+.app-guide-card-arrow{margin-top:2px;color:var(--label-2)}
+
 .iconbtn{
   width:36px;height:36px;border-radius:50%;flex:none;
   background:var(--surface);color:var(--label);
