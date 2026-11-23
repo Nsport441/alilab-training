@@ -26,6 +26,7 @@ export default function Home() {
   // first, kept for the one-routine glyph. The derived session name joins them (§9).
   const todayRoutines = effectiveRoutines(S, todayISO())
   const routine = todayRoutines[0] || null
+  const canStartToday = todayRoutines.some(r => r.ex.length)
   const todayName = todayRoutines.map(r => r.name).join(' + ')
   const todayOvr = S.dayPlan[todayISO()] !== undefined
   // An open editor on a saved workout (lib/session-edit.js) holds S.active too, but it is not a
@@ -64,7 +65,12 @@ export default function Home() {
   const bwPoints = S.bodyweight.slice(-30).map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d }))
 
   // today's session shown right under the week strip
-  const onToday = () => { if (S.active) nav('/workout'); else if (todayRoutines.length) startFlow(effectiveRoutineIds(S, todayISO())); else dayOverrideSheet(todayISO()) }
+  const onToday = () => {
+    if (S.active) nav('/workout')
+    else if (canStartToday) startFlow(todayRoutines.map(r => r.id))
+    else if (routine) nav(todayRoutines.length === 1 ? '/plan/r/' + routine.id : '/plan')
+    else dayOverrideSheet(todayISO())
+  }
 
   return <div className="narrow">
     <div className="hdr">
@@ -103,7 +109,7 @@ export default function Home() {
         </div>
         {S.active ? <span className="tag" style={{ color: 'var(--orange)', background: 'color-mix(in srgb,var(--orange) 16%,transparent)' }}>{editingSaved ? t('Edit') : t('Resume')}</span>
           : doneToday ? <span className="tag" style={{ color: 'var(--green)', background: 'color-mix(in srgb,var(--green) 16%,transparent)' }}>{t('Done')}</span>
-          : routine ? <span className="tag acc">{t('Start')}</span>
+          : routine ? <span className={'tag' + (canStartToday ? ' acc' : '')}>{t(canStartToday ? 'Start' : 'Edit')}</span>
           : <Icon name="plus" className="chev" />}
       </div>
       {/* The row above starts today's plan in one tap, and so does the Start button in the tab

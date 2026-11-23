@@ -7,7 +7,7 @@ import { useUI } from '../store/useUI.js'
 import { exOr, betterWeight } from '../lib/exercises.js'
 import { usesBar } from '../lib/bar.js'
 import { loadKindFor, baseWeightFor, inventoryFor, rowLoad, sameLoad, plateDelta, dropGrid } from '../lib/plates.js'
-import { effectiveRoutines, effectiveRoutineIds, lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, freestyleConfig, defaultConfig, setsDoneActive, setUnitsTotal, supersetUnits, unitOf, setLabel, modeOf, isBw, isPerSide, repStep, EFFORT, effortOf, stepEffort, capEffort, cascadeWeight, insertWarmupRow, removeRowAt, pairAdjacent, unpairSuperset, cleanupSg, applyIntensifierPlan, pinnedNoteFor, exNoteFor, setsRepsOf } from '../lib/history.js'
+import { effectiveRoutines, lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, freestyleConfig, defaultConfig, setsDoneActive, setUnitsTotal, supersetUnits, unitOf, setLabel, modeOf, isBw, isPerSide, repStep, EFFORT, effortOf, stepEffort, capEffort, cascadeWeight, insertWarmupRow, removeRowAt, pairAdjacent, unpairSuperset, cleanupSg, applyIntensifierPlan, pinnedNoteFor, exNoteFor, setsRepsOf } from '../lib/history.js'
 import { fmtNum, fmtPlate, exerciseNameText, fmtDate, todayISO, exCount, DAYN } from '../lib/format.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../lib/speed.js'
 import { beep, vibrate, unlock } from '../lib/sound.js'
@@ -30,6 +30,7 @@ import { isWarmupRow, isDropSet, isRestPauseSet, dropsOf, clustersOf, addDrop, a
 import { canMoveActiveWorkoutUnit, moveActiveWorkoutUnit } from '../lib/active-workout-order.js'
 import { nextOpenSet, workoutKeyAction } from '../lib/workout-keys.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
+import { tappable } from '../lib/use-sheet-keyboard.js'
 
 // How long after a key starts a hold the same key is not yet its "Done" (#133). A USB button
 // that bounces, or a double press, sends two presses a moment apart: the first starts the hold,
@@ -40,10 +41,12 @@ const HOLD_KEY_GRACE_MS = 1500
 function StartChooser() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
-  const todayIds = effectiveRoutineIds(S, todayISO())
-  const todayRoutines = effectiveRoutines(S, todayISO())
+  const today = todayISO()
+  const todayRoutines = effectiveRoutines(S, today)
+  const todayIds = todayRoutines.map(r => r.id)
   const todayName = todayRoutines.map(r => r.name).join(' + ')
-  const todayOvr = S.dayPlan[todayISO()] !== undefined
+  const todayExCount = todayRoutines.reduce((n, r) => n + r.ex.length, 0)
+  const todayOvr = S.dayPlan[today] !== undefined
   const idSet = new Set(todayIds)
   const others = S.routines.filter(r => !idSet.has(r.id))
   return <div className="narrow">
@@ -51,19 +54,29 @@ function StartChooser() {
     {todayRoutines.length > 0 && <div className="card" style={{ borderColor: 'var(--acc)' }}>
       <h2 className="accent">{t("Today's plan")}{todayOvr ? ' · ' + t('rescheduled') : ''}</h2>
       <div className="row between" style={{ marginBottom: 12 }}>
-        <div><div className="big">{todayName}</div><div className="muted small">{exCount(todayRoutines.reduce((n, r) => n + r.ex.length, 0))}</div></div>
+        <div><div className="big">{todayName}</div><div className="muted small">{todayExCount ? exCount(todayExCount) : t('No exercises yet — add your first one.')}</div></div>
         <span className="lrow-i" style={{ width: 38, height: 38, borderRadius: 9, fontSize: 22 }}><Icon name={glyphOf(todayRoutines[0].emoji)} /></span>
       </div>
-      <Button variant="primary" icon="play" onClick={() => startFlow(todayIds)}>{t('Start {0}', todayName)}</Button>
+      {todayExCount ? (
+        <Button variant="primary" icon="play" onClick={() => startFlow(todayIds)}>{t('Start {0}', todayName)}</Button>
+      ) : todayRoutines.length === 1 ? (
+        <Button variant="tinted" icon="pencil" onClick={() => nav('/plan/r/' + todayIds[0])}>{t('Edit')}</Button>
+      ) : (
+        <Button variant="tinted" icon="calendar" onClick={() => nav('/plan')}>{t('Plan')}</Button>
+      )}
     </div>}
     {others.length > 0 && <><h4 className="sec">{t('Other routines')}</h4>
-      <div className="list">{others.map(r => <div key={r.id} className="item" onClick={() => startFlow([r.id])}>
-        <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
-        <div className="grow"><div className="tt">{r.name}</div><div className="ss">{exCount(r.ex.length)}</div></div>
-        <span className="tag acc">{t('Start')}</span></div>)}</div></>}
+      <div className="list">{others.map(r => {
+        const canStart = r.ex.length > 0
+        return <div key={r.id} className="item" {...tappable(() => canStart ? startFlow([r.id]) : nav('/plan/r/' + r.id))}>
+          <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
+          <div className="grow"><div className="tt">{r.name}</div><div className="ss">{canStart ? exCount(r.ex.length) : t('No exercises yet.')}</div></div>
+          <span className={'tag' + (canStart ? ' acc' : '')}>{t(canStart ? 'Start' : 'Edit')}</span>
+        </div>
+      })}</div></>}
     <div style={{ height: 14 }} />
-    <Button icon="shuffle" onClick={() => startFlow([])}>{t('Freestyle workout (pick as you go)')}</Button>
-    {!S.routines.length && <><div style={{ height: 10 }} /><Button variant="primary" onClick={() => nav('/plan')}>{t('Build a plan first')}</Button></>}
+    <Button variant={todayExCount ? 'plain' : 'primary'} icon="shuffle" onClick={() => startFlow([])}>{t('Freestyle workout (pick as you go)')}</Button>
+    {!S.routines.length && <><div style={{ height: 10 }} /><Button variant="tinted" onClick={() => nav('/plan')}>{t('Build a plan first')}</Button></>}
   </div>
 }
 

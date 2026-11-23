@@ -43,6 +43,16 @@ const mount = () => act(() => root.render(<Home />))
 const door = () => [...host.querySelectorAll('button')].find(b => b.textContent.includes('Choose a different workout'))
 
 describe('Home — the way to the Start screen when a plan already owns today', () => {
+  it('opens the editor from today’s empty routine and leaves workout selection available', () => {
+    setS({ routines: [{ ...routines[0], ex: [] }] }); mount()
+    const row = host.querySelector('.today-row')
+    expect(row.querySelector('.tag').textContent).toBe('Edit')
+    act(() => row.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    expect(nav).toHaveBeenCalledWith('/plan/r/r1')
+    expect(startFlow).not.toHaveBeenCalled()
+    expect(door()).toBeTruthy()
+  })
+
   it('offers the door on a planned day, where the Start button would start the plan', () => {
     setS(); mount()
     expect(door()).toBeTruthy()
