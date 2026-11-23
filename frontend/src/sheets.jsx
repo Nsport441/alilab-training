@@ -1137,7 +1137,7 @@ function ExercisePicker({ onPick, title, children }) {
     <div className="row between" style={{ marginBottom: 10 }}><h3>{title || t('Add exercise')}</h3>
       <Button size="sm" variant="ghost" onClick={() => setByMuscle(false)}>{t('All')}</Button>
     </div>
-    {children}
+    {children && <div className="picker-search">{children}</div>}
     <MuscleExplorer onPick={onPick} />
   </>
 
@@ -1145,10 +1145,9 @@ function ExercisePicker({ onPick, title, children }) {
     <div className="row between" style={{ marginBottom: 10 }}><h3>{title || t('Add exercise')}</h3>
       <Button size="sm" variant="tinted" icon="target" onClick={() => setByMuscle(true)}>{t('By muscle')}</Button>
     </div>
-    {children}
     {/* .picker-search is what index.css keys the keyboard-aware sheet layout on: the sheet
         lifts above the keys and the search stays put while the list scrolls under it. */}
-    <div className="picker-search"><div className={'search' + (narrowed ? ' has-count' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+    <div className="picker-search">{children}<div className={'search' + (narrowed ? ' has-count' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input ref={searchRef} className="input" placeholder={t('Search {0} exercises…', all.length)} value={q} onFocus={onSearchFocus} onChange={e => { setQ(e.target.value); setShown(50) }} />
       {narrowed && <span className="search-count" role="status" aria-label={exCount(f.length)}>{fmtNum(f.length)}</span>}</div></div>
     {profile && <div className="small dim row" style={{ margin: '8px 0 2px', gap: 6, alignItems: 'center' }}>
@@ -1200,6 +1199,9 @@ export const exercisePicker = (onPick, { title } = {}) => ui().openSheet(() => <
 
 function RoutineExercisePicker({ routineId, fromWorkout, close }) {
   const [added, setAdded] = useState(false)
+  useEffect(() => {
+    if (added) return () => useStore.getState().autoBackupNow()
+  }, [added])
   const unavailable = () => { close(); toast(alilabText('This routine is no longer available.')) }
   const pick = (ex, quick) => {
     const routine = S().routines.find(r => r.id === routineId)
@@ -1209,10 +1211,7 @@ function RoutineExercisePicker({ routineId, fromWorkout, close }) {
       if (!current) { unavailable(); return }
       update(s => { s.routines.find(r => r.id === routineId).ex.push({ id: ex.id, ...cfg }) })
       if (quick || fromWorkout) toast(t('“{0}” added to {1}', exerciseNameText(ex), current.name))
-      if (fromWorkout) {
-        setAdded(true)
-        useStore.getState().autoBackupNow()
-      }
+      if (fromWorkout) setAdded(true)
     }
     if (quick) save(defaultConfig(ex.id))
     else exConfigSheet(ex, null, save, null, routine)

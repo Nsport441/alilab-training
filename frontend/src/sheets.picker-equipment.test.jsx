@@ -63,7 +63,8 @@ describe('adding exercises to a routine', () => {
     expect(routines()[0].ex).toEqual([{ id: EXDB[0].id, ...defaultConfig(EXDB[0].id) }])
     expect(routines()[1].ex).toEqual([])
     expect(useStore.getState().S.active).toBeNull()
-    act(() => label(picker, 'Back to start workout').click())
+    const returnButton = label(picker.querySelector('.picker-search'), 'Back to start workout')
+    act(() => returnButton.click())
     expect(useUI.getState().sheets).toEqual([])
   })
 
